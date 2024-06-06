@@ -1,0 +1,33 @@
+services:
+  openvpn:
+    image: openvpn
+    container_name: openvpn
+    hostname: openvpn
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    environment:
+
+      # Choose one of the following methods to set environment variables
+      # 1. Set variables directly in the compose file
+      # PUID: 1003
+      # GUID: 1003
+      # TZ: Australia/Melbourne
+
+      # 2. Set variables via substitution from .env file
+      PUID: ${PUID}
+      GUID: ${GUID}
+      TZ: ${TZ}
+
+    volumes:
+      - ${WORK_DIR}/openvpn/etc:/etc/openvpn
+    ports:
+      - ${OPENVPN_EXTERNAL_PORT}:1194/tcp"
+    
+    labels:
+      # this should flag watchtower to only monitor this container, not apply updates
+      # as this openvpn image is a local image, there's never going to be a upstream update
+      # without local interaction and build. 
+      # - "com.centurylinklabs.watchtower.monitor-only=true"
+      # Disabling watchtower on this container entirely instead
+      - "com.centurylinklabs.watchtower.enable=false"
