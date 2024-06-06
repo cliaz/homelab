@@ -27,7 +27,7 @@ services:
       # setting directly
       #PUID: 1002
       #GUID: 1002
-      #TZ: Australia/Melbourne
+      TZ: Australia/Melbourne
       
       # Setting via variable substitution
       #PUID: ${PUID}
