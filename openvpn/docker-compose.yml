@@ -1,6 +1,6 @@
 services:
   openvpn:
-    image: openvpn
+    image: openvpn # this is a local image, not from dockerhub. source: https://github.com/kylemanna/docker-openvpn.git
     container_name: openvpn
     hostname: openvpn
     restart: unless-stopped
@@ -15,8 +15,9 @@ services:
       # TZ: Australia/Melbourne
 
       # 2. Set variables via substitution from .env file
-      PUID: ${PUID}
-      GUID: ${GUID}
+      USER: ${PUID}:${GUID}
+      # PUID: ${PUID}
+      # GUID: ${GUID}
       TZ: ${TZ}
 
     volumes:
