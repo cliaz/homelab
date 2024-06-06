@@ -87,10 +87,10 @@ services:
 
 # Using the secrets workaround from https://blog.mikesir87.io/2017/05/using-docker-secrets-during-development/
 secrets:
-  email_sender_account:
-    file: ${MOUNT_POINT}/secrets/email_sender_account
+  email_server_account:
+    file: ${MOUNT_POINT}/secrets/email_server_account
   email_server_password:
-    file: ${MOUNT_POINT}/secrets/email_sender_password
+    file: ${MOUNT_POINT}/secrets/email_server_password
   
   watchtower_discord_API:
     file: ${MOUNT_POINT}/secrets/notifiarr_watchtower_api
