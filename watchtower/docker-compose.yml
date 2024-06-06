@@ -1,5 +1,3 @@
-# This is run via Portainer
-
 services:  
   watchtower:
     image: containrrr/watchtower:latest
@@ -30,10 +28,15 @@ services:
     #  - stack.env
 
     environment:
-      # Setting via variable substitution from .env file
-      # Comment these lines out if deploying locally via Portainer and loading variables from .env file
-      PUID: 1002  # not respecting PUID set via .env file
-      GUID: 1002  # not respecting GUID set via .env file
+      # Choose one of the following methods to set environment variables
+      # 1. Set variables directly in the compose file
+      PUID: 1002
+      GUID: 1002
+      #TZ: Australia/Melbourne
+
+      # 2. Set variables via substitution from .env file
+      # PUID: ${PUID} # not resepecting the .env file, using direct values for now
+      # GUID: ${GUID} # not resepecting the .env file, using direct values for now
       TZ: ${TZ}
 
       WATCHTOWER_CLEANUP: true
@@ -57,7 +60,6 @@ services:
       WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT: ${EMAIL_SERVER_PORT}
       # WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER: /run/secrets/email_server_account  # this does not work for some reason, fallback to env
       WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER: ${EMAIL_FROM}
-      
       WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD: /run/secrets/email_server_password  # using app password
       
       # For Notifiarr / discord notifications
@@ -91,9 +93,8 @@ services:
 # Using the secrets workaround from https://blog.mikesir87.io/2017/05/using-docker-secrets-during-development/
 secrets:
   email_server_account:
-    file: ${MOUNT_POINT}/secrets/email_server_account
+    file: ${MOUNT_POINT}/watchtower/secrets/email_server_account
   email_server_password:
-    file: ${MOUNT_POINT}/secrets/email_server_password
-  
+    file: ${MOUNT_POINT}/watchtower/secrets/email_server_password
   watchtower_discord_API:
-    file: ${MOUNT_POINT}/secrets/notifiarr_watchtower_api
+    file: ${MOUNT_POINT}/watchtower/secrets/notifiarr_watchtower_api
