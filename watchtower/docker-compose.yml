@@ -1,10 +1,10 @@
 # This is run via Portainer
-# working 2024-06-02
 
 services:  
   watchtower:
     image: containrrr/watchtower:latest
     container_name: watchtower
+    hostname: watchtower
     network_mode: bridge
     restart: unless-stopped
     secrets:
@@ -13,10 +13,27 @@ services:
       # environment variables below - eg /run/secrets/<secret_name>
       - bent_st_gmail_password
       - watchtower_discord_API
+
+
+    ## Variable Substitution
+    # If deploying this directly via `docker compose up` or from GitHub via Portainer, make sure the .env file is in the same folder as the
+    # service's docker-compose.yml file. Docker / Portainer will then load the values from the .env file and subsitute them into the compose file
+    # wherever the ${VAR_NAME} is found.
+    # 
+    # If deploying this from Portainer via their WebUI, variable substitution via an .env file will not be available. In this case, load
+    # the .env file directly into Portainer when building the stack
+
     environment:
-      PUID: 1002
-      GUUD: 1002
-      TZ: Australia/Melbourne
+      # setting directly
+      #PUID: 1002
+      #GUID: 1002
+      #TZ: Australia/Melbourne
+      
+      # Setting via variable substitution
+      #PUID: ${PUID}
+      #GUiD: ${GUID}
+      #TZ: ${TZ}
+
       WATCHTOWER_CLEANUP: true
       WATCHTOWER_INCLUDE_RESTARTING: true
       WATCHTOWER_INCLUDE_STOPPED: true
