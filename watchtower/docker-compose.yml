@@ -11,27 +11,29 @@ services:
       # Unsure if this is standard, but watchtower is treating these secrets as the references to
       # the actual files, not the contents of the files. This is why the file paths are used in the
       # environment variables below - eg /run/secrets/<secret_name>
-      - bent_st_gmail_password
-      - watchtower_discord_API
-
-
+      - watchtower_discord_API    # use for discord notifications
+      # use for email notifications
+      - email_server_username
+      - email_server_password
+      
     ## Variable Substitution
-    # If deploying this directly via `docker compose up` or from GitHub via Portainer, make sure the .env file is in the same folder as the
-    # service's docker-compose.yml file. Docker / Portainer will then load the values from the .env file and subsitute them into the compose file
-    # wherever the ${VAR_NAME} is found.
+    # If deploying this directly via `docker compose up` or from GitHub via Portainer, make sure the .env file is in the 
+    # same folder as the service's docker-compose.yml file. Docker / Portainer will then load the values from the .env 
+    # file and subsitute them into the compose file wherever the ${VAR_NAME} is found.
     # 
-    # If deploying this from Portainer via their WebUI, variable substitution via an .env file will not be available. In this case, load
-    # the .env file directly into Portainer when building the stack
+    # If deploying this from Portainer via their WebUI, variable substitution via an .env file will not be available.
+    # In this case, load the .env file via Portainer when building the stack. This will load the variables
+    # directly into the container, without passing them through the compose file - aka no variable substitution.    
+    
+    # Uncomment the below only if deploying locally via Portainer and loading variables from .env file
+    #env_file:
+    #  - stack.env
 
     environment:
-      # setting directly
-      #PUID: 1002
-      #GUID: 1002
-      #TZ: Australia/Melbourne
-      
-      # Setting via variable substitution
-      #PUID: ${PUID}
-      #GUiD: ${GUID}
+      # Setting via variable substitution from .env file
+      # Comment these lines out if deploying locally via Portainer and loading variables from .env file
+      PUID: ${PUID}
+      GUID: ${GUID}
       TZ: ${TZ}
 
       WATCHTOWER_CLEANUP: true
@@ -47,13 +49,13 @@ services:
       
       # For email notifications
       # see https://www.digitalocean.com/community/tutorials/how-to-automatically-update-docker-container-images-with-watchtower-on-ubuntu-22-04
-      # WATCHTOWER_NOTIFICATIONS: email
-      # WATCHTOWER_NOTIFICATION_EMAIL_FROM: ***REMOVED***
-      # WATCHTOWER_NOTIFICATION_EMAIL_TO: ***REMOVED***
-      # WATCHTOWER_NOTIFICATION_EMAIL_SERVER: smtp.gmail.com
-      # WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT: 587
-      # WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER: ***REMOVED***
-      # WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD: /run/secrets/bent_st_gmail_password  # using app password
+      WATCHTOWER_NOTIFICATIONS: email
+      WATCHTOWER_NOTIFICATION_EMAIL_FROM: /run/secrets/email_sender_account
+      WATCHTOWER_NOTIFICATION_EMAIL_TO: ${EMAIL_TO}
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER: ${EMAIL_SERVER_HOST}
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT: ${EMAIL_SERVER_PORT}
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER: /run/secrets/email_sender_account
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD: /run/secrets/email_sender_password  # using app password
       
       # For Notifiarr / discord notifications
       WATCHTOWER_NOTIFICATION_REPORT: true
@@ -85,7 +87,10 @@ services:
 
 # Using the secrets workaround from https://blog.mikesir87.io/2017/05/using-docker-secrets-during-development/
 secrets:
-  bent_st_gmail_password:
-    file: /mnt/external-workdir/watchtower/secrets/bent_st_gmail_password
+  email_sender_account:
+    file: ${MOUNT_POINT}/secrets/email_sender_account
+  email_server_password:
+    file: ${MOUNT_POINT}/secrets/email_sender_password
+  
   watchtower_discord_API:
-    file: /mnt/external-workdir/watchtower/secrets/notifiarr_watchtower_api
+    file: ${MOUNT_POINT}/secrets/notifiarr_watchtower_api
