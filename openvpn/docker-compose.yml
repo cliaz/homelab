@@ -15,7 +15,7 @@ services:
       # TZ: Australia/Melbourne
 
       # 2. Set variables via substitution from .env file
-      USER: ${PUID}:${GUID}
+      # USER: ${PUID}:${GUID}
       # PUID: ${PUID}
       # GUID: ${GUID}
       TZ: ${TZ}
