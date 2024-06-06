@@ -32,8 +32,8 @@ services:
     environment:
       # Setting via variable substitution from .env file
       # Comment these lines out if deploying locally via Portainer and loading variables from .env file
-      PUID: ${PUID}
-      GUID: ${GUID}
+      PUID: 1002  # not respecting PUID set via .env file
+      GUID: 1002  # not respecting GUID set via .env file
       TZ: ${TZ}
 
       WATCHTOWER_CLEANUP: true
@@ -50,7 +50,7 @@ services:
       # For email notifications
       # see https://www.digitalocean.com/community/tutorials/how-to-automatically-update-docker-container-images-with-watchtower-on-ubuntu-22-04
       WATCHTOWER_NOTIFICATIONS: email
-      WATCHTOWER_NOTIFICATION_EMAIL_FROM: /run/secrets/email_sender_account
+      WATCHTOWER_NOTIFICATION_EMAIL_FROM: /run/secrets/email_server_account
       WATCHTOWER_NOTIFICATION_EMAIL_TO: ${EMAIL_TO}
       WATCHTOWER_NOTIFICATION_EMAIL_SERVER: ${EMAIL_SERVER_HOST}
       WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT: ${EMAIL_SERVER_PORT}
