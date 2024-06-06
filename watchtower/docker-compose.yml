@@ -13,7 +13,7 @@ services:
       # environment variables below - eg /run/secrets/<secret_name>
       - watchtower_discord_API    # use for discord notifications
       # use for email notifications
-      - email_server_username
+      - email_server_account
       - email_server_password
       
     ## Variable Substitution
