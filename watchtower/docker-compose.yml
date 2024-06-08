@@ -36,7 +36,7 @@ services:
       # 2. Set variables via substitution from .env file
       # PUID: ${PUID} # TODO: not resepecting the .env file, using direct values for now
       # GUID: ${GUID} # TODO: not resepecting the .env file, using direct values for now
-      TZ: ${TZ}       # TODO: set default values in the compose file if not using .env file
+      TZ: ${TZ:-Australia/Melbourne}       # TODO: set default values in the compose file if not using .env file
 
       WATCHTOWER_CLEANUP: true
       WATCHTOWER_INCLUDE_RESTARTING: true
@@ -91,6 +91,6 @@ services:
 # Using the secrets workaround from https://blog.mikesir87.io/2017/05/using-docker-secrets-during-development/
 secrets:
   email_server_password:
-    file: ${MOUNT_POINT}/watchtower/secrets/email_server_password
+    file: ${MOUNT_POINT:?Please configure MOUNT_POINT in .env file}/watchtower/secrets/email_server_password
   watchtower_discord_API:
-    file: ${MOUNT_POINT}/watchtower/secrets/notifiarr_watchtower_api
+    file: ${MOUNT_POINT:?Please configure MOUNT_POINT in .env file}/watchtower/secrets/notifiarr_watchtower_api
