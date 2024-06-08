@@ -13,7 +13,7 @@ services:
   # Reverse proxy for all services hosted on the RPI
   # services are exposed via the domain name sent through the URL, configured via the conf files in nginx 
   swag:
-    image: linuxserver/swag:latest
+    image: linuxserver/swag:latest    # https://docs.linuxserver.io/general/swag/#docker-compose
     container_name: swag
     hostname: swag
     extra_hosts: *rpi
@@ -21,7 +21,7 @@ services:
     cap_add:
       - NET_ADMIN
     ports:
-      # 80:80  # only needed for letsencrypt to host the temporary web server for cert generation
+      # 80:80  # only needed if using http validation. We're using duckdns to validate, so don't need this
       - 443:443
     secrets:
       - DUCKDNSTOKEN
@@ -71,6 +71,7 @@ services:
     # ports not needed, as this containers is exposed on the host network stack via network_mode: host
   
   # Homepage for all services hosted on the RPI
+  # TODO: switch to homearr
   heimdall:
     image: linuxserver/heimdall:latest
     container_name: heimdall
