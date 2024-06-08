@@ -1,0 +1,130 @@
+# docker-compose for Stack of Swag + Heimdall + HomeAssistant
+# need to modify the swag configs in /data/docker/swag/config/nginx/proxy-confs/ to match
+
+x-extra_hosts:
+  # This is added so that within each service you can communicate to another service by using the DNS name of pi rather
+  # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
+  # configure the transmission client url as http://rpi:9091
+  &rpi
+  # Change this to IP of your RPi
+  - "rpi:192.168.100.3"
+
+services:
+  
+  # Reverse proxy for all services hosted on the RPI
+  # services are exposed via the domain name sent through the URL, configured via the conf files in nginx 
+  swag:
+    image: linuxserver/swag:latest
+    container_name: swag
+    hostname: swag
+    extra_hosts: *rpi
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    ports:
+      # 80:80  # only needed for letsencrypt to host the temporary web server for cert generation
+      - 443:443
+    secrets:
+      - DUCKDNSTOKEN
+    environment:
+      PUID: 1006
+      PGID: 1006
+      TZ: Australia/Melbourne
+      URL: gettingbent.duckdns.org
+      SUBDOMAINS: wildcard
+      VALIDATION: duckdns
+      FILE__DUCKDNSTOKEN: /run/secrets/DUCKDNSTOKEN
+      #CERTPROVIDER: zerossl  # defaults to letsencrypt
+      #EMAIL:   # required when using zerossl as cert provider
+    volumes:
+      - /mnt/external-workdir/swag:/config
+
+  # Do all of the home automation stuff here
+  homeassistant:
+    image: linuxserver/homeassistant:latest
+    container_name: homeassistant
+    extra_hosts: *rpi   # this might work to allow the nginx config for homeassistant to reference the rpi IP by name
+    network_mode: host  # home assistant needs network_mode: host for auto discovery and bluetooth
+    restart: unless-stopped
+    environment:
+      PUID: 1004
+      PGID: 1004
+      TZ: Australia/Melbourne
+    volumes:
+      - /mnt/external-workdir/homeassistant/config:/config
+      - /run/dbus:/run/dbus:ro
+    # ports not needed, as this containers is exposed on the host network stack via network_mode: host
+  
+  # Homepage for all services hosted on the RPI
+  heimdall:
+    image: linuxserver/heimdall:latest
+    container_name: heimdall
+    extra_hosts: *rpi
+    restart: unless-stopped
+    environment:
+      PUID: 1008
+      PGID: 1008
+      TZ: Australia/Melbourne
+    volumes:
+      - /mnt/external-workdir/heimdall/config:/config
+    # ports not needed, as this container is going to be exposed by SWAG, served as the landing page via
+    # /data/docker/swag/config/nginx/proxy-confs/heimdall.subdomain.conf
+
+  # Bridge to allow Wyze cameras to be used in HomeAssistant via RTSP. https://github.com/mrlt8/docker-wyze-bridge
+  wyze-bridge:
+    #image: mrlt8/wyze-bridge:latest
+    image: wyze-bridge-secret-edits
+    container_name: wyze-bridge
+    extra_hosts: *rpi
+    restart: unless-stopped
+    ports:
+      - 1935:1935 # RTMP - worst. probably don't want this
+      - 8554:8554 # RTSP - next best. 
+      - 8888:8888 # HLS - 2nd best.
+      - 8889:8889 # WebRTC - best. 
+      - 8189:8189/udp # WebRTC/ICE
+      - 5000:5000 # WEB-UI
+    secrets:
+      - WYZE_EMAIL
+      - WYZE_PASSWORD
+      - API_ID
+      - API_KEY
+      - WB_USERNAME
+      - WB_PASSWORD
+    environment:
+      PUID: 1020
+      PGID: 1020
+      # [OPTIONAL] Credentials can be set in the WebUI, but every time the container is restarted, the credentials will need to be re-entered.
+      # instead, they are now all set via secrets and read from /run/secrets as per https://github.com/mrlt8/docker-wyze-bridge/issues/1244
+
+      # API Key and ID can be obtained from the wyze dev portal: 
+      # https://developer-api-console.wyze.com/#/apikey/view
+
+      # [OPTIONAL] IP Address of the host to enable WebRTC e.g.,:
+      WB_IP: rpi
+
+
+# want to define a network range so that we can explicitly trust that network in the homeassistant config    
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.10.0.0/24
+
+secrets:
+  DUCKDNSTOKEN:
+    file: /mnt/external-workdir/swag/secrets/duckdns_token
+  WYZE_EMAIL:
+    file: /mnt/external-workdir/wyzebridge/secrets/wyze_account_email
+  WYZE_PASSWORD:
+    file: /mnt/external-workdir/wyzebridge/secrets/wyze_account_password
+  wyze_account_totp:
+    file: /mnt/external-workdir/wyzebridge/secrets/wyze_account_totp
+  API_ID:
+    file: /mnt/external-workdir/wyzebridge/secrets/wyze_api_id
+  API_KEY:
+    file: /mnt/external-workdir/wyzebridge/secrets/wyze_api_key
+  WB_USERNAME:
+    file: /mnt/external-workdir/wyzebridge/secrets/wyze_bridge_webapp_username
+  WB_PASSWORD:
+    file: /mnt/external-workdir/wyzebridge/secrets/wyze_bridge_webapp_password
