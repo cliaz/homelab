@@ -33,7 +33,7 @@ services:
     network_mode: host
     restart: unless-stopped
     ports:
-    - "32400:32400"
+    - 32400:32400
     # NOTE: Please delete this entire `devices` section if your device does not have /dev/dri device. If you using something
     # like RPi3, you would need to delete this section else you will get an error when trying to run this container.
     devices:
@@ -43,8 +43,8 @@ services:
       - "/dev/dri:/dev/dri"
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      - PUID=1009
-      - PGID=1009
+      PUID: 1009
+      PGID: 1009
     volumes:
       # Docker bind mounts are used to store config and media on the host's filesystem. Config for plex will be stored
       # in /mnt/external-workdir/plex/config directory and any transcoding data is stored in a transcode directory
@@ -64,37 +64,37 @@ services:
     cap_add:
       - NET_ADMIN
     ports:
-      - "9091:9091"
+      - 9091:9091
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      - PUID=1010
-      - PGID=1010
+      PUID: 1010
+      PGID: 1010
       # To run this container, you would need an openvpn provider. I use IPVANISH and hence in here that is used as an
       # example. Please look at the documentation to understand each of the config variables.
       # Documentation: https://haugene.github.io/docker-transmission-openvpn/
-      - TRANSMISSION_WEB_UI=transmission-web-control
-      - OPENVPN_USERNAME=***REMOVED***
-      - OPENVPN_PASSWORD=***REMOVED***
-      - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
-      #- LOCAL_NETWORK=192.168.100.0/24
-      - LOCAL_NETWORK=192.168.0.0/16
-      - OPENVPN_PROVIDER=PROTONVPN
-      - PEER_DNS=true
-      - PEER_DNS_PIN_ROUTES=true
-      - CREATE_TUN_DEVICE=true
+      TRANSMISSION_WEB_UI: transmission-web-control
+      OPENVPN_USERNAME: ***REMOVED***
+      OPENVPN_PASSWORD: ***REMOVED***
+      OPENVPN_OPTS: --inactive 3600 --ping 10 --ping-exit 60
+      #LOCAL_NETWORK: 192.168.100.0/24
+      LOCAL_NETWORK: 192.168.0.0/16
+      OPENVPN_PROVIDER: PROTONVPN
+      PEER_DNS: true
+      PEER_DNS_PIN_ROUTES: true
+      CREATE_TUN_DEVICE: true
       # Change these to which vpn endpoints you want to connect to. More info in documentation
       # TODO: this config might not work? Chose one from https://github.com/haugene/vpn-configs-contrib/tree/main
-      - OPENVPN_CONFIG=br.protonvpn.udp
+      OPENVPN_CONFIG: br.protonvpn.udp
       # Below are just some variable to configure transmission. Configure them to whatever is best for your setup
-      - TRANSMISSION_BIND_ADDRESS_IPV4=0.0.0.0
-      - TRANSMISSION_DOWNLOAD_QUEUE_SIZE=10
-      - TRANSMISSION_IDLE_SEEDING_LIMIT=10
-      - TRANSMISSION_IDLE_SEEDING_LIMIT_ENABLED=true
-      - TRANSMISSION_RATIO_LIMIT=2
-      - TRANSMISSION_RATIO_LIMIT_ENABLED=true
-      - TRANSMISSION_SEED_QUEUE_ENABLED=true
-      - TRANSMISSION_SEED_QUEUE_SIZE=30
-      - TZ=Australia/Melbourne
+      TRANSMISSION_BIND_ADDRESS_IPV4: 0.0.0.0
+      TRANSMISSION_DOWNLOAD_QUEUE_SIZE: 10
+      TRANSMISSION_IDLE_SEEDING_LIMIT: 10
+      TRANSMISSION_IDLE_SEEDING_LIMIT_ENABLED: true
+      TRANSMISSION_RATIO_LIMIT: 2
+      TRANSMISSION_RATIO_LIMIT_ENABLED: true
+      TRANSMISSION_SEED_QUEUE_ENABLED: true
+      TRANSMISSION_SEED_QUEUE_SIZE: 30
+      TZ: Australia/Melbourne
     logging:
           driver: json-file
           options:
@@ -117,9 +117,9 @@ services:
     ports:
       - 9696:9696
     environment:
-      - PUID=1019
-      - PGID=1019
-      - TZ=Australia/Melbourne
+      PUID: 1019
+      PGID: 1019
+      TZ: Australia/Melbourne
     volumes:
       - /mnt/external-workdir/prowlarr:/config
 
@@ -131,12 +131,12 @@ services:
     restart: unless-stopped
     ports:
       # Host port 7878 is mapped to container port 7878
-      - "7878:7878"
+      - 7878:7878
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      - PUID=1012
-      - PGID=1012
-      - TZ=Australia/Melbourne
+      PUID: 1012
+      PGID: 1012
+      TZ: Australia/Melbourne
     volumes:
       # Radarr needs to know where the downloaded media is. This is told to radarr by transmission
       - /mnt/media/downloads:/downloads
@@ -155,12 +155,12 @@ services:
     restart: unless-stopped
     ports:
       # Host port 8989 is mapped to container port 8989
-      - "8989:8989"
+      - 8989:8989
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      - PUID=1013
-      - PGID=1013
-      - TZ=Australia/Melbourne
+      PUID: 1013
+      PGID: 1013
+      TZ: Australia/Melbourne
     volumes:
       # sonarr needs to know where the downloaded media is. This is told to sonarr by transmission
       - /mnt/media/downloads:/downloads
@@ -183,9 +183,9 @@ services:
       - "8181:8181"
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      - PUID=1014
-      - PGID=1014
-      - TZ=Australia/Melbourne
+      PUID: 1014
+      PGID: 1014
+      TZ: Australia/Melbourne
     volumes:
       # config directory
       - /mnt/external-workdir/tautulli:/config
@@ -201,12 +201,12 @@ services:
     extra_hosts: *rpi
     restart: unless-stopped
     ports:
-      - "5454:5454"
+      - 5454:5454
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      - PUID=1018
-      - PGID=1018
-      - TZ=Australia/Melbourne
+      PUID: 1018
+      PGID: 1018
+      TZ: Australia/Melbourne
     volumes:
       - /mnt/external-workdir/notifiarr:/config
       - /var/run/utmp:/var/run/utmp
@@ -226,12 +226,12 @@ services:
   #   extra_hosts: *rpi
   #   ports:
   #     # Host port 8686 is mapped to container port 8686
-  #     - "8686:8686"
+  #     - 8686:8686
   #   environment:
   #     # The container is run as the user with this PUID and PGID (user and group id).
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Australia/Melbourne
+  #     PUID: 1000
+  #     PGID: 1000
+  #     TZ: Australia/Melbourne
   #   volumes:
   #     # lidarr needs to know where the downloaded media is. This is told to lidarr by transmission
   #     - /mnt/media/downloads:/downloads
@@ -249,11 +249,11 @@ services:
   #   container_name: overseerr
   #   extra_hosts: *rpi
   #   environment:
-  #     - LOG_LEVEL=debug
-  #     - TZ=Australia/Melbourne
-  #     - PORT=5055 #optional
-  #     - PUID=1017
-  #     - GUID=1017
+  #     LOG_LEVEL: debug
+  #     TZ: Australia/Melbourne
+  #     PORT: 5055 #optional
+  #     PUID: 1017
+  #     GUID: 1017
   #   ports:
   #     - 5055:5055
   #   volumes:
@@ -276,25 +276,25 @@ services:
   #   container_name: sonarr_netimport
   #   extra_hosts: *rpi
   #   environment:
-  #     - TVDB_USERNAME=***REMOVED***
-  #     - TVDB_USER_KEY=***REMOVED***
-  #     - TVDB_API_KEY=tvdb_api_key   #TODO: probably need to get this from tvdb, costs $11.99 / year
+  #     TVDB_USERNAME: ***REMOVED***
+  #     TVDB_USER_KEY: ***REMOVED***
+  #     TVDB_API_KEY: tvdb_api_key   #TODO: probably need to get this from tvdb, costs $11.99 / year
   #     # IP address and port number where sonarr can be accessed
-  #     - SONARR_IP=192.168.100.3
-  #     - SONARR_PORT=8989
+  #     SONARR_IP: 192.168.100.3
+  #     SONARR_PORT: 8989
   #     # Sonarr app API key. This is on sonarr under settings>general
-  #     - SONARR_API_KEY=sonarr_api_key
-  #     - SYNC_INTERVAL=3600  # Interval at which to sync with TVDB, in seconds
-  #     - SEARCH_MISSING_EPISODES=1  # 1 is True
-  #     - QUALITY_PROFILE_ID=1  # 1 is profile any
-  #     - MONITORED=1  # 1 is True
-  #     - ROOT_FOLDER_PATH=/tv/  # Full path of root folder
+  #     SONARR_API_KEY: sonarr_api_key
+  #     SYNC_INTERVAL: 3600  # Interval at which to sync with TVDB, in seconds
+  #     SEARCH_MISSING_EPISODES: 1  # 1 is True
+  #     QUALITY_PROFILE_ID: 1  # 1 is profile any
+  #     MONITORED: 1  # 1 is True
+  #     ROOT_FOLDER_PATH: /tv/  # Full path of root folder
   #     # Below variables are for sending error notification emails. If not needed, delete these
-  #     - EMAIL_ADDRESS=***REMOVED***
-  #     - EMAIL_PASSWORD=***REMOVED***
-  #     - EMAIL_TO_ADDRESS=***REMOVED***
-  #     - SMTP_SERVER=smtp.gmail.com
-  #     - SMTP_SERVER_PORT=587
+  #     EMAIL_ADDRESS: ***REMOVED***
+  #     EMAIL_PASSWORD: ***REMOVED***
+  #     EMAIL_TO_ADDRESS: ***REMOVED***
+  #     SMTP_SERVER: smtp.gmail.com
+  #     SMTP_SERVER_PORT: 587
 
   # Similar to sonarr_netimport but for radarr. Radarr has this feature built-in but radarr uses TMDB API v3 and
   # I have noticed that if using v3 API, TMDB only returns maximum of 500 movies in the list.
@@ -304,14 +304,14 @@ services:
   #   restart: unless-stopped
   #   container_name: radarr_netimport
   #   environment:
-  #     - TMDB_ACCESS_TOKEN=sampletoken
-  #     - TMDB_API_KEY=tvdb_api_key
-  #     - TMDB_LIST_ID=12345
+  #     TMDB_ACCESS_TOKEN: sampletoken
+  #     TMDB_API_KEY: tvdb_api_key
+  #     TMDB_LIST_ID: 12345
   #     # IP address and port number where radarr can be accessed
-  #     - RADARR_IP=192.168.100.3
-  #     - RADARR_PORT=7878
+  #     RADARR_IP: 192.168.100.3
+  #     RADARR_PORT: 7878
   #     # radarr API key. This is on radarr under settings>general
-  #     - RADARR_API_KEY=radarr_api_key
-  #     - SYNC_INTERVAL=3600  # Interval at which to sync with TMDB, in seconds
-  #     - QUALITY_PROFILE_ID=1  # 1 is profile any
-  #     - ROOT_FOLDER_PATH=/movies/  # Full path of root folder
+  #     RADARR_API_KEY: radarr_api_key
+  #     SYNC_INTERVAL: 3600  # Interval at which to sync with TMDB, in seconds
+  #     QUALITY_PROFILE_ID: 1  # 1 is profile any
+  #     ROOT_FOLDER_PATH: /movies/  # Full path of root folder
