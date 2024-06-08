@@ -91,6 +91,6 @@ services:
 # Using the secrets workaround from https://blog.mikesir87.io/2017/05/using-docker-secrets-during-development/
 secrets:
   email_server_password:
-    file: ${ROOT_CONFIG:?Please configure MOUNT_POINT in .env file}/watchtower/secrets/email_server_password
+    file: ${SECRETS:?Please configure SECRETS in .env file}/watchtower/email_server_password
   watchtower_discord_API:
-    file: ${ROOT_CONFIG:?Please configure MOUNT_POINT in .env file}/watchtower/secrets/notifiarr_watchtower_api
+    file: ${SECRETS:?Please configure SECRETS in .env file}/watchtower/notifiarr_watchtower_api

@@ -6,7 +6,7 @@ x-extra_hosts:
   # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
   # configure the transmission client url as http://rpi:9091
   &rpi
-  # Change this to IP of your RPi
+  # Pulls the IP address of the RPI from the .env file
   - "rpi:${RPI_IP}"
 
 services:
@@ -150,18 +150,18 @@ networks:
 
 secrets:
   DUCKDNSTOKEN:
-    file: ${ROOT_CONFIG}/swag/secrets/duckdns_token
+    file: ${SECRETS}/swag/duckdns_token
   WYZE_EMAIL:
-    file: ${ROOT_CONFIG}/wyzebridge/secrets/wyze_account_email
+    file: ${SECRETS}/wyzebridge/wyze_account_email
   WYZE_PASSWORD:
-    file: ${ROOT_CONFIG}/wyzebridge/secrets/wyze_account_password
+    file: ${SECRETS}/wyzebridge/wyze_account_password
   wyze_account_totp:
-    file: ${ROOT_CONFIG}/wyzebridge/secrets/wyze_account_totp
+    file: ${SECRETS}/wyzebridge/wyze_account_totp
   API_ID:
-    file: ${ROOT_CONFIG}/wyzebridge/secrets/wyze_api_id
+    file: ${SECRETS}/wyzebridge/wyze_api_id
   API_KEY:
-    file: ${ROOT_CONFIG}/wyzebridge/secrets/wyze_api_key
+    file: ${SECRETS}/wyzebridge/wyze_api_key
   WB_USERNAME:
-    file: ${ROOT_CONFIG}/wyzebridge/secrets/wyze_bridge_webapp_username
+    file: ${SECRETS}/wyzebridge/wyze_bridge_webapp_username
   WB_PASSWORD:
-    file: ${ROOT_CONFIG}/wyzebridge/secrets/wyze_bridge_webapp_password
+    file: ${SECRETS}/wyzebridge/wyze_bridge_webapp_password
