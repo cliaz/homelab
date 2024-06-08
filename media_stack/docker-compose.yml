@@ -4,7 +4,7 @@ x-extra_hosts:
   # configure the transmission client url as http://rpi:9091
   &rpi
   # Change this to IP of your RPi
-  - "rpi:192.168.100.3"
+  - "rpi:${RPI_IP}"
 services:
   # All the services use docker bind mounts to store config data and media on the host's filesystem. If you're familiar with
   # docker storage, you can use whatever you want. You can change it to use docker volumes if you want.
@@ -114,7 +114,6 @@ services:
       # transmission will see that as /data directory
       - /mnt/media/downloads:/data
    
-
   # Torrent Indexer management
   prowlarr:
     image: linuxserver/prowlarr:latest
@@ -177,7 +176,6 @@ services:
       # TV shows imported by sonarr are stored in /mnt/media/tv_shows directory on the host. sonarr sees this directory
       # as /tv. Within sonarr make your root folder as /tv
       - /mnt/media/tv_shows:/tv
-
 
   # Tautulli is used to get stats on Plex usage
   tautulli:

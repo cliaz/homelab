@@ -7,7 +7,7 @@ x-extra_hosts:
   # configure the transmission client url as http://rpi:9091
   &rpi
   # Change this to IP of your RPi
-  - "rpi:192.168.100.3"
+  - "rpi:${RPI_IP}"
 
 services:
   # Reverse proxy for all services hosted on the RPI
