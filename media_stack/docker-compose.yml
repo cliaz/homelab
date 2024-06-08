@@ -1,4 +1,3 @@
-version: "3"
 x-extra_hosts:
   # This is added so that within each service you can communicate to another service by using the DNS name of pi rather
   # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
@@ -110,22 +109,19 @@ services:
    
 
   # Torrent Indexer management
-  # jackett:
-  #   image: linuxserver/jackett:latest
-  #   container_name: jackett
-  #   extra_hosts: *rpi
-  #   restart: unless-stopped
-  #   ports:
-  #     # Host port 9117 is mapped to container port 9117
-  #     - "9117:9117"
-  #   environment:
-  #     # The container is run as the user with this PUID and PGID (user and group id).
-  #     - PUID=1011
-  #     - PGID=1011
-  #     - TZ=Australia/Melbourne
-  #   volumes:
-  #     - /mnt/external-workdir/jackett:/config
-  #     - /mnt/media/downloads:/downloads
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    extra_hosts: *rpi
+    restart: unless-stopped
+    ports:
+      - 9696:9696
+    environment:
+      - PUID=1019
+      - PGID=1019
+      - TZ=Australia/Melbourne
+    volumes:
+      - /mnt/external-workdir/prowlarr:/config
 
   # Movies management
   radarr:
@@ -174,20 +170,6 @@ services:
       # TV shows imported by sonarr are stored in /mnt/media/tv_shows directory on the host. sonarr sees this directory
       # as /tv. Within sonarr make your root folder as /tv
       - /mnt/media/tv_shows:/tv
-
-  prowlarr:
-    image: linuxserver/prowlarr:latest
-    container_name: prowlarr
-    extra_hosts: *rpi
-    restart: unless-stopped
-    ports:
-      - 9696:9696
-    environment:
-      - PUID=1019
-      - PGID=1019
-      - TZ=Australia/Melbourne
-    volumes:
-      - /mnt/external-workdir/prowlarr:/config
 
 
   # Tautulli is used to get stats on Plex usage
