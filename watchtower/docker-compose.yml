@@ -30,13 +30,13 @@ services:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
       PUID: 1002
-      GUID: 1002
+      PGID: 1002
       #TZ: Australia/Melbourne
 
       # 2. Set variables via substitution from .env file
-      # PUID: ${PUID} # TODO: not resepecting the .env file, using direct values for now
-      # GUID: ${GUID} # TODO: not resepecting the .env file, using direct values for now
-      TZ: ${TZ:-Australia/Melbourne}       # TODO: set default values in the compose file if not using .env file
+      # PUID: ${WATCHTOWER_PUID} # TODO: not resepecting the .env file, using direct values for now
+      # PGID: ${WATCHTOWER_PGID} # TODO: not resepecting the .env file, using direct values for now
+      TZ: ${TZ:-Australia/Melbourne}
 
       WATCHTOWER_CLEANUP: true
       WATCHTOWER_INCLUDE_RESTARTING: true

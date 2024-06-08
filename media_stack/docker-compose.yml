@@ -45,12 +45,12 @@ services:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
       PUID: 1009
-      GUID: 1009
+      PGID: 1009
       #TZ: Australia/Melbourne
 
       # 2. Set variables via substitution from .env file
       # PUID: ${PLEX_PUID} # TODO: not resepecting the .env file, using direct values for now
-      # GUID: ${PLEX_GUID} # TODO: not resepecting the .env file, using direct values for now
+      # PGID: ${PLEX_PGID} # TODO: not resepecting the .env file, using direct values for now
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # Docker bind mounts are used to store config and media on the host's filesystem. Config for plex will be stored
@@ -260,7 +260,7 @@ services:
   #     TZ: Australia/Melbourne
   #     PORT: 5055 #optional
   #     PUID: 1017
-  #     GUID: 1017
+  #     PGID: 1017
   #   ports:
   #     - 5055:5055
   #   volumes:

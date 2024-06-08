@@ -11,13 +11,13 @@ services:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
       PUID: 1003
-      GUID: 1003
+      PGID: 1003
       # TZ: Australia/Melbourne
 
       # 2. Set variables via substitution from .env file
-      # USER: ${PUID}:${GUID} # not working
+      # USER: ${PUID}:${PGID} # not working
       # PUID: ${PUID}         # not working
-      # GUID: ${GUID}         # not working
+      # PGID: ${PGID}         # not working
       TZ: ${TZ}
 
     volumes:
