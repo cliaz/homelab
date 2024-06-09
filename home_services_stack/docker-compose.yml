@@ -170,10 +170,11 @@ services:
 
 # want to define a network range so that we can explicitly trust that network in the homeassistant config    
 networks:
-  default:
+  homelab_net:
+    attachable: true
     ipam:
       config:
-        - subnet: 172.10.0.0/24
+        - subnet: 172.100.0.0/24
 
 secrets:
   DUCKDNSTOKEN:
