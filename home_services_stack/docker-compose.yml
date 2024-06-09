@@ -55,6 +55,8 @@ services:
     hostname: homeassistant
     extra_hosts: *rpi   # this might work to allow the nginx config for homeassistant to reference the rpi IP by name
     network_mode: host  # home assistant needs network_mode: host for auto discovery and bluetooth
+    networks:
+      - homelab_net
     restart: unless-stopped
     environment:
       # Choose one of the following methods to set environment variables
@@ -124,8 +126,6 @@ services:
       - ${ROOT_CONFIG}/homarr/icons:/app/public/icons
       - ${ROOT_CONFIG}/homarr/data:/data
 
-
-
   # Bridge to allow Wyze cameras to be used in HomeAssistant via RTSP. https://github.com/mrlt8/docker-wyze-bridge
   wyze-bridge:
     #image: mrlt8/wyze-bridge:latest
@@ -174,7 +174,6 @@ services:
 
       # [OPTIONAL] IP Address of the host to enable WebRTC e.g.,:
       WB_IP: rpi
-
 
 # want to define a network range so that we can explicitly trust that network in the homeassistant config    
 networks:
