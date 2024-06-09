@@ -55,7 +55,7 @@ services:
     hostname: homeassistant
     extra_hosts: *rpi   # this might work to allow the nginx config for homeassistant to reference the rpi IP by name
     network_mode: host  # home assistant needs network_mode: host for auto discovery and bluetooth
-        restart: unless-stopped
+    restart: unless-stopped
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
