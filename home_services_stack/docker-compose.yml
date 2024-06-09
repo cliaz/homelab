@@ -78,6 +78,8 @@ services:
     hostname: heimdall
     extra_hosts: *rpi
     restart: unless-stopped
+    # ports not needed, as this container is going to be exposed by SWAG, served as the landing page via
+    # /data/docker/swag/config/nginx/proxy-confs/heimdall.subdomain.conf
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
