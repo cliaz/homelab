@@ -20,6 +20,8 @@ services:
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
+    networks:
+      - homelab_net
     ports:
       # 80:80  # only needed if using http validation. We're using duckdns to validate, so don't need this
       - 443:443
@@ -31,7 +33,7 @@ services:
       PUID: 1006
       PGID: 1006
       TZ: ${TZ:-Australia/Melbourne}
-      URL: gettingbent.duckdns.org
+      URL: ${SWAG_URL:?Please configure SWAG_URL in .env file}
 
       # 2. Set variables via substitution from .env file
       # PUID: ${SWAG_PUID} # TODO: not resepecting the .env file, using direct values for now
@@ -78,6 +80,8 @@ services:
     hostname: heimdall
     extra_hosts: *rpi
     restart: unless-stopped
+    networks:
+      - homelab_net
     # ports not needed, as this container is going to be exposed by SWAG, served as the landing page via
     # /data/docker/swag/config/nginx/proxy-confs/heimdall.subdomain.conf
     environment:
@@ -100,6 +104,8 @@ services:
     hostname: homarr
     extra_hosts: *rpi
     restart: unless-stopped
+    networks:
+      - homelab_net
     ports:
       - '7575:7575'
     environment:
@@ -129,6 +135,8 @@ services:
     hostname: wyze-bridge
     extra_hosts: *rpi
     restart: unless-stopped
+    networks:
+      - homelab_net
     ports:
       - 1935:1935 # RTMP - worst. probably don't want this
       - 8554:8554 # RTSP - next best. 
