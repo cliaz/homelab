@@ -91,8 +91,32 @@ services:
 
     volumes:
       - ${ROOT_CONFIG}/heimdall/config:/config
-    # ports not needed, as this container is going to be exposed by SWAG, served as the landing page via
-    # /data/docker/swag/config/nginx/proxy-confs/heimdall.subdomain.conf
+
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    container_name: homarr
+    hostname: homarr
+    extra_hosts: *rpi
+    restart: unless-stopped
+    ports:
+      - '7575:7575'
+    environment:
+      # Choose one of the following methods to set environment variables
+      # 1. Set variables directly in the compose file
+      PUID: 1021
+      PGID: 1021
+      TZ: ${TZ:-Australia/Melbourne}
+
+      # 2. Set variables via substitution from .env file
+      # PUID: ${HOMARR_PUID} # TODO: not resepecting the .env file, using direct values for now
+      # PGID: ${HOMARR_PGID} # TODO: not resepecting the .env file, using direct values for now
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
+      - ${ROOT_CONFIG}/homarr/configs:/app/data/configs
+      - ${ROOT_CONFIG}/homarr/icons:/app/public/icons
+      - ${ROOT_CONFIG}/homarr/data:/data
+
+
 
   # Bridge to allow Wyze cameras to be used in HomeAssistant via RTSP. https://github.com/mrlt8/docker-wyze-bridge
   wyze-bridge:
