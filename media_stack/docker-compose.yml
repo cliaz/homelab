@@ -3,7 +3,7 @@ x-extra_hosts:
   # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
   # configure the transmission client url as http://rpi:9091
   &rpi
-  # Change this to IP of your RPi
+  # Pulls the IP address of the RPI from the .env file
   - "rpi:${RPI_IP}"
 services:
   # All the services use docker bind mounts to store config data and media on the host's filesystem. If you're familiar with
@@ -30,7 +30,7 @@ services:
     image: linuxserver/plex:latest
     container_name: plex
     extra_hosts: *rpi
-    network_mode: host
+    network_mode: host  # TODO: why is this on network mode host?
     restart: unless-stopped
     ports:
     - 32400:32400
@@ -68,6 +68,8 @@ services:
     extra_hosts: *rpi
     restart: unless-stopped
     #network_mode: host  #TODO: maybe make this not 'host', so that only this container uses the VPN connection and not the whole rpi
+    networks:
+      - media_net # TODO - test how the VPN impacts the media_net network
     cap_add:
       - NET_ADMIN
     ports:
@@ -135,6 +137,8 @@ services:
     container_name: radarr
     extra_hosts: *rpi
     restart: unless-stopped
+    networks:
+      - media_net
     ports:
       # Host port 7878 is mapped to container port 7878
       - 7878:7878
@@ -159,6 +163,8 @@ services:
     container_name: sonarr
     extra_hosts: *rpi
     restart: unless-stopped
+    networks:
+      - media_net
     ports:
       # Host port 8989 is mapped to container port 8989
       - 8989:8989
@@ -183,6 +189,8 @@ services:
     image: linuxserver/tautulli:latest
     extra_hosts: *rpi
     restart: unless-stopped
+    networks:
+      - media_net
     ports:
       # Host port 8181 is mapped to container port 8181
       - "8181:8181"
@@ -205,6 +213,8 @@ services:
     image: golift/notifiarr
     extra_hosts: *rpi
     restart: unless-stopped
+    networks:
+      - media_net
     ports:
       - 5454:5454
     environment:
@@ -217,6 +227,12 @@ services:
       - /var/run/utmp:/var/run/utmp
       - /etc/machine-id:/etc/machine-id
 
+
+networks:
+  media_net:
+    ipam:
+      config:
+        - subnet: 172.200.0.0/24
 
 ######################
 #                    #
