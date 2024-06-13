@@ -22,6 +22,7 @@ services:
       - NET_ADMIN
     networks:
       - homelab_net
+      - media_net
     ports:
       # 80:80  # only needed if using http validation. We're using duckdns to validate, so don't need this
       - 443:443
@@ -106,6 +107,7 @@ services:
     restart: unless-stopped
     networks:
       - homelab_net
+      - media_net
     ports:
       - '7575:7575'
     environment:
@@ -180,6 +182,9 @@ networks:
     ipam:
       config:
         - subnet: 172.100.0.0/24
+  media_net:
+    external: true
+    attachable: true
 
 secrets:
   DUCKDNSTOKEN:
