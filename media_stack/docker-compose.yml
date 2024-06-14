@@ -122,6 +122,8 @@ services:
     container_name: prowlarr
     extra_hosts: *rpi
     restart: unless-stopped
+    networks:
+      - media_net
     ports:
       - 9696:9696
     environment:
