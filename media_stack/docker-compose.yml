@@ -234,6 +234,7 @@ networks:
   media_net:
     name: media_net   # ensure network isn't prefixed with the default name of the directory, eg git_media_stack_media_net
     attachable: true
+    external: true
     ipam:
       config:
         - subnet: 172.200.0.0/24
