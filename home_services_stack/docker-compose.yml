@@ -185,7 +185,6 @@ networks:
         - subnet: 172.100.0.0/24
   media_net:
     external: true
-    attachable: true
 
 secrets:
   DUCKDNSTOKEN:
