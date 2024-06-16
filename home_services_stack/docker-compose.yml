@@ -153,7 +153,7 @@ services:
 # want to define a network range so that we can explicitly trust that network in the homeassistant config    
 networks:
   homelab_net:
-    name: media_net   # ensure network isn't prefixed with the default name of the directory, eg git_home_services_stack_homelab_net
+    name: homelab_net   # ensure network isn't prefixed with the default name of the directory, eg git_home_services_stack_homelab_net
     attachable: true
     ipam:
       config:
