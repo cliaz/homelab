@@ -73,32 +73,6 @@ services:
       - /run/dbus:/run/dbus:ro
     # ports not needed, as this containers is exposed on the host network stack via network_mode: host
   
-  # Homepage for all services hosted on the RPI
-  # TODO: switch to homearr
-  heimdall:
-    image: linuxserver/heimdall:latest
-    container_name: heimdall
-    hostname: heimdall
-    extra_hosts: *rpi
-    restart: unless-stopped
-    networks:
-      - homelab_net
-    # ports not needed, as this container is going to be exposed by SWAG, served as the landing page via
-    # /data/docker/swag/config/nginx/proxy-confs/heimdall.subdomain.conf
-    environment:
-      # Choose one of the following methods to set environment variables
-      # 1. Set variables directly in the compose file
-      PUID: 1008
-      PGID: 1008
-      TZ: ${TZ:-Australia/Melbourne}
-
-      # 2. Set variables via substitution from .env file
-      # PUID: ${HEIMDALL_PUID} # TODO: not resepecting the .env file, using direct values for now
-      # PGID: ${HEIMDALL_PGID} # TODO: not resepecting the .env file, using direct values for now
-
-    volumes:
-      - ${ROOT_CONFIG}/heimdall/config:/config
-
   homarr:
     image: ghcr.io/ajnart/homarr:latest
     container_name: homarr
@@ -138,6 +112,7 @@ services:
     networks:
       - homelab_net
     ports:
+      # TODO: harden ports
       - 1935:1935 # RTMP - worst. probably don't want this
       - 8554:8554 # RTSP - next best. 
       - 8888:8888 # HLS - 2nd best.
