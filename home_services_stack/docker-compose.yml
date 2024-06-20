@@ -176,8 +176,8 @@ services:
     volumes:
         - ${ROOT_CONFIG}/vikunja/files:/app/vikunja/files
     depends_on:
-      db:
-      condition: service_healthy
+      vikunja_db:
+        condition: service_healthy
     restart: unless-stopped
   
   vikunja_db:
