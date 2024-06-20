@@ -82,10 +82,11 @@ services:
     networks:
       - homelab_net
       - media_net
-    # shouldn't need ports directive as homarr is accessed via swag
-    ports:
-      - 7575:7575
+    # no need to expose ports via docker, as the container is accessed via Swag. Left for posterity
+    #ports:
+    #  - 7575:7575
     environment:
+      DISABLE_ANALYTICS: TRUE
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
       PUID: 1021
@@ -95,9 +96,6 @@ services:
       # 2. Set variables via substitution from .env file
       # PUID: ${HOMARR_PUID} # TODO: not resepecting the .env file, using direct values for now
       # PGID: ${HOMARR_PGID} # TODO: not resepecting the .env file, using direct values for now
-
-      #PORT: 443
-      DISABLE_ANALYTICS: TRUE
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
       - ${ROOT_CONFIG}/homarr/configs:/app/data/configs
