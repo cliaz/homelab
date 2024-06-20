@@ -161,7 +161,6 @@ services:
       - VIKUNJA_DATABASE_USER
       - VIKUNJA_DATABASE_PASSWORD
     environment:
-      
       VIKUNJA_SERVICE_PUBLICURL: http://todo.${SWAG_URL}
       #VIKUNJA_SERVICE_PUBLICURL: ${VIKUNJA_URL}
       VIKUNJA_DATABASE_HOST: vikunja_db
@@ -186,7 +185,7 @@ services:
     image: mariadb:10
     name: vikunja_db
     #user: ${VIKUNJA_UID}:${VIKUNJA_GID}
-    user: 1022:1022
+    #user: 1022:1022
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     secrets:
       - MYSQL_ROOT_PASSWORD
