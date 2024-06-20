@@ -153,7 +153,9 @@ services:
   # Task manager
   vikunja:
     image: vikunja/vikunja
-    name: vikunja
+    container_name: vikunja
+    hostname: vikunja
+    extra_hosts: *rpi
     #user: ${VIKUNJA_UID}:${VIKUNJA_GID}
     user: 1022:1022
     secrets:
@@ -183,7 +185,9 @@ services:
   
   vikunja_db:
     image: mariadb:10
-    #name: vikunja_db
+    container_name: vikunja_db
+    hostname: vikunja_db
+    extra_hosts: *rpi
     #user: ${VIKUNJA_UID}:${VIKUNJA_GID}
     user: 1022:1022
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
