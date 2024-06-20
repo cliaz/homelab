@@ -82,8 +82,9 @@ services:
     networks:
       - homelab_net
       - media_net
-    ports:
-      - '7575:7575'
+    # don't need ports directive as homarr is accessed via swag
+    #ports:
+    #  - 7575:7575
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
