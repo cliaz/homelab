@@ -183,9 +183,9 @@ services:
   
   vikunja_db:
     image: mariadb:10
-    name: vikunja_db
+    #name: vikunja_db
     #user: ${VIKUNJA_UID}:${VIKUNJA_GID}
-    #user: 1022:1022
+    user: 1022:1022
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     secrets:
       - MYSQL_ROOT_PASSWORD
