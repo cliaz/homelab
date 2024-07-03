@@ -111,10 +111,10 @@ services:
     volumes:
       # Docker bind mounts used to mount host's filesystem within the container
       # Transmission config will be stored in a transmission-openvpn directory
-      - /mnt/external-workdir/transmission-openvpn:/config
+      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/transmission-openvpn:/config
       # All the media managed by transmission with be stored in /mnt/media/downloads directory on the host BUT the
       # transmission will see that as /data directory
-      - /mnt/media/downloads:/data
+      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/data
    
   # Torrent Indexer management
   prowlarr:
@@ -131,7 +131,7 @@ services:
       PGID: 1019
       TZ: Australia/Melbourne
     volumes:
-      - /mnt/external-workdir/prowlarr:/config
+      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/prowlarr:/config
 
   # Movies management
   radarr:
@@ -151,13 +151,13 @@ services:
       TZ: Australia/Melbourne
     volumes:
       # Radarr needs to know where the downloaded media is. This is told to radarr by transmission
-      - /mnt/media/downloads:/downloads
-      - /mnt/media/downloads:/data
+      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/downloads
+      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/data
       # config directory
-      - /mnt/external-workdir/radarr:/config
+      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/radarr:/config
       # Movies imported by radarr are stored in /mnt/media/movies directory on the host. Radarr sees this directory
       # as /movies. Within radarr make your root folder as /movies
-      - /mnt/media/movies:/movies
+      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/movies:/movies
 
   # Series management
   sonarr:
@@ -177,13 +177,13 @@ services:
       TZ: Australia/Melbourne
     volumes:
       # sonarr needs to know where the downloaded media is. This is told to sonarr by transmission
-      - /mnt/media/downloads:/downloads
-      - /mnt/media/downloads:/data
+      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/downloads
+      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/data
       # config directory
-      - /mnt/external-workdir/sonarr:/config
+      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/sonarr:/config
       # TV shows imported by sonarr are stored in /mnt/media/tv_shows directory on the host. sonarr sees this directory
       # as /tv. Within sonarr make your root folder as /tv
-      - /mnt/media/tv_shows:/tv
+      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/tv_shows:/tv
 
   # Tautulli is used to get stats on Plex usage
   tautulli:
@@ -203,10 +203,10 @@ services:
       TZ: Australia/Melbourne
     volumes:
       # config directory
-      - /mnt/external-workdir/tautulli:/config
+      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/tautulli:/config
       # Tautulli needs access to plex logs. In the plex container we mounted /mnt/external-workdir/plex of the host as the
       # config directory for plex. Logs are located within this config directory
-      - /mnt/external-workdir/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
+      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
 
   # A whole bunch of stuff, but mainly using for Trash-Guides sync
   notifiarr:
@@ -225,7 +225,7 @@ services:
       PGID: 1018
       TZ: Australia/Melbourne
     volumes:
-      - /mnt/external-workdir/notifiarr:/config
+      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/notifiarr:/config
       - /var/run/utmp:/var/run/utmp
       - /etc/machine-id:/etc/machine-id
 
