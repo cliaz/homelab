@@ -104,8 +104,8 @@ services:
 
   # Bridge to allow Wyze cameras to be used in HomeAssistant via RTSP. https://github.com/mrlt8/docker-wyze-bridge
   wyze-bridge:
-    #image: mrlt8/wyze-bridge:latest
-    image: wyze-bridge-secret-edits   # TODO: switch back to release build once the changes that support secrets
+    image: mrlt8/wyze-bridge:latest
+    #image: wyze-bridge-secret-edits   # TODO: switch back to release build once the changes that support secrets
                                       # make it into he mainline build
     container_name: wyze-bridge
     hostname: wyze-bridge
