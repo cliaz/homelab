@@ -152,67 +152,6 @@ services:
       # [OPTIONAL] IP Address of the host to enable WebRTC e.g.,:
       WB_IP: aard
 
-  # Task manager
-  vikunja:
-    image: vikunja/vikunja
-    container_name: vikunja
-    hostname: vikunja
-    extra_hosts: *aard
-    #user: ${VIKUNJA_UID}:${VIKUNJA_GID}
-    user: 1022:1022
-    secrets:
-      - VIKUNJA_SERVICE_JWTSECRET
-      - VIKUNJA_DATABASE_USER
-      - VIKUNJA_DATABASE_PASSWORD
-    environment:
-      VIKUNJA_SERVICE_PUBLICURL: http://todo.${SWAG_URL}
-      #VIKUNJA_SERVICE_PUBLICURL: ${VIKUNJA_URL}
-      VIKUNJA_DATABASE_HOST: vikunja_db
-      VIKUNJA_DATABASE_PASSWORD: DATABASEpassword
-      #VIKUNJA_DATABASE_PASSWORD: /run/secrets/VIKUNJA_DATABASE_PASSWORD
-      VIKUNJA_DATABASE_TYPE: mysql
-      VIKUNJA_DATABASE_USER: vikunja
-      #VIKUNJA_DATABASE_USER: /run/secrets/VIKUNJA_DATABASE_USER
-      VIKUNJA_DATABASE_DATABASE: vikunja
-      VIKUNJA_SERVICE_JWTSECRET: JWTpassword
-      #VIKUNJA_SERVICE_JWTSECRET: /run/secrets/VIKUNJA_SERVICE_JWTSECRET
-    ports:
-        - 3456:3456
-    volumes:
-        - ${ROOT_CONFIG}/vikunja/files:/app/vikunja/files
-    depends_on:
-      vikunja_db:
-        condition: service_healthy
-    restart: unless-stopped
-  
-  vikunja_db:
-    image: mariadb:10
-    container_name: vikunja_db
-    hostname: vikunja_db
-    extra_hosts: *aard
-    #user: ${VIKUNJA_UID}:${VIKUNJA_GID}
-    user: 1022:1022
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    secrets:
-      - MYSQL_ROOT_PASSWORD
-      - MYSQL_USER
-      - MYSQL_PASSWORD
-    environment:
-      MYSQL_ROOT_PASSWORD: supersecret
-      #MYSQL_ROOT_PASSWORD: /run/secrets/MYSQL_ROOT_PASSWORD
-      MYSQL_USER: vikunja
-      #MYSQL_USER: /run/secrets/MYSQL_USER
-      MYSQL_PASSWORD: DATABASEpassword
-      #MYSQL_PASSWORD: /run/secrets/MYSQL_PASSWORD
-      MYSQL_DATABASE: vikunja
-    volumes:
-      - ${ROOT_CONFIG}/vikunja/db:/var/lib/mysql
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER --password=$$MYSQL_PASSWORD"]
-      interval: 2s
-      start_period: 30s
-
 
 # want to define a network range so that we can explicitly trust that network in the homeassistant config    
 networks:
