@@ -248,9 +248,3 @@ secrets:
     file: ${SECRETS}/vikunja/mysql_user
   MYSQL_PASSWORD:
     file: ${SECRETS}/vikunja/mysql_password
-  VIKUNJA_SERVICE_JWTSECRET:
-    file: ${SECRETS}/vikunja/vikunja_service_jwtsecret
-  VIKUNJA_DATABASE_USER:
-    file: ${SECRETS}/vikunja/vikunja_database_user
-  VIKUNJA_DATABASE_PASSWORD:
-    file: ${SECRETS}/vikunja/vikunja_database_password
