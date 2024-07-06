@@ -231,12 +231,21 @@ services:
 
 
 networks:
+
+  ## Assumption / Precondition: the network 'media_net' exist, either defined in home_services_stack or 
+  ## manually via the command "docker network create --attachable --subnet=172.200.0.0/24 media_net"
+  # media_net:
+  #   external: true
+
+  ## Following network definition left for posterity
   media_net:
     name: media_net   # ensure network isn't prefixed with the default name of the directory, eg git_media_stack_media_net
     attachable: true
     ipam:
       config:
         - subnet: 172.200.0.0/24
+
+
 
 ######################
 #                    #
