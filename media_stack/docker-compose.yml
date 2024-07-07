@@ -1,10 +1,10 @@
 x-extra_hosts:
   # This is added so that within each service you can communicate to another service by using the DNS name of pi rather
   # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
-  # configure the transmission client url as http://rpi:9091
-  &rpi
-  # Pulls the IP address of the RPI from the .env file
-  - "rpi:${RPI_IP}"
+  # configure the transmission client url as http://aard:9091
+  &aard
+  # Pulls the IP address of the host from the .env file
+  - "aard:${HOST_IP}"
 services:
   # All the services use docker bind mounts to store config data and media on the host's filesystem. If you're familiar with
   # docker storage, you can use whatever you want. You can change it to use docker volumes if you want.
@@ -29,7 +29,7 @@ services:
   plex:
     image: linuxserver/plex:latest
     container_name: plex
-    extra_hosts: *rpi
+    extra_hosts: *aard
     network_mode: host  # TODO: why is this on network mode host?
     restart: unless-stopped
     ports:
@@ -44,8 +44,8 @@ services:
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
-      PUID: 1009
-      PGID: 1009
+      PUID: 1010
+      PGID: 1010
       #TZ: Australia/Melbourne
 
       # 2. Set variables via substitution from .env file
@@ -65,9 +65,9 @@ services:
   transmission-openvpn:
     image: haugene/transmission-openvpn:latest
     container_name: transmission-openvpn
-    extra_hosts: *rpi
+    extra_hosts: *aard
     restart: unless-stopped
-    #network_mode: host  #TODO: maybe make this not 'host', so that only this container uses the VPN connection and not the whole rpi
+    #network_mode: host  #TODO: maybe make this not 'host', so that only this container uses the VPN connection and not the whole host
     networks:
       - media_net # TODO - test how the VPN impacts the media_net network
     cap_add:
@@ -76,8 +76,8 @@ services:
       - 9091:9091
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: 1010
-      PGID: 1010
+      PUID: 1013
+      PGID: 1013
       # To run this container, you would need an openvpn provider. I use IPVANISH and hence in here that is used as an
       # example. Please look at the documentation to understand each of the config variables.
       # Documentation: https://haugene.github.io/docker-transmission-openvpn/
@@ -103,7 +103,7 @@ services:
       TRANSMISSION_RATIO_LIMIT_ENABLED: true
       TRANSMISSION_SEED_QUEUE_ENABLED: true
       TRANSMISSION_SEED_QUEUE_SIZE: 30
-      TZ: Australia/Melbourne
+      TZ: ${TZ:-Australia/Melbourne}
     logging:
           driver: json-file
           options:
@@ -120,16 +120,16 @@ services:
   prowlarr:
     image: linuxserver/prowlarr:latest
     container_name: prowlarr
-    extra_hosts: *rpi
+    extra_hosts: *aard
     restart: unless-stopped
     networks:
       - media_net
     ports:
       - 9696:9696
     environment:
-      PUID: 1019
-      PGID: 1019
-      TZ: Australia/Melbourne
+      PUID: 1017
+      PGID: 1017
+      TZ: ${TZ:-Australia/Melbourne}
     volumes:
       - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/prowlarr:/config
 
@@ -137,7 +137,7 @@ services:
   radarr:
     image: linuxserver/radarr:latest
     container_name: radarr
-    extra_hosts: *rpi
+    extra_hosts: *aard
     restart: unless-stopped
     networks:
       - media_net
@@ -146,9 +146,9 @@ services:
       - 7878:7878
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: 1012
-      PGID: 1012
-      TZ: Australia/Melbourne
+      PUID: 1011
+      PGID: 1011
+      TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # Radarr needs to know where the downloaded media is. This is told to radarr by transmission
       - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/downloads
@@ -163,7 +163,7 @@ services:
   sonarr:
     image: linuxserver/sonarr:latest
     container_name: sonarr
-    extra_hosts: *rpi
+    extra_hosts: *aard
     restart: unless-stopped
     networks:
       - media_net
@@ -172,9 +172,9 @@ services:
       - 8989:8989
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: 1013
-      PGID: 1013
-      TZ: Australia/Melbourne
+      PUID: 1012
+      PGID: 1012
+      TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # sonarr needs to know where the downloaded media is. This is told to sonarr by transmission
       - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/downloads
@@ -189,7 +189,7 @@ services:
   tautulli:
     container_name: tautulli
     image: linuxserver/tautulli:latest
-    extra_hosts: *rpi
+    extra_hosts: *aard
     restart: unless-stopped
     networks:
       - media_net
@@ -198,8 +198,8 @@ services:
       - "8181:8181"
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: 1014
-      PGID: 1014
+      PUID: 1016
+      PGID: 1016
       TZ: Australia/Melbourne
     volumes:
       # config directory
@@ -213,7 +213,7 @@ services:
     container_name: notifiarr
     hostname: notifiarr
     image: golift/notifiarr
-    extra_hosts: *rpi
+    extra_hosts: *aard
     restart: unless-stopped
     networks:
       - media_net
@@ -221,9 +221,9 @@ services:
       - 5454:5454
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: 1018
-      PGID: 1018
-      TZ: Australia/Melbourne
+      PUID: 1014
+      PGID: 1014
+      TZ: ${TZ:-Australia/Melbourne}
     volumes:
       - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/notifiarr:/config
       - /var/run/utmp:/var/run/utmp
@@ -257,7 +257,7 @@ networks:
   #   image: linuxserver/lidarr:latest
   #   restart: always
   #   container_name: lidarr
-  #   extra_hosts: *rpi
+  #   extra_hosts: *aard
   #   ports:
   #     # Host port 8686 is mapped to container port 8686
   #     - 8686:8686
@@ -281,18 +281,20 @@ networks:
   # overseerr:
   #   image: sctx/overseerr:latest
   #   container_name: overseerr
-  #   extra_hosts: *rpi
-  #   environment:
-  #     LOG_LEVEL: debug
-  #     TZ: Australia/Melbourne
-  #     PORT: 5055 #optional
-  #     PUID: 1017
-  #     PGID: 1017
+  #   extra_hosts: *aard
+  #   restart: unless-stopped
+  #   networks: 
+  #     - media_net
   #   ports:
   #     - 5055:5055
+  #   environment:
+  #     LOG_LEVEL: debug
+  #     TZ: ${TZ:-Australia/Melbourne}
+  #     PORT: 5055 #optional
+  #     PUID: 1015
+  #     PGID: 1015
   #   volumes:
-  #     - /mnt/external-workdir/overseerr:/app/config
-  #   restart: unless-stopped
+  #     - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/overseerr:/app/config
 
   
 
@@ -308,7 +310,7 @@ networks:
   #   image: thundermagic/sonarr_netimport:latest
   #   restart: unless-stopped
   #   container_name: sonarr_netimport
-  #   extra_hosts: *rpi
+  #   extra_hosts: *aard
   #   environment:
   #     TVDB_USERNAME: ***REMOVED***
   #     TVDB_USER_KEY: ***REMOVED***
