@@ -7,11 +7,10 @@ services:
     cap_add:
       - NET_ADMIN
     environment:
-
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
-      PUID: 1003
-      PGID: 1003
+      PUID: 1004
+      PGID: 1004
       # TZ: Australia/Melbourne
 
       # 2. Set variables via substitution from .env file
@@ -21,7 +20,7 @@ services:
       TZ: ${TZ}
 
     volumes:
-      - ${WORK_DIR}/openvpn/etc:/etc/openvpn
+      - ${ROOT_CONFIG}/openvpn/etc:/etc/openvpn
     ports:
       - ${OPENVPN_EXTERNAL_PORT}:1194/tcp
     
