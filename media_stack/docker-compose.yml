@@ -1,5 +1,5 @@
 x-extra_hosts:
-  # This is added so that within each service you can communicate to another service by using the DNS name of pi rather
+  # This is added so that within each service/container you can communicate to another service by using a DNS rather
   # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
   # configure the transmission client url as http://host-server:9091
   &host-server
@@ -8,10 +8,7 @@ x-extra_hosts:
 services:
   # All the services use docker bind mounts to store config data and media on the host's filesystem. If you're familiar with
   # docker storage, you can use whatever you want. You can change it to use docker volumes if you want.
-  # I have my external HDD mounted as /mnt/media. Hence all the bind mounts use /mnt/media as the root. If you want
-  # to use a different directory for bind mount, you can do that by modifying the bind mounts under volumes section of
-  # a service.
-  #
+    #
   # Nearly all the containers can be run as non root. This is controlled by PUID and PGID environment variables.
   # Make sure any volume directories on the host are owned by the same user you specify to run the container as. Else
   # you may have permissions issues.
@@ -54,11 +51,11 @@ services:
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # Docker bind mounts are used to store config and media on the host's filesystem. Config for plex will be stored
-      # in /mnt/external-workdir/plex/config directory and any transcoding data is stored in a transcode directory
+      # in the .env-defined ROOT_CONFIG/plex/config directory and any transcoding data is stored in a transcode directory
       - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/plex/config:/config
       - ${ROOT_TRANSCODE:?Please configure ROOT_TRANSCODE in .env file}:/transcode
-      # Within plex, we are mounting the root of /mnt/media to /all_media directory. So within plex, when you look
-      # inside /all_media directory you would see the same file structure as /mnt/media on the host
+      # Within plex, we are mounting the root of your media folder, as defined by the .env, to /all_media directory. So within plex, 
+      # when you look inside /all_media directory you would see the same file structure as on the host
       - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}:/all_media
 
   # Torrent and VPN
@@ -67,7 +64,7 @@ services:
     container_name: transmission-openvpn
     extra_hosts: *host-server
     restart: unless-stopped
-    #network_mode: host  #TODO: maybe make this not 'host', so that only this container uses the VPN connection and not the whole host
+    #network_mode: host  #made this not 'host', so that only this container uses the VPN connection and not the whole host
     networks:
       - media_net # TODO - test how the VPN impacts the media_net network
     cap_add:
