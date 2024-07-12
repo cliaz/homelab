@@ -41,7 +41,7 @@ services:
     environment:
 
       PUID: ${PLEX_UID?Please configure PLEX_UID in .env file}
-      PGID: ${PLEX_GID?Please configure PLEX_GID in .env file}
+      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # Docker bind mounts are used to store config and media on the host's filesystem. Config for plex will be stored
@@ -67,7 +67,7 @@ services:
       - 9091:9091
     environment:
       PUID: ${TRANSMISSION_UID?Please configure TRANSMISSION_UID in .env file}
-      PGID: ${TRANSMISSION_GID?Please configure TRANSMISSION_GID in .env file}
+      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
 
       # To run this container, you would need an openvpn provider. I use IPVANISH and hence in here that is used as an
@@ -119,7 +119,7 @@ services:
       - 9696:9696
     environment:
       PUID: ${PROWLARR_UID?Please configure PROWLARR_UID in .env file}
-      PGID: ${PROWLARR_GID?Please configure PROWLARR_GID in .env file}
+      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/prowlarr:/config
@@ -138,7 +138,7 @@ services:
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
       PUID: ${RADARR_UID?Please configure RADARR_UID in .env file}
-      PGID: ${RADARR_GID?Please configure RADARR_GID in .env file}
+      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # Radarr needs to know where the downloaded media is. This is told to radarr by transmission
@@ -164,7 +164,7 @@ services:
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
       PUID: ${SONARR_UID?Please configure SONARR_UID in .env file}
-      PGID: ${SONARR_GID?Please configure SONARR_GID in .env file}
+      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # sonarr needs to know where the downloaded media is. This is told to sonarr by transmission
@@ -190,7 +190,7 @@ services:
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
       PUID: ${TAUTULLI_UID?Please configure TAUTULLI_UID in .env file}
-      PGID: ${TAUTULLI_GID?Please configure TAUTULLI_GID in .env file}
+      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # config directory
@@ -213,7 +213,7 @@ services:
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
       PUID: ${NOTIFIARR_UID?Please configure NOTIFIARR_UID in .env file}
-      PGID: ${NOTIFIARR_GID?Please configure NOTIFIARR_GID in .env file}
+      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/notifiarr:/config
