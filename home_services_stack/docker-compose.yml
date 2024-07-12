@@ -31,8 +31,8 @@ services:
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
-      PUID: 1006
-      PGID: 1006
+      PUID: 1003
+      PGID: 1003
       TZ: ${TZ:-Australia/Melbourne}
       URL: ${SWAG_URL:?Please configure SWAG_URL in .env file}
 
@@ -60,8 +60,8 @@ services:
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
-      PUID: 1004
-      PGID: 1004
+      PUID: 1006
+      PGID: 1006
       TZ: ${TZ:-Australia/Melbourne}
 
       # 2. Set variables via substitution from .env file
@@ -89,8 +89,8 @@ services:
       DISABLE_ANALYTICS: TRUE
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
-      PUID: 1021
-      PGID: 1021
+      PUID: 1019
+      PGID: 1019
       TZ: ${TZ:-Australia/Melbourne}
 
       # 2. Set variables via substitution from .env file
@@ -134,8 +134,8 @@ services:
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
-      PUID: 1020
-      PGID: 1020
+      PUID: 1018
+      PGID: 1018
       TZ: ${TZ:-Australia/Melbourne}
 
       # 2. Set variables via substitution from .env file
