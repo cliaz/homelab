@@ -8,7 +8,7 @@ x-extra_hosts:
 services:
   # All the services use docker bind mounts to store config data and media on the host's filesystem. If you're familiar with
   # docker storage, you can use whatever you want. You can change it to use docker volumes if you want.
-    #
+  #
   # Nearly all the containers can be run as non root. This is controlled by PUID and PGID environment variables.
   # Make sure any volume directories on the host are owned by the same user you specify to run the container as. Else
   # you may have permissions issues.
@@ -41,13 +41,13 @@ services:
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
-      PUID: 1010
-      PGID: 1010
+      #PUID: 1010
+      #PGID: 1010
       #TZ: Australia/Melbourne
 
       # 2. Set variables via substitution from .env file
-      # PUID: ${PLEX_PUID} # TODO: not resepecting the .env file, using direct values for now
-      # PGID: ${PLEX_PGID} # TODO: not resepecting the .env file, using direct values for now
+      PUID: ${PLEX_PID} # TODO: not resepecting the .env file, using direct values for now
+      PGID: ${PLEX_GID} # TODO: not resepecting the .env file, using direct values for now
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # Docker bind mounts are used to store config and media on the host's filesystem. Config for plex will be stored
