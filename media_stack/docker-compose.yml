@@ -39,15 +39,9 @@ services:
       # You can comment or delete this if you want. Leaving it as it is won't do any harm.
       - "/dev/dri:/dev/dri"
     environment:
-      # Choose one of the following methods to set environment variables
-      # 1. Set variables directly in the compose file
-      #PUID: 1010
-      #PGID: 1010
-      #TZ: Australia/Melbourne
 
-      # 2. Set variables via substitution from .env file
-      PUID: ${PLEX_PID?Please configure PLEX_UID in .env file} # TODO: not resepecting the .env file, using direct values for now
-      PGID: ${PLEX_GID} # TODO: not resepecting the .env file, using direct values for now
+      PUID: ${PLEX_UID?Please configure PLEX_UID in .env file}
+      PGID: ${PLEX_GID?Please configure PLEX_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # Docker bind mounts are used to store config and media on the host's filesystem. Config for plex will be stored
@@ -72,9 +66,10 @@ services:
     ports:
       - 9091:9091
     environment:
-      # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: 1013
-      PGID: 1013
+      PUID: ${TRANSMISSION_UID?Please configure TRANSMISSION_UID in .env file}
+      PGID: ${TRANSMISSION_GID?Please configure TRANSMISSION_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+
       # To run this container, you would need an openvpn provider. I use IPVANISH and hence in here that is used as an
       # example. Please look at the documentation to understand each of the config variables.
       # Documentation: https://haugene.github.io/docker-transmission-openvpn/
@@ -100,7 +95,6 @@ services:
       TRANSMISSION_RATIO_LIMIT_ENABLED: true
       TRANSMISSION_SEED_QUEUE_ENABLED: true
       TRANSMISSION_SEED_QUEUE_SIZE: 30
-      TZ: ${TZ:-Australia/Melbourne}
     logging:
           driver: json-file
           options:
@@ -124,8 +118,8 @@ services:
     ports:
       - 9696:9696
     environment:
-      PUID: 1017
-      PGID: 1017
+      PUID: ${PROWLARR_UID?Please configure PROWLARR_UID in .env file}
+      PGID: ${PROWLARR_GID?Please configure PROWLARR_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/prowlarr:/config
@@ -143,8 +137,8 @@ services:
       - 7878:7878
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: 1011
-      PGID: 1011
+      PUID: ${RADARR_UID?Please configure RADARR_UID in .env file}
+      PGID: ${RADARR_GID?Please configure RADARR_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # Radarr needs to know where the downloaded media is. This is told to radarr by transmission
@@ -169,8 +163,8 @@ services:
       - 8989:8989
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: 1012
-      PGID: 1012
+      PUID: ${SONARR_UID?Please configure SONARR_UID in .env file}
+      PGID: ${SONARR_GID?Please configure SONARR_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # sonarr needs to know where the downloaded media is. This is told to sonarr by transmission
@@ -195,9 +189,9 @@ services:
       - "8181:8181"
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: 1016
-      PGID: 1016
-      TZ: Australia/Melbourne
+      PUID: ${TAUTULLI_UID?Please configure TAUTULLI_UID in .env file}
+      PGID: ${TAUTULLI_GID?Please configure TAUTULLI_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # config directory
       - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/tautulli:/config
@@ -218,8 +212,8 @@ services:
       - 5454:5454
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: 1014
-      PGID: 1014
+      PUID: ${NOTIFIARR_UID?Please configure NOTIFIARR_UID in .env file}
+      PGID: ${NOTIFIARR_GID?Please configure NOTIFIARR_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/notifiarr:/config
