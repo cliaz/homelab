@@ -46,7 +46,7 @@ services:
       #TZ: Australia/Melbourne
 
       # 2. Set variables via substitution from .env file
-      PUID: ${PLEX_PID} # TODO: not resepecting the .env file, using direct values for now
+      PUID: ${PLEX_PID?Please configure PLEX_UID in .env file} # TODO: not resepecting the .env file, using direct values for now
       PGID: ${PLEX_GID} # TODO: not resepecting the .env file, using direct values for now
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
