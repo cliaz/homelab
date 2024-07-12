@@ -1,13 +1,13 @@
-# docker-compose for Stack of Swag + Heimdall + HomeAssistant
+# docker-compose for Stack of Swag + Homarr + HomeAssistant + WyzeBridge
 # need to modify the swag configs in /data/docker/swag/config/nginx/proxy-confs/ to match
 
 x-extra_hosts:
   # This is added so that within each service you can communicate to another service by using the DNS name of the host rather
   # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
-  # configure the transmission client url as http://docker_host_ip:9091
-  &docker_host_ip
+  # configure the transmission client url as http://host-server:9091
+  &host-server
   # Pulls the IP address of the host from the .env file
-  - "docker_host_ip:${HOST_IP}"
+  - "host-server:${HOST_IP}"
 
 services:
   # Reverse proxy for all services hosted on the RPI
@@ -16,7 +16,7 @@ services:
     image: linuxserver/swag:latest    # https://docs.linuxserver.io/general/swag/#docker-compose
     container_name: swag
     hostname: swag
-    extra_hosts: *docker_host_ip
+    extra_hosts: *host-server
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
@@ -54,7 +54,7 @@ services:
     image: linuxserver/homeassistant:latest
     container_name: homeassistant
     hostname: homeassistant
-    extra_hosts: *docker_host_ip   # this might work to allow the nginx config for homeassistant to reference the host IP by name
+    extra_hosts: *host-server   # this might work to allow the nginx config for homeassistant to reference the host IP by name
     network_mode: host  # home assistant needs network_mode: host for auto discovery and bluetooth
     restart: unless-stopped
     environment:
@@ -77,7 +77,7 @@ services:
     image: ghcr.io/ajnart/homarr:latest
     container_name: homarr
     hostname: homarr
-    extra_hosts: *docker_host_ip
+    extra_hosts: *host-server
     restart: unless-stopped
     networks:
       - homelab_net
@@ -109,7 +109,7 @@ services:
                                       # make it into he mainline build
     container_name: wyze-bridge
     hostname: wyze-bridge
-    extra_hosts: *docker_host_ip
+    extra_hosts: *host-server
     restart: unless-stopped
     networks:
       - homelab_net
@@ -150,7 +150,7 @@ services:
       # https://developer-api-console.wyze.com/#/apikey/view
 
       # [OPTIONAL] IP Address of the host to enable WebRTC e.g.,:
-      WB_IP: docker_host_ip
+      WB_IP: host-server
 
 
 # want to define a network range so that we can explicitly trust that network in the homeassistant config    

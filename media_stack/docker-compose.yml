@@ -1,10 +1,10 @@
 x-extra_hosts:
   # This is added so that within each service you can communicate to another service by using the DNS name of pi rather
   # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
-  # configure the transmission client url as http://aard:9091
-  &aard
+  # configure the transmission client url as http://host-server:9091
+  &host-server
   # Pulls the IP address of the host from the .env file
-  - "aard:${HOST_IP}"
+  - "host-server:${HOST_IP}"
 services:
   # All the services use docker bind mounts to store config data and media on the host's filesystem. If you're familiar with
   # docker storage, you can use whatever you want. You can change it to use docker volumes if you want.
@@ -29,7 +29,7 @@ services:
   plex:
     image: linuxserver/plex:latest
     container_name: plex
-    extra_hosts: *aard
+    extra_hosts: *host-server
     network_mode: host  # TODO: why is this on network mode host?
     restart: unless-stopped
     ports:
@@ -65,7 +65,7 @@ services:
   transmission-openvpn:
     image: haugene/transmission-openvpn:latest
     container_name: transmission-openvpn
-    extra_hosts: *aard
+    extra_hosts: *host-server
     restart: unless-stopped
     #network_mode: host  #TODO: maybe make this not 'host', so that only this container uses the VPN connection and not the whole host
     networks:
@@ -120,7 +120,7 @@ services:
   prowlarr:
     image: linuxserver/prowlarr:latest
     container_name: prowlarr
-    extra_hosts: *aard
+    extra_hosts: *host-server
     restart: unless-stopped
     networks:
       - media_net
@@ -137,7 +137,7 @@ services:
   radarr:
     image: linuxserver/radarr:latest
     container_name: radarr
-    extra_hosts: *aard
+    extra_hosts: *host-server
     restart: unless-stopped
     networks:
       - media_net
@@ -163,7 +163,7 @@ services:
   sonarr:
     image: linuxserver/sonarr:latest
     container_name: sonarr
-    extra_hosts: *aard
+    extra_hosts: *host-server
     restart: unless-stopped
     networks:
       - media_net
@@ -189,7 +189,7 @@ services:
   tautulli:
     container_name: tautulli
     image: linuxserver/tautulli:latest
-    extra_hosts: *aard
+    extra_hosts: *host-server
     restart: unless-stopped
     networks:
       - media_net
@@ -213,7 +213,7 @@ services:
     container_name: notifiarr
     hostname: notifiarr
     image: golift/notifiarr
-    extra_hosts: *aard
+    extra_hosts: *host-server
     restart: unless-stopped
     networks:
       - media_net
@@ -257,7 +257,7 @@ networks:
   #   image: linuxserver/lidarr:latest
   #   restart: always
   #   container_name: lidarr
-  #   extra_hosts: *aard
+  #   extra_hosts: *host-server
   #   ports:
   #     # Host port 8686 is mapped to container port 8686
   #     - 8686:8686
@@ -281,7 +281,7 @@ networks:
   # overseerr:
   #   image: sctx/overseerr:latest
   #   container_name: overseerr
-  #   extra_hosts: *aard
+  #   extra_hosts: *host-server
   #   restart: unless-stopped
   #   networks: 
   #     - media_net
@@ -310,7 +310,7 @@ networks:
   #   image: thundermagic/sonarr_netimport:latest
   #   restart: unless-stopped
   #   container_name: sonarr_netimport
-  #   extra_hosts: *aard
+  #   extra_hosts: *host-server
   #   environment:
   #     TVDB_USERNAME: ***REMOVED***
   #     TVDB_USER_KEY: ***REMOVED***
