@@ -44,12 +44,12 @@ services:
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # Docker bind mounts are used to store config and media on the host's filesystem. Config for plex will be stored
-      # in the .env-defined ROOT_CONFIG_DIR/plex/config directory and any transcoding data is stored in a transcode directory
-      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/plex/config:/config
+      # in the .env-defined CONFIG_DIR/plex/config directory and any transcoding data is stored in a transcode directory
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/plex/config:/config
       - ${TRANSCODE_DIR:?Please configure TRANSCODE_DIR in .env file}:/transcode
       # Within plex, we are mounting the root of your media folder, as defined by the .env, to /all_media directory. So within plex, 
       # when you look inside /all_media directory you would see the same file structure as on the host
-      - ${ROOT_DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/media:/all_media
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/all_media
 
   # Torrent and VPN
   transmission-openvpn:
@@ -101,10 +101,8 @@ services:
     volumes:
       # Docker bind mounts used to mount host's filesystem within the container
       # Transmission config will be stored in a transmission-openvpn directory
-      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/transmission-openvpn:/config
-      # All the media managed by transmission with be stored in /mnt/media/downloads directory on the host BUT the
-      # transmission will see that as /data directory
-      - ${ROOT_DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/downloads:/data
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/transmission-openvpn:/config
+      - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data
    
   # Torrent Indexer management
   prowlarr:
@@ -121,7 +119,7 @@ services:
       PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
-      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/prowlarr:/config
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/prowlarr:/config
 
   # Movies management
   radarr:
@@ -141,9 +139,9 @@ services:
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # config directory
-      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/radarr:/config
-      # media directory
-      - ${ROOT_MEDIA_FOLDER:?Please configure ROOT_MEDIA in .env file}/downloads:/data
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/radarr:/config
+      # root directory, so that radarr can see downloads as well as stored media
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}:/data
 
   # Series management
   sonarr:
@@ -163,9 +161,9 @@ services:
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # config directory
-      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/sonarr:/config
-      # media directory
-      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/data
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/sonarr:/config
+      # root directory, so that sonarr can see downloads as well as stored media
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}:/data
 
   # Tautulli is used to get stats on Plex usage
   tautulli:
@@ -185,10 +183,10 @@ services:
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # config directory
-      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/tautulli:/config
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/tautulli:/config
       # Tautulli needs access to plex logs. In the plex container we mounted /mnt/external-workdir/plex of the host as the
       # config directory for plex. Logs are located within this config directory
-      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
 
   # A whole bunch of stuff, but mainly using for Trash-Guides sync
   notifiarr:
@@ -207,7 +205,7 @@ services:
       PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
-      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/notifiarr:/config
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/notifiarr:/config
       - /var/run/utmp:/var/run/utmp
       - /etc/machine-id:/etc/machine-id
 
@@ -276,7 +274,7 @@ networks:
   #     PUID: 1015
   #     PGID: 1015
   #   volumes:
-  #     - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/overseerr:/app/config
+  #     - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/overseerr:/app/config
 
   
 
