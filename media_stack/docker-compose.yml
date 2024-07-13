@@ -39,18 +39,17 @@ services:
       # You can comment or delete this if you want. Leaving it as it is won't do any harm.
       - "/dev/dri:/dev/dri"
     environment:
-
       PUID: ${PLEX_UID?Please configure PLEX_UID in .env file}
       PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # Docker bind mounts are used to store config and media on the host's filesystem. Config for plex will be stored
-      # in the .env-defined ROOT_CONFIG/plex/config directory and any transcoding data is stored in a transcode directory
-      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/plex/config:/config
-      - ${ROOT_TRANSCODE:?Please configure ROOT_TRANSCODE in .env file}:/transcode
+      # in the .env-defined ROOT_CONFIG_DIR/plex/config directory and any transcoding data is stored in a transcode directory
+      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/plex/config:/config
+      - ${TRANSCODE_DIR:?Please configure TRANSCODE_DIR in .env file}:/transcode
       # Within plex, we are mounting the root of your media folder, as defined by the .env, to /all_media directory. So within plex, 
       # when you look inside /all_media directory you would see the same file structure as on the host
-      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}:/all_media
+      - ${ROOT_DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/media:/all_media
 
   # Torrent and VPN
   transmission-openvpn:
@@ -102,10 +101,10 @@ services:
     volumes:
       # Docker bind mounts used to mount host's filesystem within the container
       # Transmission config will be stored in a transmission-openvpn directory
-      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/transmission-openvpn:/config
+      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/transmission-openvpn:/config
       # All the media managed by transmission with be stored in /mnt/media/downloads directory on the host BUT the
       # transmission will see that as /data directory
-      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/data
+      - ${ROOT_DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/downloads:/data
    
   # Torrent Indexer management
   prowlarr:
@@ -122,7 +121,7 @@ services:
       PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
-      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/prowlarr:/config
+      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/prowlarr:/config
 
   # Movies management
   radarr:
@@ -141,14 +140,10 @@ services:
       PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
-      # Radarr needs to know where the downloaded media is. This is told to radarr by transmission
-      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/downloads
-      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/data
       # config directory
-      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/radarr:/config
-      # Movies imported by radarr are stored in /mnt/media/movies directory on the host. Radarr sees this directory
-      # as /movies. Within radarr make your root folder as /movies
-      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/movies:/movies
+      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/radarr:/config
+      # media directory
+      - ${ROOT_MEDIA_FOLDER:?Please configure ROOT_MEDIA in .env file}/downloads:/data
 
   # Series management
   sonarr:
@@ -167,14 +162,10 @@ services:
       PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
-      # sonarr needs to know where the downloaded media is. This is told to sonarr by transmission
-      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/downloads
-      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/data
       # config directory
-      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/sonarr:/config
-      # TV shows imported by sonarr are stored in /mnt/media/tv_shows directory on the host. sonarr sees this directory
-      # as /tv. Within sonarr make your root folder as /tv
-      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/tv_shows:/tv
+      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/sonarr:/config
+      # media directory
+      - ${ROOT_MEDIA:?Please configure ROOT_MEDIA in .env file}/downloads:/data
 
   # Tautulli is used to get stats on Plex usage
   tautulli:
@@ -194,10 +185,10 @@ services:
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # config directory
-      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/tautulli:/config
+      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/tautulli:/config
       # Tautulli needs access to plex logs. In the plex container we mounted /mnt/external-workdir/plex of the host as the
       # config directory for plex. Logs are located within this config directory
-      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
+      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
 
   # A whole bunch of stuff, but mainly using for Trash-Guides sync
   notifiarr:
@@ -216,7 +207,7 @@ services:
       PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
-      - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/notifiarr:/config
+      - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/notifiarr:/config
       - /var/run/utmp:/var/run/utmp
       - /etc/machine-id:/etc/machine-id
 
@@ -285,7 +276,7 @@ networks:
   #     PUID: 1015
   #     PGID: 1015
   #   volumes:
-  #     - ${ROOT_CONFIG:?Please configure ROOT_CONFIG in .env file}/overseerr:/app/config
+  #     - ${ROOT_CONFIG_DIR:?Please configure ROOT_CONFIG_DIR in .env file}/overseerr:/app/config
 
   
 
