@@ -31,15 +31,15 @@ services:
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
-      PUID: 1003
-      PGID: 1003
+      # PUID: 1003
+      # PGID: 1003
       TZ: ${TZ:-Australia/Melbourne}
-      URL: ${SWAG_URL:?Please configure SWAG_URL in .env file}
+      # URL: ${SWAG_URL:?Please configure SWAG_URL in .env file}
 
       # 2. Set variables via substitution from .env file
-      # PUID: ${SWAG_PUID} # TODO: not resepecting the .env file, using direct values for now
-      # PGID: ${SWAG_PGID} # TODO: not resepecting the .env file, using direct values for now
-      # URL: ${SWAG_URL:?Please configure SWAG_URL in .env file} # TODO: not resepecting the .env file, using direct values for now
+      PUID: ${SWAG_UID:?Please configure SWAG_UID in .env file} # TODO: not resepecting the .env file, using direct values for now
+      PGID: ${SWAG_GID:?Please configure SWAG_GID in .env file} # TODO: not resepecting the .env file, using direct values for now
+      URL: ${SWAG_URL:?Please configure SWAG_URL in .env file} # TODO: not resepecting the .env file, using direct values for now
 
       SUBDOMAINS: wildcard
       VALIDATION: duckdns
@@ -47,7 +47,7 @@ services:
       #CERTPROVIDER: zerossl  # defaults to letsencrypt
       #EMAIL:   # required when using zerossl as cert provider
     volumes:
-      - ${ROOT_CONFIG}/swag:/config
+      - ${CONFIG_DIR}/swag:/config
 
   # Do all of the home automation stuff here
   homeassistant:
@@ -60,16 +60,16 @@ services:
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
-      PUID: 1006
-      PGID: 1006
+      # PUID: 1006
+      # PGID: 1006
       TZ: ${TZ:-Australia/Melbourne}
 
       # 2. Set variables via substitution from .env file
-      # PUID: ${HOMEASSISTANT_PUID} # TODO: not resepecting the .env file, using direct values for now
-      # PGID: ${HOMEASSISTANT_PGID} # TODO: not resepecting the .env file, using direct values for now
+      PUID: ${HOMEASSISTANT_UID:?Please configure HOMEASSISTANT_UID in .env file} # TODO: not resepecting the .env file, using direct values for now
+      PGID: ${HOMEASSISTANT_GID:?Please configure HOMEASSISTANT_GID in .env file} # TODO: not resepecting the .env file, using direct values for now
 
     volumes:
-      - ${ROOT_CONFIG}/homeassistant/config:/config
+      - ${CONFIG_DIR}/homeassistant/config:/config
       - /run/dbus:/run/dbus:ro
     # ports not needed, as this containers is exposed on the host network stack via network_mode: host
   
@@ -89,18 +89,18 @@ services:
       DISABLE_ANALYTICS: TRUE
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
-      PUID: 1019
-      PGID: 1019
+      # PUID: 1019
+      # PGID: 1019
       TZ: ${TZ:-Australia/Melbourne}
 
       # 2. Set variables via substitution from .env file
-      # PUID: ${HOMARR_PUID} # TODO: not resepecting the .env file, using direct values for now
-      # PGID: ${HOMARR_PGID} # TODO: not resepecting the .env file, using direct values for now
+      PUID: ${HOMARR_UID:?Please configure HOMARR_UID in .env file} # TODO: not resepecting the .env file, using direct values for now
+      PGID: ${HOMARR_GID:?Please configure HOMARR_UID in .env file} # TODO: not resepecting the .env file, using direct values for now
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
-      - ${ROOT_CONFIG}/homarr/configs:/app/data/configs
-      - ${ROOT_CONFIG}/homarr/icons:/app/public/icons
-      - ${ROOT_CONFIG}/homarr/data:/data
+      - ${CONFIG_DIR}/homarr/configs:/app/data/configs
+      - ${CONFIG_DIR}/homarr/icons:/app/public/icons
+      - ${CONFIG_DIR}/homarr/data:/data
 
   # Bridge to allow Wyze cameras to be used in HomeAssistant via RTSP. https://github.com/mrlt8/docker-wyze-bridge
   wyze-bridge:
@@ -115,10 +115,10 @@ services:
       - homelab_net
     ports:
       # TODO: harden ports
-      - 1935:1935 # RTMP - worst. probably don't want this
+      #- 1935:1935 # RTMP - worst. probably don't want this
       - 8554:8554 # RTSP - next best. 
-      - 8888:8888 # HLS - 2nd best.
-      - 8889:8889 # WebRTC - best. 
+      - 8888:8888 # HLS - 2nd best. Working on the wyzecam v3
+      #- 8889:8889 # WebRTC - best. Doesn't seem to be working on the wyzecam v3 though
       - 8189:8189/udp # WebRTC/ICE
       - 5000:5000 # WEB-UI
     secrets:
@@ -134,13 +134,13 @@ services:
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
-      PUID: 1018
-      PGID: 1018
+      # PUID: 1018
+      # PGID: 1018
       TZ: ${TZ:-Australia/Melbourne}
 
       # 2. Set variables via substitution from .env file
-      # PUID: ${WYZEBRIDGE_PUID} # TODO: not resepecting the .env file, using direct values for now
-      # PGID: ${WYZEBRIDGE_PUID} # TODO: not resepecting the .env file, using direct values for now
+      PUID: ${WYZEBRIDGE_UID:?Please configure HOMARR_UID in .env file} # TODO: not resepecting the .env file, using direct values for now
+      PGID: ${WYZEBRIDGE_UID:?Please configure HOMARR_UID in .env file} # TODO: not resepecting the .env file, using direct values for now
 
 
       # [OPTIONAL] Credentials can be set in the WebUI, but every time the container is restarted, the credentials will need to be re-entered.
