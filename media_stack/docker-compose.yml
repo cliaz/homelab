@@ -68,10 +68,10 @@ services:
       - /dev/net/tun:/dev/net/tun
     #networks:
     ports:
-      - 8888:8888/tcp # HTTP proxy
-      - 8388:8388/tcp # Shadowsocks
-      - 8388:8388/udp # Shadowsocks
-      - 8090:8090 # port for qbittorrent
+      - 8080:8080/tcp # HTTP proxy
+      # - 8388:8388/tcp # Shadowsocks
+      # - 8388:8388/udp # Shadowsocks
+      - 6881:6881 # port for qbittorrent
     environment:
       PUID: ${GLUETUN_UID?Please configure GLUETUN_UID in .env file}
       PGID: ${GLUETUN_GID?Please configure GLUETUN_GID in .env file}
