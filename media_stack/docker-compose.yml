@@ -59,14 +59,13 @@ services:
     container_name: gluetun
     extra_hosts: *host-server
     restart: unless-stopped
-    networks:
-      - media_net
     cap_add:
       - NET_ADMIN
     # This might be so that gluetun can access the host's network, so that it can route all traffic through the VPN. Unsure
     devices:
       - /dev/net/tun:/dev/net/tun
-    #networks:
+    networks:
+      - media_net
     ports:
       #- 8080:8080/tcp # HTTP proxy
       # - 8388:8388/tcp # Shadowsocks
@@ -80,7 +79,7 @@ services:
       VPN_SERVICE_PROVIDER: protonvpn
       OPENVPN_USER: ***REMOVED***
       OPENVPN_PASSWORD: ***REMOVED***
-      SERVER_COUNTRIES: Spain,Netherlands,Switzerland,Swede
+      SERVER_COUNTRIES: Spain, Netherlands, Switzerland, Sweden
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/gluetun:/config
     labels:
