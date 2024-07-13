@@ -79,7 +79,7 @@ services:
       VPN_SERVICE_PROVIDER: protonvpn
       OPENVPN_USER: ***REMOVED***
       OPENVPN_PASSWORD: ***REMOVED***
-      SERVER_COUNTRIES: Spain, Netherlands, Switzerland, Sweden
+      SERVER_COUNTRIES: Spain,Netherlands,Switzerland,Sweden
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/gluetun:/config
     labels:
