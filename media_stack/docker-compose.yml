@@ -85,6 +85,8 @@ services:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/gluetun:/config
     labels:
       # This is to disable watchtower from updating this container, because Containers connected to Gluetun lose connection once Gluetun is restarted
+      # can choose to monitor only, or fully disable
+      #- "com.centurylinklabs.watchtower.monitor-only=true"   
       - com.centurylinklabs.watchtower.enable=false
 
   qbittorrent:
@@ -101,9 +103,11 @@ services:
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/qbittorrent:/config
       - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data/torrents
-    depends_on:
-      gluetun:
-        condition: service_healthy
+    # As per https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md, no need to set 'depends on' 
+    # as the network_mode: "service:gluetun" will ensure that qbittorrent will only start once gluetun is healthy
+    # depends_on:
+    #   gluetun:
+    #     condition: service_healthy
 
   # Torrent Indexer management
   prowlarr:
