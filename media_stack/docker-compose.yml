@@ -2,8 +2,9 @@ x-extra_hosts:
   # This is added so that within each service/container you can communicate to another service by using a DNS rather
   # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
   # configure the transmission client url as http://host-server:9091
-  &host-server
+
   # Pulls the IP address of the host from the .env file
+  &host-server
   - "host-server:${HOST_IP}"
 services:
   # All the services use docker bind mounts to store config data and media on the host's filesystem. If you're familiar with
@@ -21,23 +22,23 @@ services:
   # Each services runs on a different port number. Plex and transmission-openvpn uses host networking mode whereas all
   # the other services use docker bridge networking and have host ports mapped to container ports. For these you can
   # change the mapping between host ports and container ports. Port mapping is in the format <host_port>:<container_port>
-  
+
   # Media streaming
   plex:
     image: linuxserver/plex:latest
     container_name: plex
     extra_hosts: *host-server
-    network_mode: host  # TODO: why is this on network mode host?
-    restart: unless-stopped
-    ports:
-    - 32400:32400
-    # NOTE: Please delete this entire `devices` section if your device does not have /dev/dri device. If you using something
-    # like RPi3, you would need to delete this section else you will get an error when trying to run this container.
+    network_mode: host # TODO: why is this on network mode host?
     devices:
       # This basically mounts the GPU device on the host to the container, needed for hardware transcoding.
       # For a RPi 4 this won't do anything as plex does not support transcoding on anything other than Intel quicksync.
       # You can comment or delete this if you want. Leaving it as it is won't do any harm.
       - "/dev/dri:/dev/dri"
+    restart: unless-stopped
+    ports:
+      - 32400:32400
+      # NOTE: Please delete this entire `devices` section if your device does not have /dev/dri device. If you using something
+      # like RPi3, you would need to delete this section else you will get an error when trying to run this container.
     environment:
       PUID: ${PLEX_UID?Please configure PLEX_UID in .env file}
       PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
@@ -51,59 +52,104 @@ services:
       # when you look inside /all_media directory you would see the same file structure as on the host
       - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/all_media
 
-  # Torrent and VPN
-  transmission-openvpn:
-    image: haugene/transmission-openvpn:latest
-    container_name: transmission-openvpn
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
     extra_hosts: *host-server
     restart: unless-stopped
-    #network_mode: host  #made this not 'host', so that only this container uses the VPN connection and not the whole host
-    networks:
-      - media_net # TODO - test how the VPN impacts the media_net network
     cap_add:
       - NET_ADMIN
+    # This might be so that gluetun can access the host's network, so that it can route all traffic through the VPN. Unsure
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    #networks:
     ports:
-      - 9091:9091
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
     environment:
-      PUID: ${TRANSMISSION_UID?Please configure TRANSMISSION_UID in .env file}
+      PUID: ${GLUETUN_UID?Please configure GLUETUN_UID in .env file}
+      PGID: ${GLUETUN_GID?Please configure GLUETUN_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      # https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/protonvpn.md
+      VPN_SERVICE_PROVIDER: protonvpn
+      OPENVPN_USER: ***REMOVED***
+      OPENVPN_PASSWORD: ***REMOVED***
+      SERVER_COUNTRIES: Netherlands
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/gluetun:/config
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    extra_hosts: *host-server
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    environment:
+      PUID: ${QBITTOREENT_UID?Please configure QBITTOREENT_UID in .env file}
       PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
-
-      # To run this container, you would need an openvpn provider. I use IPVANISH and hence in here that is used as an
-      # example. Please look at the documentation to understand each of the config variables.
-      # Documentation: https://haugene.github.io/docker-transmission-openvpn/
-      TRANSMISSION_WEB_UI: transmission-web-control
-      OPENVPN_USERNAME: ***REMOVED***
-      OPENVPN_PASSWORD: ***REMOVED***
-      OPENVPN_OPTS: --inactive 3600 --ping 10 --ping-exit 60
-      #LOCAL_NETWORK: 192.168.100.0/24
-      LOCAL_NETWORK: 192.168.0.0/16
-      OPENVPN_PROVIDER: PROTONVPN
-      PEER_DNS: true
-      PEER_DNS_PIN_ROUTES: true
-      CREATE_TUN_DEVICE: true
-      # Change these to which vpn endpoints you want to connect to. More info in documentation
-      # TODO: this config might not work? Chose one from https://github.com/haugene/vpn-configs-contrib/tree/main
-      OPENVPN_CONFIG: br.protonvpn.udp
-      # Below are just some variable to configure transmission. Configure them to whatever is best for your setup
-      TRANSMISSION_BIND_ADDRESS_IPV4: 0.0.0.0
-      TRANSMISSION_DOWNLOAD_QUEUE_SIZE: 10
-      TRANSMISSION_IDLE_SEEDING_LIMIT: 10
-      TRANSMISSION_IDLE_SEEDING_LIMIT_ENABLED: true
-      TRANSMISSION_RATIO_LIMIT: 2
-      TRANSMISSION_RATIO_LIMIT_ENABLED: true
-      TRANSMISSION_SEED_QUEUE_ENABLED: true
-      TRANSMISSION_SEED_QUEUE_SIZE: 30
-    logging:
-          driver: json-file
-          options:
-              max-size: 10m
+      WEBUI_PORT: ${QBIT_WEBUI_PORT:-8080}
     volumes:
-      # Docker bind mounts used to mount host's filesystem within the container
-      # Transmission config will be stored in a transmission-openvpn directory
-      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/transmission-openvpn:/config
-      - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data
-   
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/qbittorrent:/config
+      - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data/torrents
+    depends_on:
+      gluetun:
+        condition: service_healthy
+
+  # Torrent and VPN
+  # transmission-openvpn:
+  #   image: haugene/transmission-openvpn:latest
+  #   container_name: transmission-openvpn
+  #   extra_hosts: *host-server
+  #   restart: unless-stopped
+  #   #network_mode: host  #made this not 'host', so that only this container uses the VPN connection and not the whole host
+  #   cap_add:
+  #     - NET_ADMIN
+  #   networks:
+  #     - media_net # TODO - test how the VPN impacts the media_net network
+  #   ports:
+  #     - 9091:9091
+  #   environment:
+  #     PUID: ${TRANSMISSION_UID?Please configure TRANSMISSION_UID in .env file}
+  #     PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
+  #     TZ: ${TZ:-Australia/Melbourne}
+
+  #     # To run this container, you would need an openvpn provider. I use IPVANISH and hence in here that is used as an
+  #     # example. Please look at the documentation to understand each of the config variables.
+  #     # Documentation: https://haugene.github.io/docker-transmission-openvpn/
+  #     TRANSMISSION_WEB_UI: transmission-web-control
+  #     OPENVPN_USERNAME: ***REMOVED***
+  #     OPENVPN_PASSWORD: ***REMOVED***
+  #     OPENVPN_OPTS: --inactive 3600 --ping 10 --ping-exit 60
+  #     #LOCAL_NETWORK: 192.168.100.0/24
+  #     LOCAL_NETWORK: 192.168.0.0/16
+  #     OPENVPN_PROVIDER: PROTONVPN
+  #     PEER_DNS: true
+  #     PEER_DNS_PIN_ROUTES: true
+  #     CREATE_TUN_DEVICE: true
+  #     # Change these to which vpn endpoints you want to connect to. More info in documentation
+  #     # TODO: this config might not work? Chose one from https://github.com/haugene/vpn-configs-contrib/tree/main
+  #     OPENVPN_CONFIG: br.protonvpn.udp
+  #     # Below are just some variable to configure transmission. Configure them to whatever is best for your setup
+  #     TRANSMISSION_BIND_ADDRESS_IPV4: 0.0.0.0
+  #     TRANSMISSION_DOWNLOAD_QUEUE_SIZE: 10
+  #     TRANSMISSION_IDLE_SEEDING_LIMIT: 10
+  #     TRANSMISSION_IDLE_SEEDING_LIMIT_ENABLED: true
+  #     TRANSMISSION_RATIO_LIMIT: 2
+  #     TRANSMISSION_RATIO_LIMIT_ENABLED: true
+  #     TRANSMISSION_SEED_QUEUE_ENABLED: true
+  #     TRANSMISSION_SEED_QUEUE_SIZE: 30
+  #   logging:
+  #         driver: json-file
+  #         options:
+  #             max-size: 10m
+  #   volumes:
+  #     # Docker bind mounts used to mount host's filesystem within the container
+  #     # Transmission config will be stored in a transmission-openvpn directory
+  #     - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/transmission-openvpn:/config
+  #     - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data
+
   # Torrent Indexer management
   prowlarr:
     image: linuxserver/prowlarr:latest
@@ -209,14 +255,12 @@ services:
       - /var/run/utmp:/var/run/utmp
       - /etc/machine-id:/etc/machine-id
 
-
 networks:
 
   ## Assumption / Precondition: the network 'media_net' exist, either defined in home_services_stack or 
   ## manually via the command "docker network create --attachable --subnet=172.200.0.0/24 media_net"
   media_net:
     external: true
-
   ## Following network definition left for posterity
   # media_net:
   #   name: media_net   # ensure network isn't prefixed with the default name of the directory, eg git_media_stack_media_net
@@ -227,11 +271,11 @@ networks:
 
 
 
-######################
-#                    #
-#    TESTING SHIZ    #
-#                    #
-######################
+  ######################
+  #                    #
+  #    TESTING SHIZ    #
+  #                    #
+  ######################
 
   # lidarr:
   #   image: linuxserver/lidarr:latest
@@ -276,7 +320,7 @@ networks:
   #   volumes:
   #     - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/overseerr:/app/config
 
-  
+
 
   # Sonarr at present does not support netimport lists like Radarr does. On Radarr you can setup it up to import movies
   # from Lists like IMDB lists or themoviedb.org lists. Using these lists, you can just add the movies you want to
