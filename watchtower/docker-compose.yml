@@ -10,8 +10,7 @@ services:
       # the actual files, not the contents of the files. This is why the file paths are used in the
       # environment variables below - eg /run/secrets/<secret_name>
       - watchtower_discord_API    # use for discord notifications
-      # use for email notifications
-      - email_server_password
+      - email_server_password     # use for email notifications
       
     ## Variable Substitution
     # If deploying this directly via `docker compose up` or from GitHub via Portainer, make sure the .env file is in the 
@@ -49,7 +48,7 @@ services:
       WATCHTOWER_DEBUG: false
       WATCHTOWER_MONITOR_ONLY: false       # do not update containers, only notify
       
-      # Uncomment the below for email notifications
+      ## Uncomment the below for email notifications. Variables set in the .env
       # WATCHTOWER_NOTIFICATIONS: email
       # WATCHTOWER_NOTIFICATION_EMAIL_FROM: ${EMAIL_FROM}
       # WATCHTOWER_NOTIFICATION_EMAIL_TO: ${EMAIL_TO}
