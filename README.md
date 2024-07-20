@@ -2,6 +2,15 @@
 This repo contains a bunch of different docker stacks designed to do different things. They are also coupled in certain ways (eg. shared docker networks), which means deploying a stack individually may cause issues.
 
 
+## Features
+- Per-service user segregation
+- Secrets material stored in files accessible on a per-container basis
+- Services configured by service-wide `.env` files
+- Hardlinking of media for more efficient I/O operations
+- Automated TRaSH Guide sync for media profiles
+
+
+# Stacks
 ## Home Services stack
 This stack is designed to provide overarching services that will be used by various different stacks.
 It should be able to run independantly of other stacks, however other stacks may rely on it
@@ -45,3 +54,4 @@ If you need to edit the `docker-compose.yml` file outside of disabling services,
 
 ## Prerequisites
 - [docker and docker-compose](https://docs.docker.com/engine/install/)
+- Your own outbound VPN connection
