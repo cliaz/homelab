@@ -57,6 +57,7 @@ services:
     extra_hosts: *host-server   # this might work to allow the nginx config for homeassistant to reference the host IP by name
     network_mode: host  # home assistant needs network_mode: host for auto discovery and bluetooth
     restart: unless-stopped
+    # ports not needed, as this containers is exposed on the host network stack via network_mode: host
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
@@ -71,7 +72,6 @@ services:
     volumes:
       - ${CONFIG_DIR}/homeassistant/config:/config
       - /run/dbus:/run/dbus:ro
-    # ports not needed, as this containers is exposed on the host network stack via network_mode: host
   
   homarr:
     image: ghcr.io/ajnart/homarr:latest
@@ -105,8 +105,6 @@ services:
   # Bridge to allow Wyze cameras to be used in HomeAssistant via RTSP. https://github.com/mrlt8/docker-wyze-bridge
   wyze-bridge:
     image: mrlt8/wyze-bridge:latest
-    #image: wyze-bridge-secret-edits   # TODO: switch back to release build once the changes that support secrets
-                                      # make it into he mainline build
     container_name: wyze-bridge
     hostname: wyze-bridge
     extra_hosts: *host-server
@@ -172,8 +170,6 @@ secrets:
     file: ${SECRETS}/wyzebridge/wyze_account_email
   WYZE_PASSWORD:
     file: ${SECRETS}/wyzebridge/wyze_account_password
-  wyze_account_totp:
-    file: ${SECRETS}/wyzebridge/wyze_account_totp
   API_ID:
     file: ${SECRETS}/wyzebridge/wyze_api_id
   API_KEY:
