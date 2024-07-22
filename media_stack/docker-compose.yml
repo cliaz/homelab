@@ -40,8 +40,8 @@ services:
       # NOTE: Please delete this entire `devices` section if your device does not have /dev/dri device. If you using something
       # like RPi3, you would need to delete this section else you will get an error when trying to run this container.
     environment:
-      PUID: ${PLEX_UID?Please configure PLEX_UID in .env file}
-      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
+      PUID: ${PLEX_UID:?Please configure PLEX_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # Docker bind mounts are used to store config and media on the host's filesystem. Config for plex will be stored
@@ -72,8 +72,8 @@ services:
       # - 8388:8388/udp # Shadowsocks
       - ${QBIT_WEBUI_PORT:-8080}:${QBIT_WEBUI_PORT:-8080} # port for qbittorrent. make sure to change it in the qBit webUI too!
     environment:
-      PUID: ${GLUETUN_UID?Please configure GLUETUN_UID in .env file}
-      PGID: ${GLUETUN_GID?Please configure GLUETUN_GID in .env file}
+      PUID: ${GLUETUN_UID:?Please configure GLUETUN_UID in .env file}
+      PGID: ${GLUETUN_GID:?Please configure GLUETUN_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
       # https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/protonvpn.md
       VPN_SERVICE_PROVIDER: ${VPN_SERVICE_PROVIDER:?Please configure VPN_SERVICE_PROVIDER in .env file}
@@ -95,8 +95,8 @@ services:
     restart: unless-stopped
     network_mode: "service:gluetun"
     environment:
-      PUID: ${QBITTOREENT_UID?Please configure QBITTOREENT_UID in .env file}
-      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
+      PUID: ${QBITTOREENT_UID:?Please configure QBITTOREENT_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
       WEBUI_PORT: ${QBIT_WEBUI_PORT:-8080}
     volumes:
@@ -119,8 +119,8 @@ services:
     ports:
       - 9696:9696
     environment:
-      PUID: ${PROWLARR_UID?Please configure PROWLARR_UID in .env file}
-      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
+      PUID: ${PROWLARR_UID:?Please configure PROWLARR_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/prowlarr:/config
@@ -138,8 +138,8 @@ services:
       - 7878:7878
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: ${RADARR_UID?Please configure RADARR_UID in .env file}
-      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
+      PUID: ${RADARR_UID:?Please configure RADARR_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # config directory
@@ -160,8 +160,8 @@ services:
       - 8989:8989
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: ${SONARR_UID?Please configure SONARR_UID in .env file}
-      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
+      PUID: ${SONARR_UID:?Please configure SONARR_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # config directory
@@ -182,8 +182,8 @@ services:
       - "8181:8181"
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: ${TAUTULLI_UID?Please configure TAUTULLI_UID in .env file}
-      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
+      PUID: ${TAUTULLI_UID:?Please configure TAUTULLI_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # config directory
@@ -205,8 +205,8 @@ services:
       - 5454:5454
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: ${NOTIFIARR_UID?Please configure NOTIFIARR_UID in .env file}
-      PGID: ${MEDIA_GID?Please configure MEDIA_GID in .env file}
+      PUID: ${NOTIFIARR_UID:?Please configure NOTIFIARR_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/notifiarr:/config
