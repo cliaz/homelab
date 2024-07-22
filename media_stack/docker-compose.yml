@@ -169,6 +169,24 @@ services:
       # root directory, so that sonarr can see downloads as well as stored media
       - ${DATA_DIR:?Please configure DATA_DIR in .env file}:/data
 
+  #Overseerr is used to manage media requests for both Sonarr and Radarr, combining them both into one portal
+  overseerr:
+    #image: sctx/overseerr:latest                 # this is the official overseerr image
+    image: linuxserver/overseerr:latest   # using linuxserver.io image for now
+    container_name: overseerr
+    extra_hosts: *host-server
+    restart: unless-stopped
+    networks: 
+      - media_net
+    ports:
+      - 5055:5055
+    environment:
+      PUID: ${OVERSEERR_UID:?Please configure OVERSEERR_UID in .env file}
+      PGID: ${OVERSEERR_UID:?Please configure OVERSEERR_UID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/overseerr:/app/config
+
   # Tautulli is used to get stats on Plex usage
   tautulli:
     container_name: tautulli
@@ -257,27 +275,6 @@ networks:
   #     # Music imported by lidarr is stored in /mnt/media/music directory on the host. lidarr sees this directory
   #     # as /music. Within lidarr make your root folder as /music
   #     - /mnt/media/music:/music
-
-
-  # Overseerr is used to manage media requests for both Sonarr and Radarr, combining them both into one portal
-  # overseerr:
-  #   image: sctx/overseerr:latest
-  #   container_name: overseerr
-  #   extra_hosts: *host-server
-  #   restart: unless-stopped
-  #   networks: 
-  #     - media_net
-  #   ports:
-  #     - 5055:5055
-  #   environment:
-  #     LOG_LEVEL: debug
-  #     TZ: ${TZ:-Australia/Melbourne}
-  #     PORT: 5055 #optional
-  #     PUID: 1015
-  #     PGID: 1015
-  #   volumes:
-  #     - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/overseerr:/app/config
-
 
 
   # Sonarr at present does not support netimport lists like Radarr does. On Radarr you can setup it up to import movies
