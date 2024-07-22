@@ -39,7 +39,12 @@ It also has the following services 'built' but not in use.
 - sonarr_netimport: A python script to fetch TV shows from tvdb.com and add them to sonarr
 - radarr_netimport: Similar to sonarr_netimport but for radarr
 
-
+### Configuration Notes
+#### Homarr
+- When configuring services like Proxmox and PiHole, the associated widgets might not work unless the "Internal address" field is configured with the actual IP address of the service.
+  - e.g. Proxmox
+    - Internal address: http://192.168.1.10:5001
+    - External address: http://proxmox.local:5001
 
 # Deployment
 Each of the stacks in this repo are designed to be deployed via Portainer using the [Git Repository option](https://docs.portainer.io/user/docker/stacks/add#option-3-git-repository)
