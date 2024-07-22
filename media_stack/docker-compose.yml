@@ -292,7 +292,7 @@ networks:
   #   extra_hosts: *host-server
   #   environment:
   #     TVDB_USERNAME: ***REMOVED***
-  #     TVDB_USER_KEY: ***REMOVED***
+  #     TVDB_USER_KEY: <USER_KEY>
   #     TVDB_API_KEY: tvdb_api_key   #TODO: probably need to get this from tvdb, costs $11.99 / year
   #     # IP address and port number where sonarr can be accessed
   #     SONARR_IP: 192.168.100.3
@@ -305,11 +305,11 @@ networks:
   #     MONITORED: 1  # 1 is True
   #     ROOT_FOLDER_PATH: /tv/  # Full path of root folder
   #     # Below variables are for sending error notification emails. If not needed, delete these
-  #     EMAIL_ADDRESS: ***REMOVED***
-  #     EMAIL_PASSWORD: ***REMOVED***
-  #     EMAIL_TO_ADDRESS: ***REMOVED***
-  #     SMTP_SERVER: smtp.gmail.com
-  #     SMTP_SERVER_PORT: 587
+  #     EMAIL_ADDRESS: <EMAIL>
+  #     EMAIL_PASSWORD: <PASSWORD>
+  #     EMAIL_TO_ADDRESS: <EMAIL_TO>
+  #     SMTP_SERVER: <SMTP_SERVER >  # e.g smtp.gmail.com
+  #     SMTP_SERVER_PORT: <SMTP_PORT>  # e.g. 587
 
   # Similar to sonarr_netimport but for radarr. Radarr has this feature built-in but radarr uses TMDB API v3 and
   # I have noticed that if using v3 API, TMDB only returns maximum of 500 movies in the list.
