@@ -53,7 +53,7 @@ services:
       - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/all_media
 
   # Outbound VPN connection
-  # can confirm connectivity by jumping into the container and running "wget -q -O- http://ipecho.net/plain"
+  # can confirm connectivity by with "docker exec gluetun wget -q -O- http://ipecho.net/plain"
   gluetun:
     image: qmcgaw/gluetun:latest
     container_name: gluetun
@@ -67,7 +67,7 @@ services:
     networks:
       - media_net
     ports:
-      #- 8080:8080/tcp # HTTP proxy
+      # - 8080:8080/tcp # HTTP proxy
       # - 8388:8388/tcp # Shadowsocks
       # - 8388:8388/udp # Shadowsocks
       - ${QBIT_WEBUI_PORT:-8080}:${QBIT_WEBUI_PORT:-8080} # port for qbittorrent. make sure to change it in the qBit webUI too!
