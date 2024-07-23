@@ -71,6 +71,7 @@ services:
       # - 8388:8388/tcp # Shadowsocks
       # - 8388:8388/udp # Shadowsocks
       - ${QBIT_WEBUI_PORT:-8080}:${QBIT_WEBUI_PORT:-8080} # port for qbittorrent. make sure to change it in the qBit webUI too!
+      - ${DELUGE_WEBUI_PORT:-8112}:${DELUGE_WEBUI_PORT:-8112} # port for deluge.
     environment:
       PUID: ${GLUETUN_UID:?Please configure GLUETUN_UID in .env file}
       PGID: ${GLUETUN_GID:?Please configure GLUETUN_GID in .env file}
@@ -107,6 +108,24 @@ services:
     # depends_on:
     #   gluetun:
     #     condition: service_healthy
+
+  # To change download client add the new one to sonarr/radarr and mark the old one as disabled
+  # Use sonarr/radarr to remove queued torrents from the old client and then re-scan for torrents
+  # New torrents should now be added to the new client
+  # Once all downloads are complete in the old client it can be removed
+  deluge:  
+    image: linuxserver/deluge:latest
+    container_name: deluge
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    environment:
+      PUID: ${DELUGE_UID:?Please configure DELUGE_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      DELUGE_LOGLEVEL: ERROR  # Optional
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/deluge:/config
+      - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/downloads
 
   # Torrent Indexer management
   prowlarr:
