@@ -50,11 +50,11 @@ services:
       
       ## Uncomment the below for email notifications. Variables set in the .env
       # WATCHTOWER_NOTIFICATIONS: email
-      # WATCHTOWER_NOTIFICATION_EMAIL_FROM: ${EMAIL_FROM}
-      # WATCHTOWER_NOTIFICATION_EMAIL_TO: ${EMAIL_TO}
-      # WATCHTOWER_NOTIFICATION_EMAIL_SERVER: ${EMAIL_SERVER_HOST}
-      # WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT: ${EMAIL_SERVER_PORT}
-      # WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER: ${EMAIL_FROM}
+      # WATCHTOWER_NOTIFICATION_EMAIL_FROM: ${EMAIL_FROM:?Please configure EMAIL_FROM in .env file}
+      # WATCHTOWER_NOTIFICATION_EMAIL_TO: ${EMAIL_TO:?Please configure EMAIL_TO in .env file}
+      # WATCHTOWER_NOTIFICATION_EMAIL_SERVER: ${EMAIL_SERVER_HOST:?Please configure EMAIL_SERVER_HOST in .env file}
+      # WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT: ${EMAIL_SERVER_PORT:?Please configure EMAIL_SERVER_PORT in .env file}
+      # WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER: ${EMAIL_FROM:?Please configure EMAIL_FROM in .env file}
       # WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD: /run/secrets/email_server_password  # using app password
       
       # For Notifiarr / discord notifications
