@@ -105,7 +105,7 @@ services:
       DELUGE_LOGLEVEL: ERROR  # Optional
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/deluge:/config
-      - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/downloads
+      - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data/torrents
     # As per https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md, no need to set 'depends on' 
     # as the network_mode: "service:gluetun" will ensure that this service will only start once gluetun is healthy
     # depends_on:
