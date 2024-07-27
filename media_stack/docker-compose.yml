@@ -286,19 +286,21 @@ networks:
   # favourites list will be fetched at the SYNC_INTERVAL and added to sonarr. Sonarr then would start downloading and
   # managing this TV show
   # sonarr_netimport:
-  #   image: thundermagic/sonarr_netimport:latest
-  #   restart: unless-stopped
   #   container_name: sonarr_netimport
-  #   extra_hosts: *host-server
+  #   hostname: sonarr_netimport
+  #   image: thundermagic/sonarr_netimport:latest
+  #   networks:
+  #    - media_net
+  #   restart: unless-stopped
   #   environment:
-  #     TVDB_USERNAME: ***REMOVED***
+  #     TVDB_USERNAME: <USERNAME>
   #     TVDB_USER_KEY: <USER_KEY>
   #     TVDB_API_KEY: tvdb_api_key   #TODO: probably need to get this from tvdb, costs $11.99 / year
   #     # IP address and port number where sonarr can be accessed
-  #     SONARR_IP: 192.168.100.3
+  #     SONARR_IP: ${HOST_IP}
   #     SONARR_PORT: 8989
   #     # Sonarr app API key. This is on sonarr under settings>general
-  #     SONARR_API_KEY: sonarr_api_key
+  #     SONARR_API_KEY: <SONARR_API_KEY>
   #     SYNC_INTERVAL: 3600  # Interval at which to sync with TVDB, in seconds
   #     SEARCH_MISSING_EPISODES: 1  # 1 is True
   #     QUALITY_PROFILE_ID: 1  # 1 is profile any
@@ -315,18 +317,21 @@ networks:
   # I have noticed that if using v3 API, TMDB only returns maximum of 500 movies in the list.
   # This is resolved if using TMDB API v4.
   # radarr_netimport:
-  #   image: thundermagic/radarr_netimport:latest
-  #   restart: unless-stopped
   #   container_name: radarr_netimport
+  #   hostname: radarr_netimport
+  #   image: thundermagic/radarr_netimport:latest
+  #   networks:
+  #    - media_net
+  #   restart: unless-stopped
   #   environment:
   #     TMDB_ACCESS_TOKEN: sampletoken
   #     TMDB_API_KEY: tvdb_api_key
   #     TMDB_LIST_ID: 12345
   #     # IP address and port number where radarr can be accessed
-  #     RADARR_IP: 192.168.100.3
+  #     RADARR_IP: ${HOST_IP}
   #     RADARR_PORT: 7878
   #     # radarr API key. This is on radarr under settings>general
-  #     RADARR_API_KEY: radarr_api_key
+  #     RADARR_API_KEY: <RADARR_API_KEY>
   #     SYNC_INTERVAL: 3600  # Interval at which to sync with TMDB, in seconds
   #     QUALITY_PROFILE_ID: 1  # 1 is profile any
   #     ROOT_FOLDER_PATH: /movies/  # Full path of root folder
