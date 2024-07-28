@@ -92,9 +92,6 @@ services:
     ports:
       - 5454:5454
     environment:
-      # The container is run as the user with this PUID and PGID (user and group id).
-      #PUID: ${NOTIFIARR_UID:?Please configure NOTIFIARR_UID in .env file}
-      #PGID: ${NOTIFIARR_GID:?Please configure NOTIFIARR_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/notifiarr:/config
