@@ -28,13 +28,13 @@ services:
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
-      PUID: 1002
-      PGID: 1002
+      #PUID: 1002
+      #PGID: 1002
       #TZ: Australia/Melbourne
 
       # 2. Set variables via substitution from .env file
-      # PUID: ${WATCHTOWER_PUID} # TODO: not resepecting the .env file, using direct values for now
-      # PGID: ${WATCHTOWER_PGID} # TODO: not resepecting the .env file, using direct values for now
+      PUID: ${WATCHTOWER_UID} # TODO: not resepecting the .env file, using direct values for now
+      PGID: ${WATCHTOWER_GID} # TODO: not resepecting the .env file, using direct values for now
       TZ: ${TZ:-Australia/Melbourne}
 
       # note: when running docker ps, it will show that the watchtower container has port 8080 exposed. This is not
