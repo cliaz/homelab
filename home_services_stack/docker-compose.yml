@@ -131,7 +131,8 @@ services:
     hostname: wyze-bridge
     extra_hosts: *host-server
     restart: unless-stopped
-    user: ${WYZEBRIDGE_UID:?Please configure WYZEBRIDGE_UID in .env file}:${WYZEBRIDGE_GID:?Please configure WYZEBRIDGE_GID in .env file}
+    # This container needs to run as root, else it throws lots of errors
+    #user: ${WYZEBRIDGE_UID:?Please configure WYZEBRIDGE_UID in .env file}:${WYZEBRIDGE_GID:?Please configure WYZEBRIDGE_GID in .env file}
     networks:
       - homelab_net
     ports:
