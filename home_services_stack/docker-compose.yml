@@ -86,14 +86,15 @@ services:
     hostname: notifiarr
     extra_hosts: *host-server
     restart: unless-stopped
+    #user: ${NOTIFIARR_UID:?Please configure NOTIFIARR_UID in .env file}:${NOTIFIARR_GID:?Please configure NOTIFIARR_GID in .env file}
     networks:
       - media_net   # unsure if notifiarr needs to be on the media_net network, but it's a media service so it's here for now
     ports:
       - 5454:5454
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: ${NOTIFIARR_UID:?Please configure NOTIFIARR_UID in .env file}
-      PGID: ${NOTIFIARR_GID:?Please configure NOTIFIARR_GID in .env file}
+      #PUID: ${NOTIFIARR_UID:?Please configure NOTIFIARR_UID in .env file}
+      #PGID: ${NOTIFIARR_GID:?Please configure NOTIFIARR_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/notifiarr:/config
