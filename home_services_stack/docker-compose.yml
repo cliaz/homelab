@@ -131,6 +131,7 @@ services:
     hostname: wyze-bridge
     extra_hosts: *host-server
     restart: unless-stopped
+    user: ${WYZEBRIDGE_UID:?Please configure WYZEBRIDGE_UID in .env file}:${WYZEBRIDGE_GID:?Please configure WYZEBRIDGE_GID in .env file}
     networks:
       - homelab_net
     ports:
@@ -152,16 +153,7 @@ services:
       - WB_USERNAME
       - WB_PASSWORD
     environment:
-      # Choose one of the following methods to set environment variables
-      # 1. Set variables directly in the compose file
-      # PUID: 1018
-      # PGID: 1018
       TZ: ${TZ:-Australia/Melbourne}
-
-      # 2. Set variables via substitution from .env file
-      PUID: ${WYZEBRIDGE_UID:?Please configure HOMARR_UID in .env file} # TODO: not resepecting the .env file, using direct values for now
-      PGID: ${WYZEBRIDGE_UID:?Please configure HOMARR_UID in .env file} # TODO: not resepecting the .env file, using direct values for now
-
 
       # [OPTIONAL] Credentials can be set in the WebUI, but every time the container is restarted, the credentials will need to be re-entered.
       # instead, they are now all set via secrets and read from /run/secrets as per https://github.com/mrlt8/docker-wyze-bridge/issues/1244
