@@ -37,6 +37,11 @@ services:
       # PGID: ${WATCHTOWER_PGID} # TODO: not resepecting the .env file, using direct values for now
       TZ: ${TZ:-Australia/Melbourne}
 
+      # note: when running docker ps, it will show that the watchtower container has port 8080 exposed. This is not
+      # actually mapped and used, but defined in the dockerfile for HTTP API mode. "Unless you forward it, the port 
+      # is not in use. And IF you forward it, you specify what port you use on the host. The port specification in 
+      # the Dockerfile doesn't cause any conflict." https://github.com/containrrr/watchtower/discussions/687
+
       WATCHTOWER_CLEANUP: true
       WATCHTOWER_INCLUDE_RESTARTING: true
       WATCHTOWER_INCLUDE_STOPPED: true
