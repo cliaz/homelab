@@ -97,7 +97,7 @@ services:
   deluge:  
     image: linuxserver/deluge:latest
     container_name: deluge
-    hostname: deluge
+    #hostname: deluge
     #extra_hosts: *host-server  # this causes an issue when used with network_mode: "service:gluetun"
     restart: unless-stopped
     network_mode: "service:gluetun"
