@@ -171,6 +171,8 @@ services:
 
       # [OPTIONAL] IP Address of the host to enable WebRTC e.g.,:
       WB_IP: host-server
+    volumes:
+      - ${CONFIG_DIR}/wyzebridge:/config
 
 # want to define a network range so that we can explicitly trust that network in the homeassistant config    
 networks:
