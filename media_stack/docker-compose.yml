@@ -27,6 +27,7 @@ services:
   plex:
     image: linuxserver/plex:latest
     container_name: plex
+    hostname: plex
     extra_hosts: *host-server
     network_mode: host # TODO: why is this on network mode host?
     devices:
@@ -57,6 +58,7 @@ services:
   gluetun:
     image: qmcgaw/gluetun:latest
     container_name: gluetun
+    hostname: gluetun
     extra_hosts: *host-server
     restart: unless-stopped
     cap_add:
@@ -95,6 +97,7 @@ services:
   deluge:  
     image: linuxserver/deluge:latest
     container_name: deluge
+    hostname: deluge
     #extra_hosts: *host-server  # this causes an issue when used with network_mode: "service:gluetun"
     restart: unless-stopped
     network_mode: "service:gluetun"
@@ -116,6 +119,7 @@ services:
   prowlarr:
     image: linuxserver/prowlarr:latest
     container_name: prowlarr
+    hostname: prowlarr
     extra_hosts: *host-server
     restart: unless-stopped
     networks:
@@ -133,6 +137,7 @@ services:
   radarr:
     image: linuxserver/radarr:latest
     container_name: radarr
+    hostname: radarr
     extra_hosts: *host-server
     restart: unless-stopped
     networks:
@@ -155,6 +160,7 @@ services:
   sonarr:
     image: linuxserver/sonarr:latest
     container_name: sonarr
+    hostname: sonarr
     extra_hosts: *host-server
     restart: unless-stopped
     networks:
@@ -178,6 +184,7 @@ services:
     #image: sctx/overseerr:latest                 # this is the official overseerr image
     image: linuxserver/overseerr:latest   # using linuxserver.io image for now
     container_name: overseerr
+    hostname: overseerr
     extra_hosts: *host-server
     restart: unless-stopped
     networks: 
@@ -193,8 +200,9 @@ services:
 
   # Tautulli is used to get stats on Plex usage
   tautulli:
-    container_name: tautulli
     image: linuxserver/tautulli:latest
+    container_name: tautulli
+    hostname: tautulli
     extra_hosts: *host-server
     restart: unless-stopped
     networks:
@@ -216,9 +224,9 @@ services:
 
   # A whole bunch of stuff, but mainly using for Trash-Guides sync
   notifiarr:
+    image: golift/notifiarr
     container_name: notifiarr
     hostname: notifiarr
-    image: golift/notifiarr
     extra_hosts: *host-server
     restart: unless-stopped
     networks:
