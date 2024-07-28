@@ -26,15 +26,9 @@ services:
     #  - stack.env
 
     environment:
-      # Choose one of the following methods to set environment variables
-      # 1. Set variables directly in the compose file
-      #PUID: 1002
-      #PGID: 1002
-      #TZ: Australia/Melbourne
-
-      # 2. Set variables via substitution from .env file
-      PUID: ${WATCHTOWER_UID} # TODO: not resepecting the .env file, using direct values for now
-      PGID: ${WATCHTOWER_GID} # TODO: not resepecting the .env file, using direct values for now
+      # not sure setting PUID/PGID actually does anything for watchtower, as it's not touching the filesystem
+      PUID: ${WATCHTOWER_UID}
+      PGID: ${WATCHTOWER_GID}
       TZ: ${TZ:-Australia/Melbourne}
 
       # note: when running docker ps, it will show that the watchtower container has port 8080 exposed. This is not
@@ -48,7 +42,7 @@ services:
       WATCHTOWER_REVIVE_STOPPED: false
       WATCHTOWER_NO_RESTART: false
       WATCHTOWER_TIMEOUT: 30s              # give 30s for container to gracefully stop
-      WATCHTOWER_SCHEDULE: ${TIME_TO_CHECK_FOR_UPDATES:-0 0 4 * * *}     # run at 4am every day by default
+      WATCHTOWER_SCHEDULE: ${TIME_TO_CHECK_FOR_UPDATES:-0 0 3 * * *}     # run at 4am every day by default
       #WATCHTOWER_POLL_INTERVAL: 30
       WATCHTOWER_DEBUG: false
       WATCHTOWER_MONITOR_ONLY: false       # do not update containers, only notify
