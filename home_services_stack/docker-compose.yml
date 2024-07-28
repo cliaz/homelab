@@ -86,7 +86,7 @@ services:
     hostname: notifiarr
     extra_hosts: *host-server
     restart: unless-stopped
-    #user: ${NOTIFIARR_UID:?Please configure NOTIFIARR_UID in .env file}:${NOTIFIARR_GID:?Please configure NOTIFIARR_GID in .env file}
+    user: ${NOTIFIARR_UID:?Please configure NOTIFIARR_UID in .env file}:${NOTIFIARR_GID:?Please configure NOTIFIARR_GID in .env file}
     networks:
       - media_net   # unsure if notifiarr needs to be on the media_net network, but it's a media service so it's here for now
     ports:
