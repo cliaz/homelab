@@ -49,30 +49,6 @@ services:
     volumes:
       - ${CONFIG_DIR}/swag:/config
 
-  # Do all of the home automation stuff here
-  homeassistant:
-    image: linuxserver/homeassistant:latest
-    container_name: homeassistant
-    hostname: homeassistant
-    extra_hosts: *host-server   # this might work to allow the nginx config for homeassistant to reference the host IP by name
-    network_mode: host  # home assistant needs network_mode: host for auto discovery and bluetooth
-    restart: unless-stopped
-    # ports not needed, as this containers is exposed on the host network stack via network_mode: host
-    environment:
-      # Choose one of the following methods to set environment variables
-      # 1. Set variables directly in the compose file
-      # PUID: 1006
-      # PGID: 1006
-      TZ: ${TZ:-Australia/Melbourne}
-
-      # 2. Set variables via substitution from .env file
-      PUID: ${HOMEASSISTANT_UID:?Please configure HOMEASSISTANT_UID in .env file} # TODO: not resepecting the .env file, using direct values for now
-      PGID: ${HOMEASSISTANT_GID:?Please configure HOMEASSISTANT_GID in .env file} # TODO: not resepecting the .env file, using direct values for now
-
-    volumes:
-      - ${CONFIG_DIR}/homeassistant/config:/config
-      - /run/dbus:/run/dbus:ro
-  
   homarr:
     image: ghcr.io/ajnart/homarr:latest
     container_name: homarr
@@ -101,6 +77,54 @@ services:
       - ${CONFIG_DIR}/homarr/configs:/app/data/configs
       - ${CONFIG_DIR}/homarr/icons:/app/public/icons
       - ${CONFIG_DIR}/homarr/data:/data
+
+  # A notification aggregator that is used to send watchtower / sonarr / radarr etc. notifications to discord
+  # also used to facilitate Trash-Guides sync for sonarr / radarr via a GUI.
+  notifiarr:
+    image: golift/notifiarr
+    container_name: notifiarr
+    hostname: notifiarr
+    extra_hosts: *host-server
+    restart: unless-stopped
+    networks:
+      - media_net   # unsure if notifiarr needs to be on the media_net network, but it's a media service so it's here for now
+    ports:
+      - 5454:5454
+    environment:
+      # The container is run as the user with this PUID and PGID (user and group id).
+      PUID: ${NOTIFIARR_UID:?Please configure NOTIFIARR_UID in .env file}
+      PGID: ${NOTIFIARR_GID:?Please configure NOTIFIARR_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/notifiarr:/config
+      - /var/run/utmp:/var/run/utmp
+      - /etc/machine-id:/etc/machine-id
+
+
+  # Do all of the home automation stuff here
+  homeassistant:
+    image: linuxserver/homeassistant:latest
+    container_name: homeassistant
+    hostname: homeassistant
+    extra_hosts: *host-server   # this might work to allow the nginx config for homeassistant to reference the host IP by name
+    network_mode: host  # home assistant needs network_mode: host for auto discovery and bluetooth
+    restart: unless-stopped
+    # ports not needed, as this containers is exposed on the host network stack via network_mode: host
+    environment:
+      # Choose one of the following methods to set environment variables
+      # 1. Set variables directly in the compose file
+      # PUID: 1006
+      # PGID: 1006
+      TZ: ${TZ:-Australia/Melbourne}
+
+      # 2. Set variables via substitution from .env file
+      PUID: ${HOMEASSISTANT_UID:?Please configure HOMEASSISTANT_UID in .env file} # TODO: not resepecting the .env file, using direct values for now
+      PGID: ${HOMEASSISTANT_GID:?Please configure HOMEASSISTANT_GID in .env file} # TODO: not resepecting the .env file, using direct values for now
+
+    volumes:
+      - ${CONFIG_DIR}/homeassistant/config:/config
+      - /run/dbus:/run/dbus:ro
+  
 
   # Bridge to allow Wyze cameras to be used in HomeAssistant via RTSP. https://github.com/mrlt8/docker-wyze-bridge
   wyze-bridge:

@@ -218,30 +218,9 @@ services:
     volumes:
       # config directory
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/tautulli:/config
-      # Tautulli needs access to plex logs. In the plex container we mounted /mnt/external-workdir/plex of the host as the
+      # Tautulli needs access to plex logs. In the plex container we mounted ${CONFIG_DIR}/plex of the host as the
       # config directory for plex. Logs are located within this config directory
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
-
-  # A whole bunch of stuff, but mainly using for Trash-Guides sync
-  notifiarr:
-    image: golift/notifiarr
-    container_name: notifiarr
-    hostname: notifiarr
-    extra_hosts: *host-server
-    restart: unless-stopped
-    networks:
-      - media_net
-    ports:
-      - 5454:5454
-    environment:
-      # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: ${NOTIFIARR_UID:?Please configure NOTIFIARR_UID in .env file}
-      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
-      TZ: ${TZ:-Australia/Melbourne}
-    volumes:
-      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/notifiarr:/config
-      - /var/run/utmp:/var/run/utmp
-      - /etc/machine-id:/etc/machine-id
 
 networks:
 
