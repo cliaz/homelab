@@ -196,7 +196,7 @@ services:
       PGID: ${OVERSEERR_UID:?Please configure OVERSEERR_UID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
-      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/overseerr:/app/config
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/overseerr:/config
 
   # Tautulli is used to get stats on Plex usage
   tautulli:
