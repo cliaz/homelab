@@ -18,7 +18,7 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     #networks:
-    port:
+    ports:
       - "51820:51820/udp" # for tunnel connection
       - "51821:51821/tcp" # for webui
     secrets:
