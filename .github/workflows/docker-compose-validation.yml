@@ -1,0 +1,29 @@
+name: Docker Compose Validation
+run-name: Testing that each docker-compose.yml file is valid
+on: [push]
+
+jobs:
+  docker-compose-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+      
+      - name: Check Docker version
+        run: docker --version
+
+      - name: Find all compose files
+        id: finding-files
+        run: |
+          {
+            echo 'FILELIST<<EOF'
+            find . -name 'docker-compose.yml' -print 
+            echo EOF
+          } > $GITHUB_ENV
+
+      - name: Test each compose file for syntax, so that it will at least run
+        run: |
+          for i in $FILELIST; do
+            docker compose config -q ${i}
+          done
