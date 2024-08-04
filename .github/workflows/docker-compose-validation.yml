@@ -22,9 +22,14 @@ jobs:
             echo EOF
           } >> $GITHUB_ENV
 
-      - name: Test each compose file for syntax, so that it will at least run
+      - name: Check each compose file's syntax, so that it will at least run
         run: |
           for i in $FILELIST; do
-            echo "Testing $i"
-            docker compose -f ${i} config -q || continue
+            echo -n "Checking $i ... "
+            check=$(docker compose -f ${i} config -q)
+            if [ $? -ne 0 ]; then
+              echo " failed"
+              echo $check
+            fi            
+            echo " good"
           done
