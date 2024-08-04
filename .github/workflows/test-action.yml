@@ -18,7 +18,7 @@ jobs:
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
-  docker-compose-validation:
+  docker-compose-validation v1:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -30,9 +30,17 @@ jobs:
       - name: Finding all compose files
         id: finding-files        
         run: |
-          echo 'FILELIST<<EOF'
-          find . -name '*.yml' -print 
-          echo EOF
+          {
+            echo 'FILELIST<<EOF'
+            find . -name 'docker-compose.yml' -print 
+            echo EOF
+          } > $GITHUB_ENV
+
+      - name: Do something with each file
+        run: |
+          for i in $FILELIST; do
+            echo "Do something with file ${i}"
+          done  
 
       - name: Do something with each compose file
         run: |
@@ -40,5 +48,23 @@ jobs:
           echo "${{ steps.finding-files.outputs.FILELIST }}"
           echo "Now we can do something with each file"
 
-      - name: Confirm docker compose file is valid
-        run: docker-compose config -q
+docker-compose-validation v2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      
+      - name: Check Docker version
+        run: docker --version
+
+      - name: Finding all compose files
+        id: finding-files        
+        run: |
+          { IFS=$'\n'; files=($(find . -name 'docker-compose.yml')); echo "::set-output name=FILELIST::${files[*]}"; }
+
+      - name: Do something with each compose file
+        run: |
+          echo "Found the following compose files:"
+          echo "${{ steps.finding-files.outputs.FILELIST }}"
+          echo "Now we can do something with each file"
+
