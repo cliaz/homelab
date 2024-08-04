@@ -26,10 +26,15 @@ jobs:
         run: |
           for i in $FILELIST; do
             echo -n "Checking $i ... "
-            check=$(docker compose -f ${i} config -q)
+            check=$(docker compose -f ${i} config -q || continue)
             if [ $? -ne 0 ]; then
-              echo " failed"
+              echo "failed"
               echo $check
+              error=true
             fi            
-            echo " good"
+            echo "passed"
           done
+          
+          if [ $error ]; then
+            exit 1
+          fi
