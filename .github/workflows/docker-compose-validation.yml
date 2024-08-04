@@ -26,5 +26,5 @@ jobs:
         run: |
           for i in $FILELIST; do
             echo "Testing $i"
-            docker compose config -q $i
+            docker compose config -q -f $i
           done
