@@ -34,6 +34,11 @@ jobs:
             else
               echo "ERROR"
               echo "$config_check"
-              exit 1
+              error=true
             fi
           done
+
+          if $error; then
+            echo "One or more docker-compose.yml files have errors. Please fix them."
+            exit 1
+          fi
