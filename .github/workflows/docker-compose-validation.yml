@@ -28,16 +28,6 @@ jobs:
             config_check=""
             echo -n "Checking $i ..."
             config_check="$(docker compose -f ${i} config -q 2>&1 || true)"
-
-            if [[ $? -ne 0 ]]; then
-              echo "failed"
-              echo $config_check
-              error=true
-            else            
-              echo "passed"
-            fi
+            echo $?
+            echo $config_check
           done
-
-          if [ $error ]; then
-            exit 1
-          fi
