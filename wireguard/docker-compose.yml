@@ -1,0 +1,63 @@
+x-extra_hosts:
+  # This is added so that within each service you can communicate to another service by using the DNS name of the host rather
+  # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
+  # configure the transmission client url as http://aard:9091
+  &aard
+  # Pulls the IP address of the host from the .env file
+  - "aard:${HOST_IP}"
+
+services:
+  wg-easy:
+    #image: ghcr.io/wg-easy/wg-easy
+    image: ghcr.io/wg-easy/wg-easy:nightly
+    container_name: wg-easy
+    hostname: wg-easy
+    extra_hosts: *aard
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    #networks:
+    ports:
+      - "51820:51820/udp" # for tunnel connection
+      - "51821:51821/tcp" # for webui
+    secrets:
+       - wireguard_password_hash
+    environment:
+      # Choose one of the following methods to set environment variables
+      # 1. Set variables directly in the compose file
+      PUID: 1005
+      PGID: 1005
+      # TZ: Australia/Melbourne
+
+      # 2. Set variables via substitution from .env file
+      # USER: ${PUID}:${PGID} # not working
+      # PUID: ${PUID}         # not working
+      # PGID: ${PGID}         # not working
+      TZ: ${TZ:-Australia/Melbourne}
+
+      # WebUI stuff
+      PORT: ${WEBUI_PORT}
+      #PASSWORD_HASH: /run/secrets/wireguard_password_hash                               # this does not work
+      PASSWORD_HASH: ${WIREGUARD_PASSWORD_HASH:?Please configure WIREGUARD_PASSWORD_HASH in .env file}
+      UI_TRAFFIC_STATS: true
+      UI_CHART_TYPE: 3  # 1 = line, 2 = area, 3 = bar
+
+      # VPN stuff
+      WG_HOST: ${WIREGUARD_URL}
+      WG_PORT: ${WIREGUARD_VPN_PORT}
+      WG_PERSISTENT_KEEPALIVE: 25
+      WG_ALLOWED_IPS: ${CLIENT_IP_RANGE}
+      WG_DEFAULT_DNS: ${WIREGUARD_VPN_DNS}
+      WG_DEFAULT_ADDRESS: 192.168.255.x      
+    volumes:
+      - ${ROOT_CONFIG}/wireguard:/etc/wireguard
+      - /lib/modules:/lib/modules:ro
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+
+secrets:
+  wireguard_password_hash:
+    file: ${SECRETS}/wireguard/wireguard_password_hash
+
