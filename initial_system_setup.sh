@@ -23,7 +23,7 @@ DOCKER_USERS=(              # users for all the services to create. If you don't
 	"gluetun"               # outbound vpn client
     "homeassistant"         # home automation
     "mosquitto"             # mqtt broker
-    "pihole"                # dns adblocker
+    "adguard"               # dns adblocker
     "homarr"                # home page for all the stuff you end up running
     "plex"                  # media server
     "tautulli"              # plex stats
