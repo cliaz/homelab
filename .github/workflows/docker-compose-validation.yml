@@ -20,10 +20,11 @@ jobs:
             echo 'FILELIST<<EOF'
             find . -name 'docker-compose.yml' -print 
             echo EOF
-          } > $GITHUB_ENV
+          } >> $GITHUB_ENV
 
       - name: Test each compose file for syntax, so that it will at least run
         run: |
           for i in $FILELIST; do
+            echo "Testing $i"
             docker compose config -q ${i}
           done
