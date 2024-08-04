@@ -26,7 +26,7 @@ jobs:
         run: |
           for i in $FILELIST; do
             echo -n "Checking $i ..."
-            config_check="$(docker compose -f ${i} config -q 2>&1)""
+            config_check="$(docker compose -f ${i} config -q 2>&1)"
             if [ $? -ne 0 ]; then
               echo "failed"
               echo $config_check
