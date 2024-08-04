@@ -18,7 +18,7 @@ jobs:
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
-  docker-compose-validation v1:
+  docker-compose-validation-v1:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -48,7 +48,7 @@ jobs:
           echo "${{ steps.finding-files.outputs.FILELIST }}"
           echo "Now we can do something with each file"
 
-  docker-compose-validation v2:
+  docker-compose-validation-v2:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
