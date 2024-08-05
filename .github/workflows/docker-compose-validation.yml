@@ -1,6 +1,14 @@
 name: Docker Compose Validation
 run-name: Testing that each docker-compose.yml file is valid
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+    paths:
+    - '**/docker-compose.yml'
+  pull_request:
+    paths:
+    - '**/docker-compose.yml'
 
 jobs:
   docker-compose-validation:
