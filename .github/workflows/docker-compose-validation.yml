@@ -24,6 +24,7 @@ jobs:
 
       - name: Check each compose file's syntax, so that it will at least run
         run: |
+          error=false
           for i in $FILELIST; do
             config_check=""
             echo -n "Checking $i ..."
