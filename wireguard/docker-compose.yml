@@ -8,8 +8,8 @@ x-extra_hosts:
 
 services:
   wg-easy:
-    image: ghcr.io/wg-easy/wg-easy
-    #image: ghcr.io/wg-easy/wg-easy:nightly    # PASSWORD_HASH var only works with nightly build at the moment
+    #image: ghcr.io/wg-easy/wg-easy
+    image: ghcr.io/wg-easy/wg-easy:nightly    # PASSWORD_HASH var only works with nightly build at the moment
     container_name: wg-easy
     hostname: wg-easy
     extra_hosts: *aard
@@ -24,13 +24,6 @@ services:
     secrets:
        - wireguard_password_hash
     environment:
-      # Choose one of the following methods to set environment variables
-      # 1. Set variables directly in the compose file
-      #PUID: 1005
-      #PGID: 1005
-      # TZ: Australia/Melbourne
-
-      # 2. Set variables via substitution from .env file
       PUID: ${WIREGUARD_PUID}
       PGID: ${WIREGUARD_PGID}
       TZ: ${TZ:-Australia/Melbourne}
