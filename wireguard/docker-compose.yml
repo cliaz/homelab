@@ -8,8 +8,8 @@ x-extra_hosts:
 
 services:
   wg-easy:
-    #image: ghcr.io/wg-easy/wg-easy
-    image: ghcr.io/wg-easy/wg-easy:nightly    # PASSWORD_HASH var only works with nightly build at the moment
+    image: ghcr.io/wg-easy/wg-easy
+    #image: ghcr.io/wg-easy/wg-easy:nightly    # PASSWORD_HASH var only works with nightly build at the moment
     container_name: wg-easy
     hostname: wg-easy
     extra_hosts: *aard
