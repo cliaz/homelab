@@ -8,8 +8,8 @@ x-extra_hosts:
 
 services:
   wg-easy:
-    #image: ghcr.io/wg-easy/wg-easy
-    image: ghcr.io/wg-easy/wg-easy:nightly
+    image: ghcr.io/wg-easy/wg-easy
+    #image: ghcr.io/wg-easy/wg-easy:nightly    # PASSWORD_HASH var only works with nightly build at the moment
     container_name: wg-easy
     hostname: wg-easy
     extra_hosts: *aard
@@ -26,20 +26,18 @@ services:
     environment:
       # Choose one of the following methods to set environment variables
       # 1. Set variables directly in the compose file
-      PUID: 1005
-      PGID: 1005
+      #PUID: 1005
+      #PGID: 1005
       # TZ: Australia/Melbourne
 
       # 2. Set variables via substitution from .env file
-      # USER: ${PUID}:${PGID} # not working
-      # PUID: ${PUID}         # not working
-      # PGID: ${PGID}         # not working
+      PUID: ${WIREGUARD_PUID}
+      PGID: ${WIREGUARD_PGID}
       TZ: ${TZ:-Australia/Melbourne}
 
       # WebUI stuff
       PORT: ${WEBUI_PORT}
-      #PASSWORD_HASH: /run/secrets/wireguard_password_hash                               # this does not work
-      #PASSWORD_HASH: "$$2b$$12$$fz6nLVPgrcpUq4Mm4OA8U.ElyNjjwuwqqTYi3bEulxfYcS/WYqjIi"   # this works
+      #PASSWORD_HASH: /run/secrets/wireguard_password_hash    # secrets not yet built into wg-easy (Aug 2024)
       PASSWORD_HASH: ${WIREGUARD_PASSWORD_HASH:?Please configure WIREGUARD_PASSWORD_HASH in .env file}
       UI_TRAFFIC_STATS: true
       UI_CHART_TYPE: 3  # 1 = line, 2 = area, 3 = bar
