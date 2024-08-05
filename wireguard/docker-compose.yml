@@ -49,6 +49,14 @@ services:
     sysctls:
       - net.ipv4.ip_forward=1
       - net.ipv4.conf.all.src_valid_mark=1
+    
+    labels:
+      # this should flag watchtower to only monitor this container, not apply updates
+      # as this openvpn image is a local image, there's never going to be a upstream update
+      # without local interaction and build. 
+      # - "com.centurylinklabs.watchtower.monitor-only=true"
+      # Disabling watchtower on this container entirely instead
+      - "com.centurylinklabs.watchtower.enable=false"
 
 # secrets not yet built into wg-easy (Aug 2024)
 # secrets:
