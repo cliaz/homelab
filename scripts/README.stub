@@ -1,0 +1,28 @@
+# Homelab
+This repo contains a bunch of different docker stacks designed to do different things. They are also coupled in certain ways (eg. shared docker networks), which means deploying a stack individually may cause issues.
+
+
+## Features
+- Per-service user segregation
+- Secrets material stored in files accessible on a per-container basis
+- Services configured by service-wide `.env` files
+- Hardlinking of media for more efficient I/O operations
+- Automated TRaSH Guide sync for media profiles
+
+
+# Stacks
+
+# Deployment
+Each of the stacks in this repo are designed to be deployed via Portainer using the [Git Repository option](https://docs.portainer.io/user/docker/stacks/add#option-3-git-repository)
+This means that when a given stack - defined by a subfolder in this repo and the `docker-compose.yml` file contained within - is deployed, the `.env` file in the same folder will automatically be loaded by Portainer for that stack.
+
+You can of course deploy them manually. Download the stack's folder, modify the `.env` file, and run with `docker compose up`
+
+
+**IMPORTANT**: The `.env` file is where the bulk of your configuration should occur. 
+If you need to edit the `docker-compose.yml` file outside of disabling services, it needs to be improved. Please create an issue for tracking.
+
+
+## Prerequisites
+- [docker and docker-compose](https://docs.docker.com/engine/install/)
+- Your own outbound VPN connection
