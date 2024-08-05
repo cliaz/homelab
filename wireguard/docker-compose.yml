@@ -21,8 +21,8 @@ services:
     ports:
       - "51820:51820/udp" # for tunnel connection
       - "51821:51821/tcp" # for webui
-    secrets:
-       - wireguard_password_hash
+    # secrets:    # see secrets section below
+    #    - wireguard_password_hash
     environment:
       PUID: ${WIREGUARD_PUID}
       PGID: ${WIREGUARD_PGID}
@@ -30,7 +30,7 @@ services:
 
       # WebUI stuff
       PORT: ${WEBUI_PORT}
-      #PASSWORD_HASH: /run/secrets/wireguard_password_hash    
+      #PASSWORD_HASH: /run/secrets/wireguard_password_hash    # see secrets section below
       PASSWORD_HASH: ${WIREGUARD_PASSWORD_HASH:?Please configure WIREGUARD_PASSWORD_HASH in .env file}
       UI_TRAFFIC_STATS: true
       UI_CHART_TYPE: 3  # 1 = line, 2 = area, 3 = bar
