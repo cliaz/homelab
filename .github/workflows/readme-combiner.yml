@@ -1,0 +1,26 @@
+name: Combine README files
+run-name: Add README.md files from all subfolders to the root file
+on: [push]
+
+jobs:
+  readme-combiner:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+      - uses: actions/setup-python@v2
+      - name: Run the script
+        run: python scripts/update_readme.py
+      - name: Commit files
+        run: |
+          git config --local user.name "cliaz"
+          git config --local user.email "3636531+cliaz@users.noreply.github.com"
+          git config --local user.signingkey "1211D8A6898A6A03"
+          git add README.md
+          git commit -m "Updated subfolder README files"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          force: true
