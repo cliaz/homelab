@@ -1,6 +1,9 @@
 name: Combine README files
 run-name: Add README.md files from all subfolders to the root file
-on: [push]
+on:
+  push:
+    paths:
+      -'**.md'
 
 jobs:
   readme-combiner:
