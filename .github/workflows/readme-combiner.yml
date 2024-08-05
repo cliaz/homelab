@@ -14,9 +14,8 @@ jobs:
         run: python scripts/update_readme.py
       - name: Commit files
         run: |
-          git config --local user.name "cliaz"
-          git config --local user.email "3636531+cliaz@users.noreply.github.com"
-          git config --local user.signingkey "1211D8A6898A6A03"
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "3636531+github-actions[bot]@users.noreply.github.com"
           git add README.md
           git commit -m "Updated subfolder README files"
       - name: Push changes
