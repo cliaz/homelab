@@ -48,7 +48,7 @@ services:
       # Docker bind mounts are used to store config and media on the host's filesystem. Config for plex will be stored
       # in the .env-defined CONFIG_DIR/plex/config directory and any transcoding data is stored in a transcode directory
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/plex/config:/config
-      - ${TRANSCODE_DIR:?Please configure TRANSCODE_DIR in .env file}:/transcode
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media/plex_transcode:/transcode
       # Within plex, we are mounting the root of your media folder, as defined by the .env, to /all_media directory. So within plex, 
       # when you look inside /all_media directory you would see the same file structure as on the host
       - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/all_media
