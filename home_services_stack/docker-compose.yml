@@ -210,10 +210,10 @@ networks:
     attachable: true
     ipam:
       config:
-        - subnet: 172.100.0.0/24
+        - subnet: 172.16.100.0/24
   media_net:
     # Note: if the media stack has not been started, manually define the media_net network with
-    # docker network create --attachable --subnet=172.200.0.0/24 media_net
+    # docker network create --attachable --subnet=172.16.200.0/24 media_net
     external: true
 
 secrets:
