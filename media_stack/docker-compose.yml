@@ -51,7 +51,7 @@ services:
       - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media/plex_transcode:/transcode
       # Within plex, we are mounting the root of your media folder, as defined by the .env, to /all_media directory. So within plex, 
       # when you look inside /all_media directory you would see the same file structure as on the host
-      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/all_media
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/data/media
 
   # Outbound VPN connection
   # can confirm connectivity by with "docker exec gluetun wget -q -O- http://ipecho.net/plain"
