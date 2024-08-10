@@ -90,14 +90,11 @@ services:
       #- "com.centurylinklabs.watchtower.monitor-only=true"   
       - com.centurylinklabs.watchtower.enable=false
 
-  # To change download client add the new one to sonarr/radarr and mark the old one as disabled
-  # Use sonarr/radarr to remove queued torrents from the old client and then re-scan for torrents
-  # New torrents should now be added to the new client
-  # Once all downloads are complete in the old client it can be removed
+  # Torrent downloads
   deluge:  
     image: linuxserver/deluge:latest
     container_name: deluge
-    #hostname: deluge
+    #hostname: deluge           # can't use hostname as this container is connected to service:gluetun
     #extra_hosts: *host-server  # this causes an issue when used with network_mode: "service:gluetun"
     restart: unless-stopped
     network_mode: "service:gluetun"
@@ -106,7 +103,8 @@ services:
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
       DELUGE_LOGLEVEL: ERROR  # Optional
-      UMASK: 002
+      UMASK: 002    # without this set, files downloaded by deluge don't get the 'w' group octal set
+                    # and then users in the MEDIA_GID group can't hardlink the files
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/deluge:/config
       - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data/torrents
@@ -210,7 +208,7 @@ services:
       - media_net
     ports:
       # Host port 8181 is mapped to container port 8181
-      - "8181:8181"
+      - 8181:8181
     environment:
       # The container is run as the user with this PUID and PGID (user and group id).
       PUID: ${TAUTULLI_UID:?Please configure TAUTULLI_UID in .env file}
