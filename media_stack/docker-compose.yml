@@ -106,6 +106,7 @@ services:
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
       DELUGE_LOGLEVEL: ERROR  # Optional
+      DELUGE_UMASK: 002
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/deluge:/config
       - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data/torrents
