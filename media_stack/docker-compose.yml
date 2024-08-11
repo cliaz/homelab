@@ -44,6 +44,7 @@ services:
       PUID: ${PLEX_UID:?Please configure PLEX_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
     volumes:
       # Docker bind mounts are used to store config and media on the host's filesystem. Config for plex will be stored
       # in the .env-defined CONFIG_DIR/plex/config directory and any transcoding data is stored in a transcode directory
@@ -77,6 +78,7 @@ services:
       PUID: ${GLUETUN_UID:?Please configure GLUETUN_UID in .env file}
       PGID: ${GLUETUN_GID:?Please configure GLUETUN_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
       # https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/protonvpn.md
       VPN_SERVICE_PROVIDER: ${VPN_SERVICE_PROVIDER:?Please configure VPN_SERVICE_PROVIDER in .env file}
       OPENVPN_USER: ${OPENVPN_USER:?Please configure OPENVPN_USER in .env file}
@@ -129,6 +131,7 @@ services:
       PUID: ${PROWLARR_UID:?Please configure PROWLARR_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/prowlarr:/config
 
@@ -149,6 +152,7 @@ services:
       PUID: ${RADARR_UID:?Please configure RADARR_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
     volumes:
       # config directory
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/radarr:/config
@@ -172,6 +176,7 @@ services:
       PUID: ${SONARR_UID:?Please configure SONARR_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
     volumes:
       # config directory
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/sonarr:/config
@@ -194,6 +199,7 @@ services:
       PUID: ${OVERSEERR_UID:?Please configure OVERSEERR_UID in .env file}
       PGID: ${OVERSEERR_UID:?Please configure OVERSEERR_UID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/overseerr:/config
 
@@ -214,6 +220,7 @@ services:
       PUID: ${TAUTULLI_UID:?Please configure TAUTULLI_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
     volumes:
       # config directory
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/tautulli:/config
