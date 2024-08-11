@@ -7,15 +7,11 @@
 #   which is where you should store sensitive information like API keys / passwords etc.
 # - make those users own those folders so they can write, and add your own user to that group so you can modify files
 
-if (( EUID != 0 )); then
-    echo "run this command with sudo" >&2
-    exit 1
-fi
 
-# vars
+# Define stuff here
 YOUR_USER_NAME="klaus"      # this is your user on the host machine. We need it to add you to the groups so you can modify files
 ROOT_DATA_DIR="/docker"     # where you want to store the docker config files, aka the mapped volumes. Not crazy read/write heavy
-DOCKER_USERS=(              # users for all the services to create. If you don't want one, just comment it out
+DOCKER_USERS=(              # users for all the services to create. If you don't want one, just delete or comment it out
     "portainer"             # docker management
     "watchtower"            # auto-updates
     "swag"                  # reverse proxy
@@ -34,6 +30,25 @@ DOCKER_USERS=(              # users for all the services to create. If you don't
     "qbittorrent"           # torrent client
     "notifiarr"             # notification aggregator. also used for keeping TRaSH Guides up to date
 )
+
+
+#### Don't touch below here unless you know what you're doing ####
+
+
+
+# make sure this is run as root
+if (( EUID != 0 )); then
+    echo "run this command with sudo" >&2
+    exit 1
+fi
+
+
+echo "first of all, create all the users for the docker services"
+echo "if you haven't edited this script to both configure which users you want to create, and"
+echo "to add your own user name to the media group, do that now"
+read -p "press enter to continue, or ctrl+c to cancel"
+
+
 
 # create users, folders, and set permissions
 # example folder structure for plex: /docker/plex, /docker/secrets/plex
@@ -56,3 +71,6 @@ MEDIA_GROUP=(
 )
 groupadd media
 for NAME in "${MEDIA_GROUP[@]}"; do usermod -g media $NAME; done
+
+# also add your own user to that group, so you can modify files if needed
+usermod -a -G media $YOUR_USER_NAME
