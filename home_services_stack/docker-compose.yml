@@ -81,6 +81,8 @@ services:
       #- 68:68/udp     # DHCP
       #- 68:68/tcp     # DHCP
     environment:
+      PUID: ${ADGUARD_UID:?Please configure ADGUARD_UID in .env file}
+      PGID: ${ADGUARD_GID:?Please configure ADGUARD_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       - ${CONFIG_DIR}/adguard/work:/opt/adguardhome/work
