@@ -142,7 +142,7 @@ services:
     hostname: flaresolverr
     extra_hosts: *host-server
     restart: unless-stopped
-    network:
+    networks:
       - media_net
     ports:
       - 8191:8191
