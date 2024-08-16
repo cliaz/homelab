@@ -9,6 +9,7 @@ It consists of the following services:
 - Radarr: Automated movie management and integration with torrent client
 - Sonarr: Same as radarr but for TV shows
 - Prowlarr: Torrent indexers proxy
+- Flaresolverr: Proxy to allow Prowlarr to bypass Cloudflare and DDoS-GUARD protection
 
 
 It also has the following services 'built' but not in use.
@@ -23,6 +24,7 @@ It also has the following services 'built' but not in use.
 | Gluetun | 8112 | Deluge's WebUI | 
 | Deluge | - | exposed via Gluetun | 
 | Prowlarr | 9696 | WebUI | 
+| Flaresolverr| 8191 | Requests port |
 | Radarr | 7878 | WebUI | 
 | Sonarr | 8989 | WebUI | 
 | Overseerr | 5055 | WebUI | 
