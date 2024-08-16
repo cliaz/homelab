@@ -135,6 +135,23 @@ services:
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/prowlarr:/config
 
+  # Captcha solver for Prowlarr
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    host: flaresolverr
+    extra_hosts: *host-server
+    restart: unless-stopped
+    network:
+      - media_net
+    ports:
+      - 8191:8191
+    environment:
+      TZ: ${TZ:-Australia/Melbourne}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_HTML: ${LOG_HTML:-false}
+      CAPTCHA_SOLVER: ${CAPTCHA_SOLVER:-none}
+
   # Movies management
   radarr:
     image: linuxserver/radarr:latest
