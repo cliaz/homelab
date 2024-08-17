@@ -60,6 +60,7 @@ services:
       PUID: ${NGINXPROXYMANAGER_UID:?Please configure NGINXPROXYMANAGER_UID in .env file}
       PGID: ${NGINXPROXYMANAGER_GID:?Please configure NGINXPROXYMANAGER_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
+      DISABLE_IPV6: 'true'
     volumes:
       - ${CONFIG_DIR}/nginxproxymanager/data:/data
       - ${CONFIG_DIR}/nginxproxymanager/letsencrypt:/etc/letsencrypt
