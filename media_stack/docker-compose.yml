@@ -136,6 +136,7 @@ services:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/prowlarr:/config
 
   # Captcha solver for Prowlarr
+  # Mainly using this for the 1337x indexer
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
