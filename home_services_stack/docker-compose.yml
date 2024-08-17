@@ -12,74 +12,100 @@ x-extra_hosts:
 services:
   # Reverse proxy for all services hosted on the docker host
   # services are exposed via the domain name sent through the URL, configured via the conf files in swag's nginx 
-  swag:
-    image: linuxserver/swag:latest    # https://docs.linuxserver.io/general/swag/#docker-compose
-    container_name: swag
-    hostname: swag
+  # swag:
+  #   image: linuxserver/swag:latest    # https://docs.linuxserver.io/general/swag/#docker-compose
+  #   container_name: swag
+  #   hostname: swag
+  #   extra_hosts: *host-server
+  #   restart: unless-stopped
+  #   cap_add:
+  #     - NET_ADMIN
+  #   networks:
+  #     - homelab_net
+  #     - media_net
+  #   ports:
+  #     # 80:80  # only needed if using http validation. We're using duckdns to validate, so don't need this
+  #     - 443:443
+  #   secrets:
+  #     - DUCKDNSTOKEN
+  #   environment:
+  #     PUID: ${SWAG_UID:?Please configure SWAG_UID in .env file}
+  #     PGID: ${SWAG_GID:?Please configure SWAG_GID in .env file}
+  #     TZ: ${TZ:-Australia/Melbourne}
+  #     URL: ${SWAG_URL:?Please configure SWAG_URL in .env file}
+
+  #     SUBDOMAINS: wildcard
+  #     VALIDATION: duckdns
+  #     FILE__DUCKDNSTOKEN: /run/secrets/DUCKDNSTOKEN
+  #     #CERTPROVIDER: zerossl  # defaults to letsencrypt
+  #     #EMAIL:   # required when using zerossl as cert provider
+  #   volumes:
+  #     - ${CONFIG_DIR}/swag:/config
+
+
+  NginxProxyManager:
+    image: 'docker.io/jc21/nginx-proxy-manager:latest'
+    container_name: 'nginx-proxy-manager'
+    hostname: 'nginx-proxy-manager'
     extra_hosts: *host-server
     restart: unless-stopped
-    cap_add:
-      - NET_ADMIN
     networks:
       - homelab_net
       - media_net
     ports:
-      # 80:80  # only needed if using http validation. We're using duckdns to validate, so don't need this
-      - 443:443
-    secrets:
-      - DUCKDNSTOKEN
+      - '80:80'
+      - '81:81'   # admin panel
+      - '443:443'
     environment:
-      PUID: ${SWAG_UID:?Please configure SWAG_UID in .env file}
-      PGID: ${SWAG_GID:?Please configure SWAG_GID in .env file}
-      TZ: ${TZ:-Australia/Melbourne}
-      URL: ${SWAG_URL:?Please configure SWAG_URL in .env file}
-
-      SUBDOMAINS: wildcard
-      VALIDATION: duckdns
-      FILE__DUCKDNSTOKEN: /run/secrets/DUCKDNSTOKEN
-      #CERTPROVIDER: zerossl  # defaults to letsencrypt
-      #EMAIL:   # required when using zerossl as cert provider
-    volumes:
-      - ${CONFIG_DIR}/swag:/config
-  
-  
-  adguardhome:
-    image: adguard/adguardhome
-    container_name: adguardhome
-    hostname: adguardhome
-    extra_hosts: *host-server
-    restart: unless-stopped
-    networks:
-      - homelab_net
-    ports:
-      # Plain DNS
-      - '53:53/tcp'
-      - '53:53/udp'
-      # AdGuard Home Admin Panel as well as DNS-over-HTTPS
-      - '80:80/tcp'
-      - '4443:4443/tcp'
-      - '4443:4443/udp'
-      - '3000:3000/tcp'
-      # DNS-over-TLS
-      - '853:853/tcp'
-      # DNS-over-QUIC
-      #- '784:784/udp'
-      #- '853:853/udp'
-      #- '8853:8853/udp'
-      # DNSCrypt
-      - '5443:5443/tcp'
-      - '5443:5443/udp'
-      # Uncomment the below ports if you want to use AdGuard Home as a DHCP server
-      #- 67:67/udp     # DHCP
-      #- 68:68/udp     # DHCP
-      #- 68:68/tcp     # DHCP
-    environment:
-      PUID: ${ADGUARDHOME_UID:?Please configure ADGUARD_UID in .env file}
-      PGID: ${ADGUARDHOME_GID:?Please configure ADGUARD_GID in .env file}
+      PUID: ${NGINXPROXYMANAGER_UID:?Please configure NGINXPROXYMANAGER_UID in .env file}
+      PGID: ${NGINXPROXYMANAGER_GID:?Please configure NGINXPROXYMANAGER_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
-      - ${CONFIG_DIR}/adguard/work:/opt/adguardhome/work
-      - ${CONFIG_DIR}/adguard/conf:/opt/adguardhome/conf
+      - ${CONFIG_DIR}/nginxproxymanager/data:/data
+      - ${CONFIG_DIR}/nginxproxymanager/letsencrypt:/etc/letsencrypt
+    healthcheck:
+      test: ["CMD", "/usr/bin/check-health"]
+      interval: 10s
+      timeout: 3s
+  
+  
+  # adguardhome:
+  #   image: adguard/adguardhome
+  #   container_name: adguardhome
+  #   hostname: adguardhome
+  #   extra_hosts: *host-server
+  #   restart: unless-stopped
+  #   networks:
+  #     - homelab_net
+  #   ports:
+  #     # Plain DNS
+  #     - '53:53/tcp'
+  #     - '53:53/udp'
+  #     # AdGuard Home Admin Panel as well as DNS-over-HTTPS
+  #     - '80:80/tcp'
+  #     - '4443:4443/tcp'
+  #     - '4443:4443/udp'
+  #     - '3000:3000/tcp'
+  #     # DNS-over-TLS
+  #     - '853:853/tcp'
+  #     # DNS-over-QUIC
+  #     #- '784:784/udp'
+  #     #- '853:853/udp'
+  #     #- '8853:8853/udp'
+  #     # DNSCrypt
+  #     - '5443:5443/tcp'
+  #     - '5443:5443/udp'
+  #     # Uncomment the below ports if you want to use AdGuard Home as a DHCP server
+  #     #- 67:67/udp     # DHCP
+  #     #- 68:68/udp     # DHCP
+  #     #- 68:68/tcp     # DHCP
+  #   environment:
+  #     PUID: ${ADGUARDHOME_UID:?Please configure ADGUARD_UID in .env file}
+  #     PGID: ${ADGUARDHOME_GID:?Please configure ADGUARD_GID in .env file}
+  #     TZ: ${TZ:-Australia/Melbourne}
+  #   volumes:
+  #     - ${CONFIG_DIR}/adguard/work:/opt/adguardhome/work
+  #     - ${CONFIG_DIR}/adguard/conf:/opt/adguardhome/conf
 
 
   homarr:
