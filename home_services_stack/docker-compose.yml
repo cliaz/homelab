@@ -24,7 +24,7 @@ services:
       - homelab_net
       - media_net
     ports:
-      # - 80:80  # only needed if using http validation. We're using duckdns to validate, so don't need this
+      # - 80:80  # only needed if using http validation. We're using DNS validation with duckdns to validate, so don't need this
       - 81:81   # swag-dashboard mod
       - 443:443
     secrets:
@@ -37,10 +37,11 @@ services:
 
       SUBDOMAINS: wildcard
       VALIDATION: duckdns
-      FILE__DUCKDNSTOKEN: /run/secrets/DUCKDNSTOKEN
+      FILE__DUCKDNSTOKEN: /run/secrets/DUCKDNSTOKEN   # DuckDNS api token to facilitate DNS validation
+                                                      # https://letsencrypt.org/docs/challenge-types/#dns-01-challenge
       #CERTPROVIDER: zerossl  # defaults to letsencrypt
       #EMAIL:   # required when using zerossl as cert provider
-      #DOCKER_MODS: linuxserver/mods:swag-auto-reload|linuxserver/mods:swag-dashboard
+      DOCKER_MODS: linuxserver/mods:swag-auto-reload|linuxserver/mods:swag-dashboard
     volumes:
       - ${CONFIG_DIR}/swag:/config
 
