@@ -12,62 +12,64 @@ x-extra_hosts:
 services:
   # Reverse proxy for all services hosted on the docker host
   # services are exposed via the domain name sent through the URL, configured via the conf files in swag's nginx 
-  # swag:
-  #   image: linuxserver/swag:latest    # https://docs.linuxserver.io/general/swag/#docker-compose
-  #   container_name: swag
-  #   hostname: swag
-  #   extra_hosts: *host-server
-  #   restart: unless-stopped
-  #   cap_add:
-  #     - NET_ADMIN
-  #   networks:
-  #     - homelab_net
-  #     - media_net
-  #   ports:
-  #     # 80:80  # only needed if using http validation. We're using duckdns to validate, so don't need this
-  #     - 443:443
-  #   secrets:
-  #     - DUCKDNSTOKEN
-  #   environment:
-  #     PUID: ${SWAG_UID:?Please configure SWAG_UID in .env file}
-  #     PGID: ${SWAG_GID:?Please configure SWAG_GID in .env file}
-  #     TZ: ${TZ:-Australia/Melbourne}
-  #     URL: ${SWAG_URL:?Please configure SWAG_URL in .env file}
-
-  #     SUBDOMAINS: wildcard
-  #     VALIDATION: duckdns
-  #     FILE__DUCKDNSTOKEN: /run/secrets/DUCKDNSTOKEN
-  #     #CERTPROVIDER: zerossl  # defaults to letsencrypt
-  #     #EMAIL:   # required when using zerossl as cert provider
-  #   volumes:
-  #     - ${CONFIG_DIR}/swag:/config
-
-
-  NginxProxyManager:
-    image: 'docker.io/jc21/nginx-proxy-manager:latest'
-    container_name: 'nginx-proxy-manager'
-    hostname: 'nginx-proxy-manager'
+  swag:
+    image: linuxserver/swag:latest    # https://docs.linuxserver.io/general/swag/#docker-compose
+    container_name: swag
+    hostname: swag
     extra_hosts: *host-server
     restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
     networks:
       - homelab_net
       - media_net
     ports:
-      - '80:80'
-      - '81:81'   # admin panel
-      - '443:443'
+      # - 80:80  # only needed if using http validation. We're using duckdns to validate, so don't need this
+      - 81:81   # swag-dashboard mod
+      - 443:443
+    secrets:
+      - DUCKDNSTOKEN
     environment:
-      PUID: ${NGINXPROXYMANAGER_UID:?Please configure NGINXPROXYMANAGER_UID in .env file}
-      PGID: ${NGINXPROXYMANAGER_GID:?Please configure NGINXPROXYMANAGER_GID in .env file}
+      PUID: ${SWAG_UID:?Please configure SWAG_UID in .env file}
+      PGID: ${SWAG_GID:?Please configure SWAG_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
-      DISABLE_IPV6: 'true'
+      URL: ${SWAG_URL:?Please configure SWAG_URL in .env file}
+
+      SUBDOMAINS: wildcard
+      VALIDATION: duckdns
+      FILE__DUCKDNSTOKEN: /run/secrets/DUCKDNSTOKEN
+      #CERTPROVIDER: zerossl  # defaults to letsencrypt
+      #EMAIL:   # required when using zerossl as cert provider
+      #DOCKER_MODS: linuxserver/mods:swag-auto-reload|linuxserver/mods:swag-dashboard
     volumes:
-      - ${CONFIG_DIR}/nginxproxymanager/data:/data
-      - ${CONFIG_DIR}/nginxproxymanager/letsencrypt:/etc/letsencrypt
-    healthcheck:
-      test: ["CMD", "/usr/bin/check-health"]
-      interval: 10s
-      timeout: 3s
+      - ${CONFIG_DIR}/swag:/config
+
+
+  # NginxProxyManager:
+  #   image: 'docker.io/jc21/nginx-proxy-manager:latest'
+  #   container_name: 'nginx-proxy-manager'
+  #   hostname: 'nginx-proxy-manager'
+  #   extra_hosts: *host-server
+  #   restart: unless-stopped
+  #   networks:
+  #     - homelab_net
+  #     - media_net
+  #   ports:
+  #     - '80:80'
+  #     - '81:81'   # admin panel
+  #     - '443:443'
+  #   environment:
+  #     PUID: ${NGINXPROXYMANAGER_UID:?Please configure NGINXPROXYMANAGER_UID in .env file}
+  #     PGID: ${NGINXPROXYMANAGER_GID:?Please configure NGINXPROXYMANAGER_GID in .env file}
+  #     TZ: ${TZ:-Australia/Melbourne}
+  #     DISABLE_IPV6: 'true'
+  #   volumes:
+  #     - ${CONFIG_DIR}/nginxproxymanager/data:/data
+  #     - ${CONFIG_DIR}/nginxproxymanager/letsencrypt:/etc/letsencrypt
+  #   healthcheck:
+  #     test: ["CMD", "/usr/bin/check-health"]
+  #     interval: 10s
+  #     timeout: 3s
   
   
   # adguardhome:
