@@ -38,3 +38,10 @@ Uses nginx site-confs to configure what the default homepage is
 Using DNS challenge to get an SSL certificate from Let's Encrypt
 - https://letsencrypt.org/docs/challenge-types/#dns-01-challenge
 - https://docs.linuxserver.io/general/swag/#create-container-via-duckdns-validation-with-a-wildcard-cert
+
+#### Swag Mods
+Linuxserver images often have mods you can configure for their containers. Swag ones are https://mods.linuxserver.io/?mod=swag
+We are using:
+- Auto-proxy (todo): https://github.com/linuxserver/docker-mods/tree/swag-auto-proxy
+- Auto-reload: https://github.com/linuxserver/docker-mods/tree/swag-auto-reload. Allows us to make edits to the underlying config files that nginx uses, and they'll be reloaded on the fly
+- Dashboard: https://github.com/linuxserver/docker-mods/tree/swag-dashboard. Gives live overview of what services are running, what's proxied / exposed, and if there are updates
