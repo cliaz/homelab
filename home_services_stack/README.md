@@ -28,3 +28,13 @@ It consists of the following services:
 | | 8554 | RTSP Camera stream | 
 | | 8888 | HLS Camera stream | 
 | | 8189 | WebRTC/ICE Camera stream | 
+
+
+### Swag 
+Swag is acting as a reverse proxy for services, meaning we don't need to expose loads of ports on our home network - we simply expose `443`, set up the services to be and a DNS name, and access the services via DNS requests. Swag will also generate SSL certificates for everything.
+
+Uses nginx proxy-confs to proxy services
+Uses nginx site-confs to configure what the default homepage is
+Using DNS challenge to get an SSL certificate from Let's Encrypt
+- https://letsencrypt.org/docs/challenge-types/#dns-01-challenge
+- https://docs.linuxserver.io/general/swag/#create-container-via-duckdns-validation-with-a-wildcard-cert
