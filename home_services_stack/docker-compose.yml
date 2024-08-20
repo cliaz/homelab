@@ -43,35 +43,7 @@ services:
       #EMAIL:   # required when using zerossl as cert provider
       DOCKER_MODS: linuxserver/mods:swag-auto-reload|linuxserver/mods:swag-dashboard
     volumes:
-      - ${CONFIG_DIR}/swag:/config
-
-
-  # NginxProxyManager:
-  #   image: 'docker.io/jc21/nginx-proxy-manager:latest'
-  #   container_name: 'nginx-proxy-manager'
-  #   hostname: 'nginx-proxy-manager'
-  #   extra_hosts: *host-server
-  #   restart: unless-stopped
-  #   networks:
-  #     - homelab_net
-  #     - media_net
-  #   ports:
-  #     - '80:80'
-  #     - '81:81'   # admin panel
-  #     - '443:443'
-  #   environment:
-  #     PUID: ${NGINXPROXYMANAGER_UID:?Please configure NGINXPROXYMANAGER_UID in .env file}
-  #     PGID: ${NGINXPROXYMANAGER_GID:?Please configure NGINXPROXYMANAGER_GID in .env file}
-  #     TZ: ${TZ:-Australia/Melbourne}
-  #     DISABLE_IPV6: 'true'
-  #   volumes:
-  #     - ${CONFIG_DIR}/nginxproxymanager/data:/data
-  #     - ${CONFIG_DIR}/nginxproxymanager/letsencrypt:/etc/letsencrypt
-  #   healthcheck:
-  #     test: ["CMD", "/usr/bin/check-health"]
-  #     interval: 10s
-  #     timeout: 3s
-  
+      - ${CONFIG_DIR}/swag:/config  
   
   # adguardhome:
   #   image: adguard/adguardhome
