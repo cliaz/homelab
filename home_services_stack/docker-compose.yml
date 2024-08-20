@@ -94,8 +94,8 @@ services:
       - homelab_net
       - media_net
     # no need to expose ports via docker, as the container is accessed via Swag. Left for posterity
-    ports:
-      - 7575:7575
+    # ports:
+    #   - 7575:7575
     environment:
       PUID: ${HOMARR_UID:?Please configure HOMARR_UID in .env file}
       PGID: ${HOMARR_GID:?Please configure HOMARR_UID in .env file}
