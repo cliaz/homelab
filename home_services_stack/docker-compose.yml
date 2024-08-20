@@ -45,43 +45,44 @@ services:
     volumes:
       - ${CONFIG_DIR}/swag:/config  
   
-  # adguardhome:
-  #   image: adguard/adguardhome
-  #   container_name: adguardhome
-  #   hostname: adguardhome
-  #   extra_hosts: *host-server
-  #   restart: unless-stopped
-  #   networks:
-  #     - homelab_net
-  #   ports:
-  #     # Plain DNS
-  #     - '53:53/tcp'
-  #     - '53:53/udp'
-  #     # AdGuard Home Admin Panel as well as DNS-over-HTTPS
-  #     - '80:80/tcp'
-  #     - '4443:4443/tcp'
-  #     - '4443:4443/udp'
-  #     - '3000:3000/tcp'
-  #     # DNS-over-TLS
-  #     - '853:853/tcp'
-  #     # DNS-over-QUIC
-  #     #- '784:784/udp'
-  #     #- '853:853/udp'
-  #     #- '8853:8853/udp'
-  #     # DNSCrypt
-  #     - '5443:5443/tcp'
-  #     - '5443:5443/udp'
-  #     # Uncomment the below ports if you want to use AdGuard Home as a DHCP server
-  #     #- 67:67/udp     # DHCP
-  #     #- 68:68/udp     # DHCP
-  #     #- 68:68/tcp     # DHCP
-  #   environment:
-  #     PUID: ${ADGUARDHOME_UID:?Please configure ADGUARD_UID in .env file}
-  #     PGID: ${ADGUARDHOME_GID:?Please configure ADGUARD_GID in .env file}
-  #     TZ: ${TZ:-Australia/Melbourne}
-  #   volumes:
-  #     - ${CONFIG_DIR}/adguard/work:/opt/adguardhome/work
-  #     - ${CONFIG_DIR}/adguard/conf:/opt/adguardhome/conf
+  # AdGuard Home for internal DNS and ad blocking
+  adguardhome:
+    image: adguard/adguardhome
+    container_name: adguardhome
+    hostname: adguardhome
+    extra_hosts: *host-server
+    restart: unless-stopped
+    networks:
+      - homelab_net
+    ports:
+      # Plain DNS
+      - '53:53/tcp'
+      - '53:53/udp'
+      # AdGuard Home Admin Panel as well as DNS-over-HTTPS
+      - '80:80/tcp'
+      - '4443:4443/tcp'
+      - '4443:4443/udp'
+      - '3000:3000/tcp'
+      # DNS-over-TLS
+      - '853:853/tcp'
+      # DNS-over-QUIC
+      #- '784:784/udp'
+      #- '853:853/udp'
+      #- '8853:8853/udp'
+      # DNSCrypt
+      - '5443:5443/tcp'
+      - '5443:5443/udp'
+      # Uncomment the below ports if you want to use AdGuard Home as a DHCP server
+      #- 67:67/udp     # DHCP
+      #- 68:68/udp     # DHCP
+      #- 68:68/tcp     # DHCP
+    environment:
+      PUID: ${ADGUARDHOME_UID:?Please configure ADGUARD_UID in .env file}
+      PGID: ${ADGUARDHOME_GID:?Please configure ADGUARD_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+    volumes:
+      - ${CONFIG_DIR}/adguard/work:/opt/adguardhome/work
+      - ${CONFIG_DIR}/adguard/conf:/opt/adguardhome/conf
 
 
   homarr:
