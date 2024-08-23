@@ -53,8 +53,8 @@ services:
     extra_hosts: *host-server
     network_mode: host  # ADH needs to access the host network stack to run a DHCP server
     restart: unless-stopped
-    networks:
-      - homelab_net
+    # networks:
+    #   - homelab_net
     ports:
       # Plain DNS
       - '53:53/tcp'
