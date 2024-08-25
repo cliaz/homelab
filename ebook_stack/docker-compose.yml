@@ -42,7 +42,7 @@ services:
     networks:
       - ebooks
     ports:
-      - ${CALBRE_WEBUI_PORT:-8083}:8083
+      - ${CALIBRE_WEBUI_PORT:-8083}:8083
     environment:
       PUID: ${CALIBRE_WEB_UID:?Please configure CALIBRE_WEB_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
@@ -66,7 +66,7 @@ services:
     ports:
       - 8787:8787
     environment:
-      PUID: ${READARR:?Please configure READARR in .env file}
+      PUID: ${READARR_UID:?Please configure READARR_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
       UMASK: 002
