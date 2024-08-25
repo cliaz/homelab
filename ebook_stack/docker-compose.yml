@@ -79,13 +79,13 @@ services:
 # TODO: change subnet
 networks:
   ## Assumption / Precondition: the network 'ebooks_net' exist, either defined in ebook_stack or 
-  ## manually via the command "docker network create --attachable --subnet=172.16.200.0/24 ebook_net"
-  ebook_net:
-    external: true
-  ## Following network definition left for posterity
+  ## manually via the command "docker network create --attachable --subnet=172.16.0.0/24 ebook_net"
   # ebook_net:
-  #   name: ebook_net   # ensure network isn't prefixed with the default name of the directory, eg git_media_stack_media_net
-  #   attachable: true
-  #   ipam:
-  #     config:
-  #       - subnet: 172.16.200.0/24
+  #   external: true
+  ## Following network definition left for posterity
+  ebook_net:
+    name: ebook_net   # ensure network isn't prefixed with the default name of the directory, eg git_media_stack_media_net
+    attachable: true
+    ipam:
+      config:
+        - subnet: 172.16.0.0/24
