@@ -1,0 +1,91 @@
+x-extra_hosts:
+  # This is added so that within each service/container you can communicate to another service by using a DNS rather
+  # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
+  # configure the transmission client url as http://host-server:9091
+
+  # Pulls the IP address of the host from the .env file
+  &host-server
+  - "host-server:${HOST_IP}"
+services:
+  # Calibre is an ebook management system. It can be used to manage your ebooks, convert them to different formats,
+  calibre:
+    image: ghcr.io/linuxserver/calibre
+    container_name: calibre
+    hostname: calibre
+    extra_hosts: *host-server
+    restart: unless-stopped
+    networks:
+      - ebooks
+    ports:
+      - 8080:8080   # HTTP KasmVNC webUI
+      - 8081:8081   # Calibre's built-in webserver. Don't think this will be used?
+      - 8181:8181   # HTTPS KasmVNC webUI
+    environment:
+      PUID: ${CALIBREUID:?Please configure CALIBRE_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre:/config
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/data/media/books   # Calibre Library, aka where the ebooks will end up
+      #- path/to/your/CalibreLibrary:/Calibre_Library #this is where your ebooks will end up
+      
+      #- ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre/upload:/uploads #change before the ':'
+      #- ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre/plugins:/plugins #change before the ':'
+
+  calibre-web:
+    image: ghcr.io/linuxserver/calibre-web
+    container_name: calibre-web
+    hostname: calibre-web
+    extra_hosts: *host-server
+    restart: unless-stopped
+    networks:
+      - ebooks
+    ports:
+      - ${CALBRE_WEBUI_PORT:-8083}:8083
+    environment:
+      PUID: ${CALIBRE_WEB_UID:?Please configure CALIBRE_WEB_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre-web:/config
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/data/media/books
+      #- path/to/your/Calibre Library:/books
+    depends_on:
+      - calibre
+
+  readarr:
+    image: ghcr.io/linuxserver/readarr:nightly
+    container_name: readarr
+    hostname: readarr
+    extra_hosts: *host-server
+    restart: unless-stopped
+    networks:
+      - ebooks
+    ports:
+      - 8787:8787
+    environment:
+      PUID: ${READARR:?Please configure READARR in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/readarr:/config
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}:/data
+      #- /path/to/your/CalibreLibrary:/books #change before the ':'   # came from template, but I think this is bad folder structure
+      #- /path/to/your/downloads:/downloads  #change before the ':'   # came from template, but I think this is bad folder structure
+
+# TODO: change subnet
+networks:
+  ## Assumption / Precondition: the network 'ebooks_net' exist, either defined in ebook_stack or 
+  ## manually via the command "docker network create --attachable --subnet=172.16.200.0/24 ebook_net"
+  ebook_net:
+    external: true
+  ## Following network definition left for posterity
+  # ebook_net:
+  #   name: ebook_net   # ensure network isn't prefixed with the default name of the directory, eg git_media_stack_media_net
+  #   attachable: true
+  #   ipam:
+  #     config:
+  #       - subnet: 172.16.200.0/24
