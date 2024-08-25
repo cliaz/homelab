@@ -27,7 +27,7 @@ DOCKER_USERS=(              # users for all the services to create. If you don't
     "sonarr"                # tv show downloader
     "overseer"              # combines radarr and sonarr into one nice frontend
     "prowlarr"              # indexer aggregator
-    "qbittorrent"           # torrent client
+    "deluge"                # torrent client
     "notifiarr"             # notification aggregator. also used for keeping TRaSH Guides up to date
 )
 
