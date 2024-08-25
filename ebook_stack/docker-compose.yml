@@ -19,7 +19,7 @@ services:
     ports:
       - 8080:8080   # HTTP KasmVNC webUI
       - 8081:8081   # Calibre's built-in webserver. Don't think this will be used?
-      - 8181:8181   # HTTPS KasmVNC webUI
+      #- 8181:8181   # HTTPS KasmVNC webUI
     environment:
       PUID: ${CALIBRE_UID:?Please configure CALIBRE_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
