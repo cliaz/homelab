@@ -10,7 +10,7 @@
 
 # Define stuff here
 YOUR_USER_NAME="klaus"      # this is your user on the host machine. We need it to add you to the groups so you can modify files
-ROOT_DATA_DIR="/docker"     # where you want to store the docker config files, aka the mapped volumes. Not crazy read/write heavy
+ROOT_DATA_DIR="/dockers"     # where you want to store the docker config files, aka the mapped volumes. Not crazy read/write heavy
 DOCKER_USERS=(              # users for all the services to create. If you don't want one, just delete or comment it out
     "portainer"             # docker management
     "watchtower"            # auto-updates
