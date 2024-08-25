@@ -29,6 +29,9 @@ DOCKER_USERS=(              # users for all the services to create. If you don't
     "prowlarr"              # indexer aggregator
     "deluge"                # torrent client
     "notifiarr"             # notification aggregator. also used for keeping TRaSH Guides up to date
+    "readarr"               # ebook downloader
+    "calibre"               # ebook server
+    "calibre-web"           # web interface for calibre
 )
 
 
@@ -68,6 +71,9 @@ MEDIA_GROUP=(
 	"qbittorrent"
 	"radarr"
 	"sonarr"
+    "readarr"
+    "calibre"
+    "calibre-web"
 )
 groupadd media
 for NAME in "${MEDIA_GROUP[@]}"; do usermod -g media $NAME; done
