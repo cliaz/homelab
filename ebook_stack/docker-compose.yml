@@ -21,7 +21,7 @@ services:
       - 8081:8081   # Calibre's built-in webserver. Don't think this will be used?
       - 8181:8181   # HTTPS KasmVNC webUI
     environment:
-      PUID: ${CALIBREUID:?Please configure CALIBRE_UID in .env file}
+      PUID: ${CALIBRE_UID:?Please configure CALIBRE_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
       UMASK: 002
