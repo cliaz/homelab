@@ -222,29 +222,29 @@ services:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/overseerr:/config
 
   # Tautulli is used to get stats on Plex usage
-  tautulli:
-    image: linuxserver/tautulli:latest
-    container_name: tautulli
-    hostname: tautulli
-    extra_hosts: *host-server
-    restart: unless-stopped
-    networks:
-      - media_net
-    ports:
-      # Host port 8181 is mapped to container port 8181
-      - 8181:8181
-    environment:
-      # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: ${TAUTULLI_UID:?Please configure TAUTULLI_UID in .env file}
-      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
-      TZ: ${TZ:-Australia/Melbourne}
-      UMASK: 002
-    volumes:
-      # config directory
-      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/tautulli:/config
-      # Tautulli needs access to plex logs. In the plex container we mounted ${CONFIG_DIR}/plex of the host as the
-      # config directory for plex. Logs are located within this config directory
-      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
+  # tautulli:
+  #   image: linuxserver/tautulli:latest
+  #   container_name: tautulli
+  #   hostname: tautulli
+  #   extra_hosts: *host-server
+  #   restart: unless-stopped
+  #   networks:
+  #     - media_net
+  #   ports:
+  #     # Host port 8181 is mapped to container port 8181
+  #     - 8181:8181
+  #   environment:
+  #     # The container is run as the user with this PUID and PGID (user and group id).
+  #     PUID: ${TAUTULLI_UID:?Please configure TAUTULLI_UID in .env file}
+  #     PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+  #     TZ: ${TZ:-Australia/Melbourne}
+  #     UMASK: 002
+  #   volumes:
+  #     # config directory
+  #     - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/tautulli:/config
+  #     # Tautulli needs access to plex logs. In the plex container we mounted ${CONFIG_DIR}/plex of the host as the
+  #     # config directory for plex. Logs are located within this config directory
+  #     - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
 
 networks:
 
