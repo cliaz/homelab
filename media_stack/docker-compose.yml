@@ -100,6 +100,7 @@ services:
     #extra_hosts: *host-server  # this causes an issue when used with network_mode: "service:gluetun"
     restart: unless-stopped
     network_mode: "service:gluetun"
+    #ports: 8112:8112           # handled by gluetun container
     environment:
       PUID: ${DELUGE_UID:?Please configure DELUGE_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
