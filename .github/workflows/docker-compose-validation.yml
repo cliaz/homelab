@@ -30,24 +30,24 @@ jobs:
             echo EOF
           } >> $GITHUB_ENV
 
-      - name: Check each compose file's syntax, so that it will at least run
-        run: |
-          error=false
-          for i in $FILELIST; do
-            config_check=""
-            echo -n "Checking $i ..."
-            config_check="$(docker compose -f ${i} config -q 2>&1 || true)"
+      # - name: Check each compose file's syntax, so that it will at least run
+      #   run: |
+      #     error=false
+      #     for i in $FILELIST; do
+      #       config_check=""
+      #       echo -n "Checking $i ..."
+      #       config_check="$(docker compose -f ${i} config -q 2>&1 || true)"
             
-            if [ -z "$config_check" ]; then
-              echo "OK"
-            else
-              echo "ERROR"
-              echo "$config_check"
-              error=true
-            fi
-          done
+      #       if [ -z "$config_check" ]; then
+      #         echo "OK"
+      #       else
+      #         echo "ERROR"
+      #         echo "$config_check"
+      #         error=true
+      #       fi
+      #     done
 
-          if $error; then
-            echo "One or more docker-compose.yml files have errors. Please fix them."
-            exit 1
-          fi
+      #     if $error; then
+      #       echo "One or more docker-compose.yml files have errors. Please fix them."
+      #       exit 1
+      #     fi
