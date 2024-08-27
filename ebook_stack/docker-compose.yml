@@ -27,7 +27,7 @@ services:
       UMASK: 002
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre:/config
-      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/data/media/books   # Calibre Library, aka where the ebooks will end up
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/data/media   # Calibre Library, aka where the ebooks will end up
       #- path/to/your/CalibreLibrary:/Calibre_Library #this is where your ebooks will end up
       
       #- ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre/upload:/uploads #change before the ':'
@@ -50,7 +50,7 @@ services:
       UMASK: 002
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre-web:/config
-      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/data/media/books
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/data/media/
       #- path/to/your/Calibre Library:/books
     depends_on:
       - calibre
