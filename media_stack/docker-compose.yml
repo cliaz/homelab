@@ -74,6 +74,7 @@ services:
       # - 8388:8388/tcp # Shadowsocks
       # - 8388:8388/udp # Shadowsocks
       - ${DELUGE_WEBUI_PORT:-8112}:${DELUGE_WEBUI_PORT:-8112} # port for deluge.
+      - 58846:58846         # deluge daemon port for GTK UI. Only needed if you want to us YaRSS2 plugin
     environment:
       PUID: ${GLUETUN_UID:?Please configure GLUETUN_UID in .env file}
       PGID: ${GLUETUN_GID:?Please configure GLUETUN_GID in .env file}
@@ -100,9 +101,9 @@ services:
     #extra_hosts: *host-server  # this causes an issue when used with network_mode: "service:gluetun"
     restart: unless-stopped
     network_mode: "service:gluetun"
-    ports: 
-      #- 8112:8112           # handled by gluetun container
-      - 58846:58846         # deluge daemon port for GTK UI. Only needed if you want to us YaRSS2 plugin
+    #ports:                  # all port mappings are done in the gluetun service
+      #- 8112:8112           # webUI port
+      #- 58846:58846         # deluge daemon port for GTK UI. Only needed if you want to us YaRSS2 plugin
     environment:
       PUID: ${DELUGE_UID:?Please configure DELUGE_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
