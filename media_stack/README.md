@@ -47,7 +47,8 @@ I like watching sports - specifically F1 - and Sonarr doesn't handle that well. 
 So, instead we can install a plugin that will allow custom regex matching, set it up to look for what I'm after, and once the file is downloaded open Sonarr and add the file via Manual Import.
 
 To install the plugin:
-1. download the latest version of the `.egg` from the [YaRSS2 downloads page](https://bitbucket.org/bendikro/deluge-yarss-plugin/downloads/)
+1. ~~download the latest version of the `.egg` from the [YaRSS2 downloads page](https://bitbucket.org/bendikro/deluge-yarss-plugin/downloads/)~~
+As of Sep 2024, the latest version () from the [official download page](https://bitbucket.org/bendikro/deluge-yarss-plugin/downloads/) is throwing a bunch of errors related to the UI when activated. A [forum user has posted](https://forum.deluge-torrent.org/viewtopic.php?p=236706#p236706) a version which has a fix ([download link](https://1drv.ms/u/s!Ajl1yq0BfB-dgt5YF7iPGF7MYlED-A?e=AbY31K)), simply stating that the plugin can't be managed from within the UI
 2. move it to <Deluge config folder/plugins>, eg `/data/dockers/deluge/plugins`
 3. remove the `py3.11` reference from the name. eg it will be named `YaRSS2-2.1.5-py3.11.egg`, make it look like `YaRSS2-2.1.5.egg`
 4. restart Deluge
@@ -57,6 +58,7 @@ References:
 - [deluge docs](https://deluge-torrent.org/plugins/#InstallingPlugins)
 - [YaRSS2 Deluge Plugin](https://deluge-torrent.org/plugins/yarss2/)
 - [Forum post explaining troubleshooting steps](https://forum.deluge-torrent.org/viewtopic.php?t=56261)
+- [official forum thread about YaRSS2](https://forum.deluge-torrent.org/viewtopic.php?t=39551)
 
 
 
