@@ -127,6 +127,8 @@ services:
     hostname: prowlarr
     extra_hosts: *host-server
     restart: unless-stopped
+    #network_mode: "service:gluetun"   # Turns out australia is a repressive country, so it's recommended that even indexer requests
+                                      # should go via a VPN https://wiki.servarr.com/sonarr/faq#vpns-jackett-and-the-arrs
     networks:
       - media_net
     ports:
