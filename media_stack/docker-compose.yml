@@ -121,29 +121,29 @@ services:
     #   gluetun:
     #     condition: service_healthy
 
-    # Torrent downloads. Has inbuilt RSS support.
-    qbittorrent:
-      image: linuxserver/qbittorrent:latest
-      container_name: qbittorrent
-      #hostname: qbittorrent      # can't use hostname as this container is connected to service:gluetun
-      #extra_hosts: *host-server  # this causes an issue when used with network_mode: "service:gluetun"
-      restart: unless-stopped
-      network_mode: "service:gluetun"
-      #ports:                     # all port mappings are done in the gluetun service
-        #- ${QBIT_WEBUI_PORT:-6881}:${QBIT_WEBUI_PORT:-6881} # port for qbittorrent. make sure to change it in the qBit webUI too!
-      environment:
-        PUID: ${QBITTORRENT_UID:?Please configure QBITTORRENT_UID in .env file}
-        PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
-        TZ: ${TZ:-Australia/Melbourne}
-        WEBUI_PORT: ${QBIT_WEBUI_PORT:-8080}
-      volumes:
-        - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/qbittorrent:/config
-        - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data/torrents
-      # As per https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md, no need to set 'depends on' 
-      # as the network_mode: "service:gluetun" will ensure that qbittorrent will only start once gluetun is healthy
-      # depends_on:
-      #   gluetun:
-      #     condition: service_healthy
+  # Torrent downloads. Has inbuilt RSS support.
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    #hostname: qbittorrent      # can't use hostname as this container is connected to service:gluetun
+    #extra_hosts: *host-server  # this causes an issue when used with network_mode: "service:gluetun"
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    #ports:                     # all port mappings are done in the gluetun service
+      #- ${QBIT_WEBUI_PORT:-6881}:${QBIT_WEBUI_PORT:-6881} # port for qbittorrent. make sure to change it in the qBit webUI too!
+    environment:
+      PUID: ${QBITTORRENT_UID:?Please configure QBITTORRENT_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      WEBUI_PORT: ${QBIT_WEBUI_PORT:-8080}
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/qbittorrent:/config
+      - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data/torrents
+    # As per https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md, no need to set 'depends on' 
+    # as the network_mode: "service:gluetun" will ensure that qbittorrent will only start once gluetun is healthy
+    # depends_on:
+    #   gluetun:
+    #     condition: service_healthy
 
 
   # Torrent Indexer management
