@@ -75,7 +75,7 @@ services:
       # - 8388:8388/udp # Shadowsocks
       - ${DELUGE_WEBUI_PORT:-8112}:${DELUGE_WEBUI_PORT:-8112} # port for deluge.
       - 58846:58846         # deluge daemon port for GTK UI. Only needed if you want to us YaRSS2 plugin
-      - ${QBIT_WEBUI_PORT:-6881}:${QBIT_WEBUI_PORT:-6881} # port for qbittorrent. make sure to change it in the qBit webUI too!
+      - ${QBIT_WEBUI_PORT:-8080}:${QBIT_WEBUI_PORT:-8080} # port for qbittorrent. make sure to change it in the qBit webUI too!
     environment:
       PUID: ${GLUETUN_UID:?Please configure GLUETUN_UID in .env file}
       PGID: ${GLUETUN_GID:?Please configure GLUETUN_GID in .env file}
@@ -135,7 +135,7 @@ services:
         PUID: ${QBITTOREENT_UID:?Please configure QBITTOREENT_UID in .env file}
         PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
         TZ: ${TZ:-Australia/Melbourne}
-        WEBUI_PORT: ${QBIT_WEBUI_PORT:-6881}
+        WEBUI_PORT: ${QBIT_WEBUI_PORT:-8080}
       volumes:
         - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/qbittorrent:/config
         - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data/torrents
