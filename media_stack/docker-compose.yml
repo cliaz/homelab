@@ -132,7 +132,7 @@ services:
       #ports:                     # all port mappings are done in the gluetun service
         #- ${QBIT_WEBUI_PORT:-6881}:${QBIT_WEBUI_PORT:-6881} # port for qbittorrent. make sure to change it in the qBit webUI too!
       environment:
-        PUID: ${QBITTOREENT_UID:?Please configure QBITTOREENT_UID in .env file}
+        PUID: ${QBITTORRENT_UID:?Please configure QBITTORRENT_UID in .env file}
         PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
         TZ: ${TZ:-Australia/Melbourne}
         WEBUI_PORT: ${QBIT_WEBUI_PORT:-8080}
