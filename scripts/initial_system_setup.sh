@@ -68,7 +68,7 @@ for NAME in "${DOCKER_USERS[@]}"; do \
 # set the primary group for those users to be media, to fix any permissions issues
 MEDIA_GROUP=(
 	"plex"
-	"qbittorrent"
+	"deluge"
 	"radarr"
 	"sonarr"
     "readarr"
