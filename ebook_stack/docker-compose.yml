@@ -18,7 +18,7 @@ services:
     networks:
       - media_net
     ports:
-      - 8080:8080   # HTTP KasmVNC webUI
+      - ${CALIBRE_VNC_PORT:-8080:8080   # HTTP KasmVNC webUI
       - 8081:8081   # Calibre's built-in webserver. Used for Readarr integration
       #- 8181:8181   # HTTPS KasmVNC webUI
     environment:
