@@ -1,5 +1,11 @@
-# Homelab
-This repo contains a bunch of different docker stacks designed to do different things. They are also coupled in certain ways (eg. shared docker networks), which means deploying a stack individually may cause issues.
+# Overview
+This repo is aimed at providing an easy way of deploying all the components of a Media Management & Streaming service, mainly via the \*Arr apps as individual Docker Containers, with the intent to be as per ‘best practice’. They are also coupled in certain ways (eg. shared docker networks), which means deploying a stack individually may cause issues.
+As much as possible design decisions will be explained / linked to explanations.
+
+It consists of three Docker Stacks, as follows:
+- Home Services stack: things that ideally remain active independently of the Media / eBook stacks. 
+- Media stack: the media management stuff. Designed to use components of the Home Services stack for some of its functionality, but won’t break if it’s not there
+- eBook stack: currently relies on the Media stack to download eBooks. Will serve existing content without Media stack being active, but won’t be able to download new content. 
 
 
 ## Features
