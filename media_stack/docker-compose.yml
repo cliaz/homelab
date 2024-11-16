@@ -86,6 +86,7 @@ services:
       OPENVPN_USER: ${OPENVPN_USER:?Please configure OPENVPN_USER in .env file}
       OPENVPN_PASSWORD: ${OPENVPN_PASSWORD:?Please configure OPENVPN_PASSWORD in .env file}
       SERVER_COUNTRIES: ${SERVER_COUNTRIES:?Please configure SERVER_COUNTRIES in .env file}
+      VPN_PORT_FORWARDING: on
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/gluetun:/config
     labels:
