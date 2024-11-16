@@ -96,7 +96,7 @@ services:
 
 
   # Torrent downloads. Has inbuilt RSS support.
-  # Note: to change the WebUI port, as well as specifying it in the environment variable, you need to run the container with the
+  # Note: to change the WebUI port, as well as specifying it in the environment variable you will need to run the container with the
   # default port, then change the port in the WebUI settings, then stop the container and change the port in the docker-compose file
   qbittorrent:
     image: linuxserver/qbittorrent:latest
@@ -106,7 +106,7 @@ services:
     restart: unless-stopped
     network_mode: "service:gluetun"
     #ports:                     # all port mappings are done in the gluetun service
-      #- ${QBIT_WEBUI_PORT:-6881}:${QBIT_WEBUI_PORT:-6881} # see comment at top of service for changing the port
+      #- ${QBIT_WEBUI_PORT:-8080}:${QBIT_WEBUI_PORT:-8080} # see comment at top of service for changing the port
     environment:
       PUID: ${QBITTORRENT_UID:?Please configure QBITTORRENT_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
