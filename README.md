@@ -15,6 +15,16 @@ It consists of three Docker Stacks, as follows:
 - Hardlinking of media for more efficient I/O operations
 - Automated TRaSH Guide sync for media profiles
 
+## Data Flows
+
+I've put this in before describing the stacks in more details as I think having a visual representation of what's going on helps promote understanding more than, well, a wall of text.
+
+First, the data flow in the context of interactions between the containers themselves:
+![Container interactions](./docs/Homelab_Docker_Interactions.png)
+
+Second, the data flow in the context of the homelab as deployed to your home network, and accessed in and out of your home:
+![Data flow](./docs/Homelab_Data_Flow.png)
+
 
 # Stacks
 
