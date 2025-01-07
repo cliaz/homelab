@@ -1,5 +1,11 @@
-# Homelab
-This repo contains a bunch of different docker stacks designed to do different things. They are also coupled in certain ways (eg. shared docker networks), which means deploying a stack individually may cause issues.
+# Overview
+This repo is aimed at providing an easy way of deploying all the components of a Media Management & Streaming service, mainly via the \*Arr apps as individual Docker Containers, with the intent to be as per ‘best practice’. They are also coupled in certain ways (eg. shared docker networks), which means deploying a stack individually may cause issues.
+As much as possible design decisions will be explained / linked to explanations.
+
+It consists of three Docker Stacks, as follows:
+- Home Services stack: things that ideally remain active independently of the Media / eBook stacks. 
+- Media stack: the media management stuff. Designed to use components of the Home Services stack for some of its functionality, but won’t break if it’s not there
+- eBook stack: currently relies on the Media stack to download eBooks. Will serve existing content without Media stack being active, but won’t be able to download new content. 
 
 
 ## Features
@@ -8,6 +14,16 @@ This repo contains a bunch of different docker stacks designed to do different t
 - Services configured by service-wide `.env` files
 - Hardlinking of media for more efficient I/O operations
 - Automated TRaSH Guide sync for media profiles
+
+## Data Flows
+
+I've put this in before describing the stacks in more details as I think having a visual representation of what's going on helps promote understanding more than, well, a wall of text.
+
+First, the data flow in the context of interactions between the containers themselves:
+![Container interactions](./docs/Homelab_Docker_Interactions.png)
+
+Second, the data flow in the context of the homelab as deployed to your home network, and accessed in and out of your home:
+![Data flow](./docs/Homelab_Data_Flow.png)
 
 
 # Stacks
