@@ -32,7 +32,7 @@ if regex.search(readme_stub):
 
 # Once we've identified where the bottom of the already-included {<subfolder>_README} blocks are,
 # add any missing ones at the bottom
-# by updatong the stacks section placeholder to include any {<subfolder>_README} blocks
+# by updating the stacks section placeholder to include any {<subfolder>_README} blocks
 # that are not already in the stub
 placeholder_list = stacks_section_placeholder+"\n"
 for folder in sorted(folders_with_readme_files):
