@@ -6,6 +6,7 @@
 # - create a secrets folder for each of the docker services in the `ROOT_DATA_DIR`\secrets folder, 'secrets' folder, 
 #   which is where you should store sensitive information like API keys / passwords etc.
 # - make those users own those folders so they can write, and add your own user to that group so you can modify files
+# - create a 'media' group, and add the users (aka services) that work with media to that group, to fix any permissions issues
 
 
 # Define stuff here
@@ -45,17 +46,20 @@ if (( EUID != 0 )); then
     exit 1
 fi
 
-
-echo "first of all, create all the users for the docker services"
-echo "if you haven't edited this script to both configure which users you want to create, and"
-echo "to add your own user name to the media group, do that now"
+# make sure the user has edited the script to add their own user name
+echo "*** WARNING ***"
+echo "If you haven't edited this script to configure:"
+echo " - which users you want to create"
+echo " - where you want to store the docker config files"
+echo " - your own user name on the system"
+echo "then you should do that now, and then run the script again"
 read -p "press enter to continue, or ctrl+c to cancel"
-
 
 
 # create users, folders, and set permissions
 # example folder structure for plex: /docker/plex, /docker/secrets/plex
 # note: many of the services won't actually have secrets to put in the secrets folder
+echo "Create all the users for the docker services"
 for NAME in "${DOCKER_USERS[@]}"; do \
     useradd --no-create-home -s /usr/bin/nologin $NAME; \
     mkdir -p $ROOT_DATA_DIR/$NAME $ROOT_DATA_DIR/secrets/$NAME; \
@@ -80,3 +84,5 @@ for NAME in "${MEDIA_GROUP[@]}"; do usermod -g media $NAME; done
 
 # also add your own user to that group, so you can modify files if needed
 usermod -a -G media $YOUR_USER_NAME
+
+echo -e "\n\nUsers and groups created, and permissions set"
