@@ -2,8 +2,8 @@
 
 # Overall, this script will:
 # - create a bunch of users, without home directories
-# - create folders for each of the docker services in the 'ROOT_DATA_DIR' folder
-# - create a secrets folder for each of the docker services in the `ROOT_DATA_DIR`\secrets folder, 'secrets' folder, 
+# - create folders for each of the docker services that write stuff to disk in the 'ROOT_DATA_DIR' folder
+# - create a secrets folder for each of the docker services (=that uses secrets in the `ROOT_DATA_DIR`\secrets folder, 'secrets' folder, 
 #   which is where you should store sensitive information like API keys / passwords etc.
 # - make those users own those folders so they can write, and add your own user to that group so you can modify files
 # - create a 'media' group, and add the users (aka services) that work with media to that group, to fix any permissions issues
@@ -36,9 +36,19 @@ DOCKER_USERS=(              # users for all the services to create. If you don't
 )
 
 
-#### Don't touch below here unless you know what you're doing ####
+#### Don't touch below here unless you know what you're doing
 
+# services that don't need a folder in the ROOT_DATA_DIR, because they don't write anything to disk
+SERVICES_THAT_DONT_TOUCH_DISK=(
+    "watchtower"
+)
 
+# services that need a folder in the SECRETS_DIR, because they have sensitive information
+SERVICES_THAT_NEED_SECRETS=(
+    "swag"
+    "watchtower"
+    "wireguard"
+)
 
 # make sure this is run as root
 if (( EUID != 0 )); then
@@ -62,10 +72,24 @@ read -p "press enter to continue, or ctrl+c to cancel"
 echo "Create all the users for the docker services"
 for NAME in "${DOCKER_USERS[@]}"; do \
     useradd --no-create-home -s /usr/bin/nologin $NAME; \
-    mkdir -p $ROOT_DATA_DIR/$NAME $ROOT_DATA_DIR/secrets/$NAME; \
-    chown -R $NAME:$NAME $ROOT_DATA_DIR/$NAME/ $ROOT_DATA_DIR/secrets/$NAME; \
-    chmod -R 770 $ROOT_DATA_DIR/$NAME; usermod -aG $NAME $YOUR_USER_NAME; \
-    echo $NAME:$(id -u $NAME):$(id -g $NAME); \
+    usermod -aG $NAME $YOUR_USER_NAME
+    echo $NAME:$(id -u $NAME):$(id -g $NAME)
+    
+    # if the name is in the list of services that don't touch the disk, skip creating the folder
+    if [[ " ${SERVICES_THAT_DONT_TOUCH_DISK[@]} " =~ " ${NAME} " ]]; then
+        # do nothing
+    else
+        mkdir -p $ROOT_DATA_DIR/$NAME
+        chown -R $NAME:$NAME $ROOT_DATA_DIR/$NAME/
+        chmod -R 770 $ROOT_DATA_DIR/$NAME
+    fi
+
+    # if the name is in the list of services that need secrets, create the secrets folder
+    if [[ " ${SERVICES_THAT_NEED_SECRETS[@]} " =~ " ${NAME} " ]]; then
+        mkdir -p $ROOT_DATA_DIR/secrets/$NAME
+        chown -R $NAME:$NAME $ROOT_DATA_DIR/secrets/$NAME/
+    fi
+
     done
 
 # create a group called 'media' which we're going to make the primary group for the users that work with media
