@@ -17,7 +17,6 @@ It consists of three Docker Stacks, as follows:
 
 
 ## Data Flows
-
 I've put this in before describing the components in more detail as I think having a visual representation of what's going on helps promote understanding more than, well, a wall of text.
 
 First, the data flow in the context of interactions between the containers themselves:
@@ -28,7 +27,7 @@ Second, the data flow in the context of the homelab as deployed to your home net
 
 
 # Components
-Also check out the [Things to note](#Things to note) section, as some of the design decisions are elaborated on there
+Also check out the [Things to note](#Things-to-note) section, as some of the design decisions are elaborated on there.
 
 ## Home Services stack
 This stack is designed to provide overarching services that will be used by various different stacks.
