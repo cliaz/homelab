@@ -180,8 +180,8 @@ services:
       #- 68:68/udp     # DHCP
       #- 68:68/tcp     # DHCP
     environment:
-      PUID: ${ADGUARDHOME_UID:?Please configure ADGUARD_UID in .env file}
-      PGID: ${ADGUARDHOME_GID:?Please configure ADGUARD_GID in .env file}
+      PUID: ${ADGUARDHOME_UID:?Please configure ADGUARDHOME_UID in .env file}
+      PGID: ${ADGUARDHOME_GID:?Please configure ADGUARDHOME_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       - ${CONFIG_DIR}/adguard/work:/opt/adguardhome/work
@@ -202,7 +202,7 @@ services:
       - 7575:7575
     environment:
       PUID: ${HOMARR_UID:?Please configure HOMARR_UID in .env file}
-      PGID: ${HOMARR_GID:?Please configure HOMARR_UID in .env file}
+      PGID: ${HOMARR_GID:?Please configure HOMARR_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
       DISABLE_ANALYTICS: TRUE
     volumes:
