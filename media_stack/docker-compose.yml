@@ -149,7 +149,7 @@ services:
 
 networks:
 
-  ## Assumption / Precondition: the network 'media_net' exists, either defined in home_services_stack or 
+  ## Assumption / Precondition: the network 'media_net' exists, either defined in core_services_stack or 
   ## manually via the command "docker network create --attachable --subnet=172.200.0.0/24 media_net"
   media_net:
     external: true
