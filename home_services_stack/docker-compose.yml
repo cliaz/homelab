@@ -45,6 +45,108 @@ services:
     volumes:
       - ${CONFIG_DIR}/swag:/config  
   
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    hostname: gluetun
+    extra_hosts: *host-server
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    # This might be so that gluetun can access the host's network, so that it can route all traffic through the VPN. Unsure
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    networks:
+      - media_net
+    ports:
+      # - 8080:8080/tcp # HTTP proxy
+      # - 8388:8388/tcp # Shadowsocks
+      # - 8388:8388/udp # Shadowsocks
+      - ${DELUGE_WEBUI_PORT:-8112}:${DELUGE_WEBUI_PORT:-8112} # port for deluge.
+      - 58846:58846         # deluge daemon port for GTK UI. Only needed if you want to us YaRSS2 plugin
+      - ${QBIT_WEBUI_PORT:-8080}:8080 # port for qbittorrent. # see comment at top of qbittorrent service directive for changing the port
+    environment:
+      PUID: ${GLUETUN_UID:?Please configure GLUETUN_UID in .env file}
+      PGID: ${GLUETUN_GID:?Please configure GLUETUN_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
+      # https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/protonvpn.md
+      VPN_SERVICE_PROVIDER: ${VPN_SERVICE_PROVIDER:?Please configure VPN_SERVICE_PROVIDER in .env file}
+      OPENVPN_USER: ${OPENVPN_USER:?Please configure OPENVPN_USER in .env file}
+      OPENVPN_PASSWORD: ${OPENVPN_PASSWORD:?Please configure OPENVPN_PASSWORD in .env file}
+      SERVER_COUNTRIES: ${SERVER_COUNTRIES:?Please configure SERVER_COUNTRIES in .env file}
+      VPN_PORT_FORWARDING: on
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/gluetun:/config
+    labels:
+      # This is to disable watchtower from updating this container, because Containers connected to Gluetun lose connection once Gluetun is restarted
+      # can choose to monitor only, or fully disable
+      #- "com.centurylinklabs.watchtower.monitor-only=true"   
+      - com.centurylinklabs.watchtower.enable=false
+  ## Torrent downloads. Has inbuilt RSS support.
+  # Note: to change the WebUI port, as well as specifying it in the environment variable you will need to run the container with the
+  # default port, then change the port in the WebUI settings, then stop the container and change the port in the docker-compose file
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    #hostname: qbittorrent      # can't use hostname as this container is connected to service:gluetun
+    #extra_hosts: *host-server  # this causes an issue when used with network_mode: "service:gluetun"
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    #ports:                     # all port mappings are done in the gluetun service
+      #- ${QBIT_WEBUI_PORT:-8080}:${QBIT_WEBUI_PORT:-8080} # see comment at top of service for changing the port
+    environment:
+      PUID: ${QBITTORRENT_UID:?Please configure QBITTORRENT_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      WEBUI_PORT: ${QBIT_WEBUI_PORT:-8080}    # see comment at top of service for changing the port
+      UMASK: 002    # without this set, files downloaded by deluge don't get the 'w' group octal set
+                    # and then users in the MEDIA_GID group can't hardlink the files
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/qbittorrent:/config
+      - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data/torrents
+    # As per https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md, no need to set 'depends on' 
+    # as the network_mode: "service:gluetun" will ensure that qbittorrent will only start once gluetun is healthy
+    # depends_on:
+    #   gluetun:
+    #     condition: service_healthy
+  ## Torrent Indexer management
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    hostname: prowlarr
+    extra_hosts: *host-server
+    restart: unless-stopped
+    #network_mode: "service:gluetun"   # Turns out australia is a repressive country, so it's recommended that even indexer requests
+                                      # should go via a VPN https://wiki.servarr.com/sonarr/faq#vpns-jackett-and-the-arrs
+    networks:
+      - media_net
+    ports:
+      - 9696:9696
+    environment:
+      PUID: ${PROWLARR_UID:?Please configure PROWLARR_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/prowlarr:/config
+
+  # Mainly using this for the 1337x indexer
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    hostname: flaresolverr
+    extra_hosts: *host-server
+    restart: unless-stopped
+    networks:
+      - media_net
+    ports:
+      - 8191:8191
+    environment:
+      TZ: ${TZ:-Australia/Melbourne}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_HTML: ${LOG_HTML:-false}
+      CAPTCHA_SOLVER: ${CAPTCHA_SOLVER:-none}
   # AdGuard Home for internal DNS and ad blocking
   adguardhome:
     image: adguard/adguardhome
