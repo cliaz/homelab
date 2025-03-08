@@ -1,0 +1,337 @@
+# docker-compose for Stack of Swag + Homarr + HomeAssistant + WyzeBridge
+# need to modify the swag configs in /data/docker/swag/config/nginx/proxy-confs/ to match
+
+x-extra_hosts:
+  # This is added so that within each service you can communicate to another service by using the DNS name of the host rather
+  # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
+  # configure the transmission client url as http://host-server:9091
+  &host-server
+  # Pulls the IP address of the host from the .env file
+  - "host-server:${HOST_IP}"
+
+services:
+  ## (Required) Means of securely exposing internal services to the internet
+  # SWAG reverse proxy for all services hosted on the docker host
+  # services are exposed via the domain name sent through the URL, configured via the conf files in swag's nginx 
+  swag:
+    image: linuxserver/swag:latest    # https://docs.linuxserver.io/general/swag/#docker-compose
+    container_name: swag
+    hostname: swag
+    extra_hosts: *host-server
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - homelab_net
+      - media_net
+    ports:
+      # - 80:80  # only needed if using http validation. We're using DNS validation with duckdns to validate, so don't need this
+      - 81:81   # swag-dashboard mod
+      - 443:443
+    secrets:
+      - DUCKDNSTOKEN
+    environment:
+      PUID: ${SWAG_UID:?Please configure SWAG_UID in .env file}
+      PGID: ${SWAG_GID:?Please configure SWAG_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      URL: ${SWAG_URL:?Please configure SWAG_URL in .env file}
+
+      SUBDOMAINS: wildcard
+      VALIDATION: duckdns
+      FILE__DUCKDNSTOKEN: /run/secrets/DUCKDNSTOKEN   # DuckDNS api token to facilitate DNS validation
+                                                      # https://letsencrypt.org/docs/challenge-types/#dns-01-challenge
+      #CERTPROVIDER: zerossl  # defaults to letsencrypt
+      #EMAIL:   # required when using zerossl as cert provider
+      DOCKER_MODS: linuxserver/mods:swag-auto-reload|linuxserver/mods:swag-dashboard
+    volumes:
+      - ${CONFIG_DIR}/swag:/config  
+  
+  ## (Required) Download stack
+  # The following are the services for downloading torrents, managing indexers, and VPN
+  
+  ## Outbound VPN connection
+  # can confirm connectivity by with "docker exec gluetun wget -q -O- http://ipecho.net/plain"
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    hostname: gluetun
+    extra_hosts: *host-server
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    # This might be so that gluetun can access the host's network, so that it can route all traffic through the VPN. Unsure
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    networks:
+      - media_net
+    ports:
+      # - 8080:8080/tcp # HTTP proxy
+      # - 8388:8388/tcp # Shadowsocks
+      # - 8388:8388/udp # Shadowsocks
+      - ${DELUGE_WEBUI_PORT:-8112}:${DELUGE_WEBUI_PORT:-8112} # port for deluge.
+      - 58846:58846         # deluge daemon port for GTK UI. Only needed if you want to us YaRSS2 plugin
+      - ${QBIT_WEBUI_PORT:-8080}:8080 # port for qbittorrent. # see comment at top of qbittorrent service directive for changing the port
+    environment:
+      PUID: ${GLUETUN_UID:?Please configure GLUETUN_UID in .env file}
+      PGID: ${GLUETUN_GID:?Please configure GLUETUN_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
+      # https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/protonvpn.md
+      VPN_SERVICE_PROVIDER: ${VPN_SERVICE_PROVIDER:?Please configure VPN_SERVICE_PROVIDER in .env file}
+      OPENVPN_USER: ${OPENVPN_USER:?Please configure OPENVPN_USER in .env file}
+      OPENVPN_PASSWORD: ${OPENVPN_PASSWORD:?Please configure OPENVPN_PASSWORD in .env file}
+      SERVER_COUNTRIES: ${SERVER_COUNTRIES:?Please configure SERVER_COUNTRIES in .env file}
+      VPN_PORT_FORWARDING: on
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/gluetun:/config
+    labels:
+      # This is to disable watchtower from updating this container, because Containers connected to Gluetun lose connection once Gluetun is restarted
+      # can choose to monitor only, or fully disable
+      #- "com.centurylinklabs.watchtower.monitor-only=true"   
+      - com.centurylinklabs.watchtower.enable=false
+
+  ## Torrent downloads. Has inbuilt RSS support.
+  # Note: to change the WebUI port, as well as specifying it in the environment variable you will need to run the container with the
+  # default port, then change the port in the WebUI settings, then stop the container and change the port in the docker-compose file
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    #hostname: qbittorrent      # can't use hostname as this container is connected to service:gluetun
+    #extra_hosts: *host-server  # this causes an issue when used with network_mode: "service:gluetun"
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    #ports:                     # all port mappings are done in the gluetun service
+      #- ${QBIT_WEBUI_PORT:-8080}:${QBIT_WEBUI_PORT:-8080} # see comment at top of service for changing the port
+    environment:
+      PUID: ${QBITTORRENT_UID:?Please configure QBITTORRENT_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      WEBUI_PORT: ${QBIT_WEBUI_PORT:-8080}    # see comment at top of service for changing the port
+      UMASK: 002    # without this set, files downloaded by deluge don't get the 'w' group octal set
+                    # and then users in the MEDIA_GID group can't hardlink the files
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/qbittorrent:/config
+      - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data/torrents
+    # As per https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md, no need to set 'depends on' 
+    # as the network_mode: "service:gluetun" will ensure that qbittorrent will only start once gluetun is healthy
+    # depends_on:
+    #   gluetun:
+    #     condition: service_healthy
+
+  ## Torrent Indexer management
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    hostname: prowlarr
+    extra_hosts: *host-server
+    restart: unless-stopped
+    #network_mode: "service:gluetun"   # Turns out australia is a repressive country, so it's recommended that even indexer requests
+                                      # should go via a VPN https://wiki.servarr.com/sonarr/faq#vpns-jackett-and-the-arrs
+    networks:
+      - media_net
+    ports:
+      - 9696:9696
+    environment:
+      PUID: ${PROWLARR_UID:?Please configure PROWLARR_UID in .env file}
+      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/prowlarr:/config
+
+  ## Captcha solver for Prowlarr
+  # Mainly using this for the 1337x indexer
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    hostname: flaresolverr
+    extra_hosts: *host-server
+    restart: unless-stopped
+    networks:
+      - media_net
+    ports:
+      - 8191:8191
+    environment:
+      TZ: ${TZ:-Australia/Melbourne}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_HTML: ${LOG_HTML:-false}
+      CAPTCHA_SOLVER: ${CAPTCHA_SOLVER:-none}
+
+  ## (Optional) Internal DNS and ad blocking
+  # AdGuard Home for internal DNS and ad blocking
+  adguardhome:
+    image: adguard/adguardhome
+    container_name: adguardhome
+    hostname: adguardhome
+    extra_hosts: *host-server
+    #network_mode: host  # ADH needs to access the host network stack to run a DHCP server
+    restart: unless-stopped
+    networks:
+      - homelab_net
+    ports:
+      # Plain DNS
+      - '53:53/tcp'
+      - '53:53/udp'
+      # AdGuard Home Admin Panel as well as DNS-over-HTTPS
+      - '82:80/tcp'
+      #- '443:4443/tcp'
+      #- '443:4443/udp'
+      #- '3000:3000/tcp'
+      # DNS-over-TLS
+      #- '853:853/tcp'
+      # DNS-over-QUIC
+      #- '784:784/udp'
+      #- '853:853/udp'
+      #- '8853:8853/udp'
+      # DNSCrypt
+      #- '5443:5443/tcp'
+      #- '5443:5443/udp'
+      # Uncomment the below ports if you want to use AdGuard Home as a DHCP server
+      #- 67:67/udp     # DHCP
+      #- 68:68/udp     # DHCP
+      #- 68:68/tcp     # DHCP
+    environment:
+      PUID: ${ADGUARDHOME_UID:?Please configure ADGUARDHOME_UID in .env file}
+      PGID: ${ADGUARDHOME_GID:?Please configure ADGUARDHOME_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+    volumes:
+      - ${CONFIG_DIR}/adguard/work:/opt/adguardhome/work
+      - ${CONFIG_DIR}/adguard/conf:/opt/adguardhome/conf
+
+  ## (Optional) Home page for all services
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    container_name: homarr
+    hostname: homarr
+    extra_hosts: *host-server
+    restart: unless-stopped
+    networks:
+      - homelab_net
+      - media_net
+    # no need to expose ports via docker, as the container is accessed via Swag. Left for posterity
+    ports:
+      - 7575:7575
+    environment:
+      PUID: ${HOMARR_UID:?Please configure HOMARR_UID in .env file}
+      PGID: ${HOMARR_GID:?Please configure HOMARR_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      DISABLE_ANALYTICS: TRUE
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
+      - ${CONFIG_DIR}/homarr/configs:/app/data/configs
+      - ${CONFIG_DIR}/homarr/icons:/app/public/icons
+      - ${CONFIG_DIR}/homarr/data:/data
+
+  ## (Optional) Notification Aggregator
+  # A notification aggregator that is used to send watchtower / sonarr / radarr etc. notifications to discord
+  # also used to facilitate Trash-Guides sync for sonarr / radarr via a GUI.
+  notifiarr:
+    image: golift/notifiarr
+    container_name: notifiarr
+    hostname: notifiarr
+    extra_hosts: *host-server
+    restart: unless-stopped
+    user: ${NOTIFIARR_UID:?Please configure NOTIFIARR_UID in .env file}:${NOTIFIARR_GID:?Please configure NOTIFIARR_GID in .env file}
+    networks:
+      - media_net   # unsure if notifiarr needs to be on the media_net network, but it's a media service so it's here for now
+    ports:
+      - 5454:5454
+    environment:
+      PUID: ${NOTIFIARR_UID:?Please configure NOTIFIARR_UID in .env file}
+      PGID: ${NOTIFIARR_GID:?Please configure NOTIFIARR_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/notifiarr:/config
+      - /var/run/utmp:/var/run/utmp
+      - /etc/machine-id:/etc/machine-id
+
+  ## (Optional Home Automation and IOT management
+  # Do all of the home automation stuff here
+  homeassistant:
+    image: linuxserver/homeassistant:latest
+    container_name: homeassistant
+    hostname: homeassistant
+    extra_hosts: *host-server   # this might work to allow the nginx config for homeassistant to reference the host IP by name
+    network_mode: host  # home assistant needs network_mode: host for auto discovery and bluetooth
+    restart: unless-stopped
+    # ports not needed, as this containers is exposed on the host network stack via network_mode: host
+    environment:
+      PUID: ${HOMEASSISTANT_UID:?Please configure HOMEASSISTANT_UID in .env file}
+      PGID: ${HOMEASSISTANT_GID:?Please configure HOMEASSISTANT_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+    volumes:
+      - ${CONFIG_DIR}/homeassistant/config:/config
+      - /run/dbus:/run/dbus:ro
+  
+  ## (Optional) View Wyze cameras streams internally instead of via the internet
+  # Bridge to allow Wyze cameras to be used in HomeAssistant via RTSP. https://github.com/mrlt8/docker-wyze-bridge
+  wyze-bridge:
+    image: mrlt8/wyze-bridge:latest
+    container_name: wyze-bridge
+    hostname: wyze-bridge
+    extra_hosts: *host-server
+    restart: unless-stopped
+    # This container needs to run as root, else it throws lots of errors
+    #user: ${WYZEBRIDGE_UID:?Please configure WYZEBRIDGE_UID in .env file}:${WYZEBRIDGE_GID:?Please configure WYZEBRIDGE_GID in .env file}
+    networks:
+      - homelab_net
+    ports:
+      # TODO: harden ports
+      #- 1935:1935 # RTMP - worst. probably don't want this
+      - 8554:8554 # RTSP - next best. 
+      - 8888:8888 # HLS - 2nd best. Working on the wyzecam v3
+      #- 8889:8889 # WebRTC - best. Doesn't seem to be working on the wyzecam v3 though
+      - 8189:8189/udp # WebRTC/ICE
+      - 5000:5000 # WEB-UI
+    secrets:
+      # Due to the way that the fix for having secrets referenced via files was implemented (see
+      # https://github.com/mrlt8/docker-wyze-bridge/issues/1244), if these these secrets exist the are read directly.
+      # no need to set them in the environment variables
+      - WYZE_EMAIL
+      - WYZE_PASSWORD
+      - API_ID
+      - API_KEY
+      - WB_USERNAME
+      - WB_PASSWORD
+    environment:
+      TZ: ${TZ:-Australia/Melbourne}
+
+      # [OPTIONAL] Credentials can be set in the WebUI, but every time the container is restarted, the credentials will need to be re-entered.
+      # instead, they are now all set via secrets and read from /run/secrets as per https://github.com/mrlt8/docker-wyze-bridge/issues/1244
+
+      # API Key and ID can be obtained from the wyze dev portal: 
+      # https://developer-api-console.wyze.com/#/apikey/view
+
+      # [OPTIONAL] IP Address of the host to enable WebRTC e.g.,:
+      WB_IP: host-server
+
+## Networks
+# want to define a network range so that we can explicitly trust that network in the homeassistant config    
+networks:
+  homelab_net:
+    name: homelab_net   # ensure network isn't prefixed with the default name of the directory, eg git_core_services_stack_homelab_net
+    attachable: true
+    ipam:
+      config:
+        - subnet: 172.16.100.0/24
+  media_net:
+    # Note: if the media stack has not been started, manually define the media_net network with
+    # docker network create --attachable --subnet=172.16.200.0/24 media_net
+    external: true
+
+secrets:
+  DUCKDNSTOKEN:
+    file: ${SECRETS}/swag/duckdns_token
+  WYZE_EMAIL:
+    file: ${SECRETS}/wyzebridge/wyze_account_email
+  WYZE_PASSWORD:
+    file: ${SECRETS}/wyzebridge/wyze_account_password
+  API_ID:
+    file: ${SECRETS}/wyzebridge/wyze_api_id
+  API_KEY:
+    file: ${SECRETS}/wyzebridge/wyze_api_key
+  WB_USERNAME:
+    file: ${SECRETS}/wyzebridge/wyze_bridge_webapp_username
+  WB_PASSWORD:
+    file: ${SECRETS}/wyzebridge/wyze_bridge_webapp_password
+
