@@ -44,7 +44,7 @@ services:
       WG_DEFAULT_ADDRESS: ${IP_RANGE_FOR_WG_CLIENTS}
 
     volumes:
-      - ${ROOT_CONFIG}/wireguard:/etc/wireguard
+      - ${CONFIG_DIR}/wireguard:/etc/wireguard
       - /lib/modules:/lib/modules:ro
     sysctls:
       - net.ipv4.ip_forward=1

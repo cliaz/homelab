@@ -149,7 +149,7 @@ services:
 
 networks:
 
-  ## Assumption / Precondition: the network 'media_net' exist, either defined in home_services_stack or 
+  ## Assumption / Precondition: the network 'media_net' exists, either defined in core_services_stack or 
   ## manually via the command "docker network create --attachable --subnet=172.200.0.0/24 media_net"
   media_net:
     external: true
@@ -160,94 +160,3 @@ networks:
   #   ipam:
   #     config:
   #       - subnet: 172.16.200.0/24
-
-
-
-  ######################
-  #                    #
-  #    TESTING SHIZ    #
-  #                    #
-  ######################
-
-  # lidarr:
-  #   image: linuxserver/lidarr:latest
-  #   restart: always
-  #   container_name: lidarr
-  #   extra_hosts: *host-server
-  #   ports:
-  #     # Host port 8686 is mapped to container port 8686
-  #     - 8686:8686
-  #   environment:
-  #     # The container is run as the user with this PUID and PGID (user and group id).
-  #     PUID: 1000
-  #     PGID: 1000
-  #     TZ: Australia/Melbourne
-  #   volumes:
-  #     # lidarr needs to know where the downloaded media is. This is told to lidarr by transmission
-  #     - /mnt/media/downloads:/downloads
-  #     - /mnt/media/downloads:/data
-  #     # config directory
-  #     - /mnt/media/appdata/lidarr:/config
-  #     # Music imported by lidarr is stored in /mnt/media/music directory on the host. lidarr sees this directory
-  #     # as /music. Within lidarr make your root folder as /music
-  #     - /mnt/media/music:/music
-
-
-  # Sonarr at present does not support netimport lists like Radarr does. On Radarr you can setup it up to import movies
-  # from Lists like IMDB lists or themoviedb.org lists. Using these lists, you can just add the movies you want to
-  # these lists and radarr will sync up with these lists and then start downloading and managing the movies.
-  # Similar thing is not available for sonarr. So this service can sync the TV shows from TVDB.com list and add them
-  # to sonarr. So basically you create an account on TVDB.com and then you would get a username and you can create an
-  # API KEY. You would need these to use this service. Once this service is setup, any TV shows that you add to your
-  # favourites list will be fetched at the SYNC_INTERVAL and added to sonarr. Sonarr then would start downloading and
-  # managing this TV show
-  # sonarr_netimport:
-  #   container_name: sonarr_netimport
-  #   hostname: sonarr_netimport
-  #   image: thundermagic/sonarr_netimport:latest
-  #   networks:
-  #    - media_net
-  #   restart: unless-stopped
-  #   environment:
-  #     TVDB_USERNAME: <USERNAME>
-  #     TVDB_USER_KEY: <USER_KEY>
-  #     TVDB_API_KEY: tvdb_api_key   #TODO: probably need to get this from tvdb, costs $11.99 / year
-  #     # IP address and port number where sonarr can be accessed
-  #     SONARR_IP: ${HOST_IP}
-  #     SONARR_PORT: 8989
-  #     # Sonarr app API key. This is on sonarr under settings>general
-  #     SONARR_API_KEY: <SONARR_API_KEY>
-  #     SYNC_INTERVAL: 3600  # Interval at which to sync with TVDB, in seconds
-  #     SEARCH_MISSING_EPISODES: 1  # 1 is True
-  #     QUALITY_PROFILE_ID: 1  # 1 is profile any
-  #     MONITORED: 1  # 1 is True
-  #     ROOT_FOLDER_PATH: /tv/  # Full path of root folder
-  #     # Below variables are for sending error notification emails. If not needed, delete these
-  #     EMAIL_ADDRESS: <EMAIL>
-  #     EMAIL_PASSWORD: <PASSWORD>
-  #     EMAIL_TO_ADDRESS: <EMAIL_TO>
-  #     SMTP_SERVER: <SMTP_SERVER >  # e.g smtp.gmail.com
-  #     SMTP_SERVER_PORT: <SMTP_PORT>  # e.g. 587
-
-  # Similar to sonarr_netimport but for radarr. Radarr has this feature built-in but radarr uses TMDB API v3 and
-  # I have noticed that if using v3 API, TMDB only returns maximum of 500 movies in the list.
-  # This is resolved if using TMDB API v4.
-  # radarr_netimport:
-  #   container_name: radarr_netimport
-  #   hostname: radarr_netimport
-  #   image: thundermagic/radarr_netimport:latest
-  #   networks:
-  #    - media_net
-  #   restart: unless-stopped
-  #   environment:
-  #     TMDB_ACCESS_TOKEN: sampletoken
-  #     TMDB_API_KEY: tvdb_api_key
-  #     TMDB_LIST_ID: 12345
-  #     # IP address and port number where radarr can be accessed
-  #     RADARR_IP: ${HOST_IP}
-  #     RADARR_PORT: 7878
-  #     # radarr API key. This is on radarr under settings>general
-  #     RADARR_API_KEY: <RADARR_API_KEY>
-  #     SYNC_INTERVAL: 3600  # Interval at which to sync with TMDB, in seconds
-  #     QUALITY_PROFILE_ID: 1  # 1 is profile any
-  #     ROOT_FOLDER_PATH: /movies/  # Full path of root folder

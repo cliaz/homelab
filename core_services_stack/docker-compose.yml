@@ -90,6 +90,7 @@ services:
       #- "com.centurylinklabs.watchtower.monitor-only=true"   
       - com.centurylinklabs.watchtower.enable=false
 
+
   ## Torrent downloads. Has inbuilt RSS support.
   # Note: to change the WebUI port, as well as specifying it in the environment variable you will need to run the container with the
   # default port, then change the port in the WebUI settings, then stop the container and change the port in the docker-compose file
@@ -117,6 +118,7 @@ services:
     # depends_on:
     #   gluetun:
     #     condition: service_healthy
+
 
   ## Torrent Indexer management
   prowlarr:
