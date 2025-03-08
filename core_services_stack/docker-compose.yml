@@ -10,7 +10,8 @@ x-extra_hosts:
   - "host-server:${HOST_IP}"
 
 services:
-  # Reverse proxy for all services hosted on the docker host
+  ## (Required) Means of securely exposing internal services to the internet
+  # SWAG reverse proxy for all services hosted on the docker host
   # services are exposed via the domain name sent through the URL, configured via the conf files in swag's nginx 
   swag:
     image: linuxserver/swag:latest    # https://docs.linuxserver.io/general/swag/#docker-compose
@@ -45,6 +46,11 @@ services:
     volumes:
       - ${CONFIG_DIR}/swag:/config  
   
+  ## (Required) Download stack
+  # The following are the services for downloading torrents, managing indexers, and VPN
+  
+  ## Outbound VPN connection
+  # can confirm connectivity by with "docker exec gluetun wget -q -O- http://ipecho.net/plain"
   gluetun:
     image: qmcgaw/gluetun:latest
     container_name: gluetun
@@ -83,6 +89,8 @@ services:
       # can choose to monitor only, or fully disable
       #- "com.centurylinklabs.watchtower.monitor-only=true"   
       - com.centurylinklabs.watchtower.enable=false
+
+
   ## Torrent downloads. Has inbuilt RSS support.
   # Note: to change the WebUI port, as well as specifying it in the environment variable you will need to run the container with the
   # default port, then change the port in the WebUI settings, then stop the container and change the port in the docker-compose file
@@ -110,6 +118,8 @@ services:
     # depends_on:
     #   gluetun:
     #     condition: service_healthy
+
+
   ## Torrent Indexer management
   prowlarr:
     image: linuxserver/prowlarr:latest
@@ -131,6 +141,7 @@ services:
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/prowlarr:/config
 
+  ## Captcha solver for Prowlarr
   # Mainly using this for the 1337x indexer
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
@@ -147,7 +158,8 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-info}
       LOG_HTML: ${LOG_HTML:-false}
       CAPTCHA_SOLVER: ${CAPTCHA_SOLVER:-none}
-      
+
+  ## (Optional) Internal DNS and ad blocking
   # AdGuard Home for internal DNS and ad blocking
   adguardhome:
     image: adguard/adguardhome
@@ -188,7 +200,7 @@ services:
       - ${CONFIG_DIR}/adguard/work:/opt/adguardhome/work
       - ${CONFIG_DIR}/adguard/conf:/opt/adguardhome/conf
 
-
+  ## (Optional) Home page for all services
   homarr:
     image: ghcr.io/ajnart/homarr:latest
     container_name: homarr
@@ -212,6 +224,7 @@ services:
       - ${CONFIG_DIR}/homarr/icons:/app/public/icons
       - ${CONFIG_DIR}/homarr/data:/data
 
+  ## (Optional) Notification Aggregator
   # A notification aggregator that is used to send watchtower / sonarr / radarr etc. notifications to discord
   # also used to facilitate Trash-Guides sync for sonarr / radarr via a GUI.
   notifiarr:
@@ -234,7 +247,7 @@ services:
       - /var/run/utmp:/var/run/utmp
       - /etc/machine-id:/etc/machine-id
 
-
+  ## (Optional Home Automation and IOT management
   # Do all of the home automation stuff here
   homeassistant:
     image: linuxserver/homeassistant:latest
@@ -252,7 +265,7 @@ services:
       - ${CONFIG_DIR}/homeassistant/config:/config
       - /run/dbus:/run/dbus:ro
   
-
+  ## (Optional) View Wyze cameras streams internally instead of via the internet
   # Bridge to allow Wyze cameras to be used in HomeAssistant via RTSP. https://github.com/mrlt8/docker-wyze-bridge
   wyze-bridge:
     image: mrlt8/wyze-bridge:latest
@@ -294,6 +307,7 @@ services:
       # [OPTIONAL] IP Address of the host to enable WebRTC e.g.,:
       WB_IP: host-server
 
+## Networks
 # want to define a network range so that we can explicitly trust that network in the homeassistant config    
 networks:
   homelab_net:
