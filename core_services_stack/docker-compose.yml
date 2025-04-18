@@ -112,7 +112,7 @@ services:
                     # and then users in the MEDIA_GID group can't hardlink the files
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/qbittorrent:/config
-      - ${DATA_DIR:?Please configure ROOT_DATA_DIR in .env file}/torrents:/data/torrents
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/torrents:/data/torrents
     # As per https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md, no need to set 'depends on' 
     # as the network_mode: "service:gluetun" will ensure that qbittorrent will only start once gluetun is healthy
     # depends_on:
@@ -158,6 +158,8 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-info}
       LOG_HTML: ${LOG_HTML:-false}
       CAPTCHA_SOLVER: ${CAPTCHA_SOLVER:-none}
+
+
 
   ## (Optional) Internal DNS and ad blocking
   # AdGuard Home for internal DNS and ad blocking
@@ -287,7 +289,7 @@ services:
       - 5000:5000 # WEB-UI
     secrets:
       # Due to the way that the fix for having secrets referenced via files was implemented (see
-      # https://github.com/mrlt8/docker-wyze-bridge/issues/1244), if these these secrets exist the are read directly.
+      # https://github.com/mrlt8/docker-wyze-bridge/issues/1244), if these these secrets exist they are read directly.
       # no need to set them in the environment variables
       - WYZE_EMAIL
       - WYZE_PASSWORD
@@ -310,8 +312,8 @@ services:
 ## Networks
 # want to define a network range so that we can explicitly trust that network in the homeassistant config    
 networks:
-  homelab_net:
-    name: homelab_net   # ensure network isn't prefixed with the default name of the directory, eg git_core_services_stack_homelab_net
+  core_services_net:
+    name: core_services_net   # ensure network isn't prefixed with the default name of the directory, eg git_core_services_stack_homelab_net
     attachable: true
     ipam:
       config:
