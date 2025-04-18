@@ -179,6 +179,7 @@ services:
       - media_net
     ports:
       - 8191:8191
+    user: ${FLARESOLVERR_UID:?Please configure FLARESOLVERR_UID in .env file}:${FLARESOLVERR_GID:?Please configure FLARESOLVERR_GID in .env file}
     environment:
       TZ: ${TZ:-Australia/Melbourne}
       LOG_LEVEL: ${LOG_LEVEL:-info}
