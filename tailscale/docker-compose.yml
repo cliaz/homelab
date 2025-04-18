@@ -1,0 +1,41 @@
+x-extra_hosts:
+  # This is added so that within each service you can communicate to another service by using the DNS name of the host rather
+  # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
+  # configure the transmission client url as http://aard:9091
+  &aard
+  # Pulls the IP address of the host from the .env file
+  - "aard:${HOST_IP}"
+
+services:
+  tailscale:
+    image: tailscale/tailscale:stable
+    container_name: tailscaled
+    hostname: tailscaled
+    extra_hosts : *aard
+    restart: unless-stopped
+    secrets:
+      - TAILSCALE_AUTHKEY
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      PUID: ${TAILSCALE_PUID}
+      PGID: ${TAILSCALE_PGID}
+      TZ: ${TZ:-Australia/Melbourne}
+      TS_ACCEPT_DNS: true
+      TS_AUTHKEY: /run/secrets/TAILSCALE_AUTHKEY
+      TS_ROUTES: ${IP_RANGES_TO_ROUTE_THROUGH_TAILSCALE}  # this has to be accepted on the tailscale admin console
+                                                          # for the routes to be published to the wider tailscale network
+    volumes:
+      - /docker/tailscale:/var/lib
+      - /dev/net/tun:/dev/net/tun
+
+    labels:
+      # this should flag watchtower to only monitor this container, not apply updates
+       - "com.centurylinklabs.watchtower.monitor-only=true"
+      # Or disable watchtower on this container entirely instead
+      #- "com.centurylinklabs.watchtower.enable=false"
+
+secrets:
+  TAILSCALE_AUTHKEY:
+    file: ${SECRETS}/tailscale/ts_authkey
