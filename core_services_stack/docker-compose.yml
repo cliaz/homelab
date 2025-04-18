@@ -198,7 +198,7 @@ services:
     #network_mode: host  # ADH needs to access the host network stack to run a DHCP server
     restart: unless-stopped
     networks:
-      - coreservices_net
+      - core_services_net
     ports:
       # Plain DNS
       - '53:53/tcp'
@@ -343,7 +343,7 @@ networks:
     ipam:
       config:
         - subnet: 172.16.100.0/24
-  media_net:
+  media_net:w
     # Note: if the media stack has not been started, manually define the media_net network with
     # docker network create --attachable --subnet=172.16.200.0/24 media_net
     external: true
