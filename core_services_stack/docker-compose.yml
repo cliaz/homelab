@@ -60,8 +60,8 @@ services:
     hostname: cloudflare
     extra_hosts: *host-server
     restart: unless-stopped
-    networks:
-      - cloudflared
+    # networks:     # because we're currently still routing everything through swag, this container doesn't need to be aware of any other services
+    #   - media_net
     secrets:    # see secrets section below
       - CLOUDFLARE_TOKEN
     user: ${CLOUDFLARE_UID:?Please configure CLOUDFLARE_UID in .env file}:${CLOUDFLARE_GID:?Please configure CLOUDFLARE_GID in .env file}
