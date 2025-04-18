@@ -22,7 +22,7 @@ services:
       - "51820:51820/udp" # for tunnel connection
       - "51821:51821/tcp" # for webui
     # secrets:    # see secrets section below
-    #    - wireguard_password_hash
+    #    - WIREGUARD_PASSWORD_HASH
     environment:
       PUID: ${WIREGUARD_PUID}
       PGID: ${WIREGUARD_PGID}
@@ -30,7 +30,7 @@ services:
 
       # WebUI stuff
       PORT: ${WEBUI_PORT}
-      #PASSWORD_HASH: /run/secrets/wireguard_password_hash    # see secrets section below
+      #PASSWORD_HASH: /run/secrets/WIREGUARD_PASSWORD_HASH    # see secrets section below
       PASSWORD_HASH: ${WIREGUARD_PASSWORD_HASH:?Please configure WIREGUARD_PASSWORD_HASH in .env file}
       UI_TRAFFIC_STATS: true
       UI_CHART_TYPE: 3  # 1 = line, 2 = area, 3 = bar
@@ -52,13 +52,11 @@ services:
     
     labels:
       # this should flag watchtower to only monitor this container, not apply updates
-      # as this openvpn image is a local image, there's never going to be a upstream update
-      # without local interaction and build. 
       # - "com.centurylinklabs.watchtower.monitor-only=true"
-      # Disabling watchtower on this container entirely instead
+      # Or disable watchtower on this container entirely instead
       - "com.centurylinklabs.watchtower.enable=false"
 
 # secrets not yet built into wg-easy (Aug 2024)
 # secrets:
-#   wireguard_password_hash:
+#   WIREGUARD_PASSWORD_HASH:
 #     file: ${SECRETS}/wireguard/wireguard_password_hash
