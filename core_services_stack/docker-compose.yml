@@ -10,7 +10,7 @@ x-extra_hosts:
   - "host-server:${HOST_IP}"
 
 services:
-  ## (Required) Means of securely exposing internal services to the internet
+  ## (Required - Option 1) Means of securely exposing internal services to the internet
   # SWAG reverse proxy for all services hosted on the docker host
   # services are exposed via the domain name sent through the URL, configured via the conf files in swag's nginx 
   swag:
@@ -44,7 +44,33 @@ services:
       #EMAIL:   # required when using zerossl as cert provider
       DOCKER_MODS: linuxserver/mods:swag-auto-reload|linuxserver/mods:swag-dashboard
     volumes:
-      - ${CONFIG_DIR}/swag:/config  
+      - ${CONFIG_DIR}/swag:/config 
+
+  ## (Required - Option 2) Means of securely exposing internal services to the internet
+  # Cloudflare tunnel for exposing services without a public IP, aka when behind CGNAT
+  # This can be used INSTEAD of the swag service to expose services to the internet.
+  # It can also be used WITH the swag service, where the cloudflare config just points 
+  # everything to swag, and then swag handles the routing to the correct service. Kinda redundant, but does give
+  # SSL through the whole chain.
+  # TODO: remove sawg configuration entirely
+  
+  cloudflared:
+    image: cloudflare/cloudflared
+    container_name: cloudflare
+    hostname: cloudflare
+    extra_hosts: *host-server
+    restart: unless-stopped
+    networks:
+      - cloudflared
+    secrets:    # see secrets section below
+      - CLOUDFLARE_TOKEN
+    user: ${CLOUDFLARE_UID:?Please configure CLOUDFLARE_UID in .env file}:${CLOUDFLARE_GID:?Please configure CLOUDFLARE_GID in .env file}
+    environment:
+      #PUID: ${CLOUDFLARED_UID:?Please configure CLOUDFLARED_UID in .env file}
+      #PGID: ${CLOUDFLARED_GID:?Please configure CLOUDFLARED_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      TUNNEL_TOKEN: /run/secrets/CLOUDFLARE_TOKEN
+    command: tunnel --no-autoupdate run 
   
   ## (Required) Download stack
   # The following are the services for downloading torrents, managing indexers, and VPN
@@ -323,9 +349,16 @@ networks:
     # docker network create --attachable --subnet=172.16.200.0/24 media_net
     external: true
 
+  # I think there is an option to have the cloudflare container on its own network, and then only expose the services that need to be
+  # be exposed to the internet via the cloudflare tunnel. For the moment, putting cloudflared on the core_services_net network
+  # cloudflared:
+  #   name: cloudflared
+
 secrets:
   DUCKDNSTOKEN:
     file: ${SECRETS}/swag/duckdns_token
+  CLOUDFLARE_TOKEN:
+    file: ${SECRETS}/cloudflared/cloudflare_tunnel_token
   WYZE_EMAIL:
     file: ${SECRETS}/wyzebridge/wyze_account_email
   WYZE_PASSWORD:
