@@ -357,7 +357,7 @@ secrets:
   DUCKDNSTOKEN:
     file: ${SECRETS}/swag/duckdns_token
   CLOUDFLARE_TOKEN:
-    file: ${SECRETS}/cloudflared/cloudflare_tunnel_token
+    file: ${SECRETS}/cloudflare/cloudflare_tunnel_token
   WYZE_EMAIL:
     file: ${SECRETS}/wyzebridge/wyze_account_email
   WYZE_PASSWORD:
