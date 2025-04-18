@@ -22,7 +22,7 @@ services:
     cap_add:
       - NET_ADMIN
     networks:
-      - homelab_net
+      - core_services_net
       - media_net
     ports:
       # - 80:80  # only needed if using http validation. We're using DNS validation with duckdns to validate, so don't need this
@@ -198,7 +198,7 @@ services:
     #network_mode: host  # ADH needs to access the host network stack to run a DHCP server
     restart: unless-stopped
     networks:
-      - homelab_net
+      - coreservices_net
     ports:
       # Plain DNS
       - '53:53/tcp'
@@ -237,7 +237,7 @@ services:
     extra_hosts: *host-server
     restart: unless-stopped
     networks:
-      - homelab_net
+      - core_services_net
       - media_net
     # no need to expose ports via docker, as the container is accessed via Swag. Left for posterity
     ports:
@@ -268,8 +268,6 @@ services:
     ports:
       - 5454:5454
     environment:
-      PUID: ${NOTIFIARR_UID:?Please configure NOTIFIARR_UID in .env file}
-      PGID: ${NOTIFIARR_GID:?Please configure NOTIFIARR_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/notifiarr:/config
@@ -305,7 +303,7 @@ services:
     # This container needs to run as root, else it throws lots of errors
     #user: ${WYZEBRIDGE_UID:?Please configure WYZEBRIDGE_UID in .env file}:${WYZEBRIDGE_GID:?Please configure WYZEBRIDGE_GID in .env file}
     networks:
-      - homelab_net
+      - core_services_net
     ports:
       # TODO: harden ports
       #- 1935:1935 # RTMP - worst. probably don't want this
@@ -340,7 +338,7 @@ services:
 # want to define a network range so that we can explicitly trust that network in the homeassistant config    
 networks:
   core_services_net:
-    name: core_services_net   # ensure network isn't prefixed with the default name of the directory, eg git_core_services_stack_homelab_net
+    name: core_services_net   # ensure network isn't prefixed with the default name of the directory, eg git_core_services_stack_core_services_net
     attachable: true
     ipam:
       config:
