@@ -110,8 +110,9 @@ services:
       # https://github.com/qdm12/gluetun-wiki/blob/eb05fb39aee4e299f077796fb8660dafa4aaa3cb/setup/advanced/docker-secrets.md
       OPENVPN_USER_SECRETFILE: /run/secrets/OPENVPN_USER
       OPENVPN_PASSWORD_SECRETFILE: /run/secrets/OPENVPN_PASSWORD
-      OPENVPN_USER: ${OPENVPN_USER:?Please configure OPENVPN_USER in .env file}
-      OPENVPN_PASSWORD: ${OPENVPN_PASSWORD:?Please configure OPENVPN_PASSWORD in .env file}
+      # enable vpn port forwarding for better seeding
+      # https://github.com/qdm12/gluetun-wiki/blob/eb05fb39aee4e299f077796fb8660dafa4aaa3cb/setup/providers/protonvpn.md
+      VPN_PORT_FORWARDING: on   # make sure you add '+pmp' to your openvpn username in the secrets file
       SERVER_COUNTRIES: ${SERVER_COUNTRIES:?Please configure SERVER_COUNTRIES in .env file}
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/gluetun:/config
