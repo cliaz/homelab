@@ -69,7 +69,7 @@ services:
       #PUID: ${CLOUDFLARED_UID:?Please configure CLOUDFLARED_UID in .env file}
       #PGID: ${CLOUDFLARED_GID:?Please configure CLOUDFLARED_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
-      TUNNEL_TOKEN: /run/secrets/CLOUDFLARE_TOKEN
+      TUNNEL_TOKEN_FILE: /run/secrets/CLOUDFLARE_TOKEN
     command: tunnel --no-autoupdate run 
   
   ## (Required) Download stack
