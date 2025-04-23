@@ -350,9 +350,11 @@ networks:
       config:
         - subnet: 172.16.100.0/24
   media_net:
-    # Note: if the media stack has not been started, manually define the media_net network with
-    # docker network create --attachable --subnet=172.16.200.0/24 media_net
-    external: true
+    name: media_net   # ensure network isn't prefixed with the default name of the directory, eg git_core_services_stack_media_net
+    attachable: true
+    ipam:
+      config:
+        - subnet: 172.16.200.0/24
 
   # I think there is an option to have the cloudflare container on its own network, and then only expose the services that need to be
   # be exposed to the internet via the cloudflare tunnel. For the moment, putting cloudflared on the core_services_net network
