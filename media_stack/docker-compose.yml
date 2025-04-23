@@ -19,9 +19,8 @@ services:
   # For example: if you want to use Emby instead of Plex, you can change the plex service to emby. Linuxserver.io
   # provide most of the docker images that you would need. They provide a docker image for emby as well.
   #
-  # Each services runs on a different port number. Plex and transmission-openvpn uses host networking mode whereas all
-  # the other services use docker bridge networking and have host ports mapped to container ports. For these you can
-  # change the mapping between host ports and container ports. Port mapping is in the format <host_port>:<container_port>
+  # Each service runs on a different port number. Plex uses host networking mode whereas all
+  # the other services use docker bridge networking and have host ports mapped to container ports.
 
   # Media streaming
   plex:
@@ -103,7 +102,7 @@ services:
       # root directory, so that sonarr can see downloads as well as stored media
       - ${DATA_DIR:?Please configure DATA_DIR in .env file}:/data
 
-  #Overseerr is used to manage media requests for both Sonarr and Radarr, combining them both into one portal
+  # Media request management for both Sonarr and Radarr, combining them both into one portal
   overseerr:
     #image: sctx/overseerr:latest                 # this is the official overseerr image
     image: linuxserver/overseerr:latest   # using linuxserver.io image for now
@@ -123,7 +122,7 @@ services:
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/overseerr:/config
 
-  # Tautulli is used to get stats on Plex usage
+  # Stats on Plex usage
   tautulli:
     image: linuxserver/tautulli:latest
     container_name: tautulli
