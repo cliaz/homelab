@@ -52,7 +52,7 @@ services:
   # It can also be used WITH the swag service, where the cloudflare config just points 
   # everything to swag, and then swag handles the routing to the correct service. Kinda redundant, but does give
   # SSL through the whole chain.
-  # TODO: remove sawg configuration entirely
+  # TODO: remove swag configuration entirely
   
   cloudflared:
     image: cloudflare/cloudflared
@@ -94,8 +94,6 @@ services:
       # - 8080:8080/tcp # HTTP proxy
       # - 8388:8388/tcp # Shadowsocks
       # - 8388:8388/udp # Shadowsocks
-      - ${DELUGE_WEBUI_PORT:-8112}:${DELUGE_WEBUI_PORT:-8112} # port for deluge.
-      - 58846:58846         # deluge daemon port for GTK UI. Only needed if you want to us YaRSS2 plugin
       - ${QBIT_WEBUI_PORT:-8080}:8080 # port for qbittorrent. # see comment at top of qbittorrent service directive for changing the port
     secrets:
      - OPENVPN_USER
@@ -105,9 +103,9 @@ services:
       PGID: ${GLUETUN_GID:?Please configure GLUETUN_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
       UMASK: 002
-      # https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/protonvpn.md
+      # Guide for provider options: https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/protonvpn.md
       VPN_SERVICE_PROVIDER: ${VPN_SERVICE_PROVIDER:?Please configure VPN_SERVICE_PROVIDER in .env file}
-      # https://github.com/qdm12/gluetun-wiki/blob/eb05fb39aee4e299f077796fb8660dafa4aaa3cb/setup/advanced/docker-secrets.md
+      # Guide for secrets: https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/docker-secrets.md
       OPENVPN_USER_SECRETFILE: /run/secrets/OPENVPN_USER
       OPENVPN_PASSWORD_SECRETFILE: /run/secrets/OPENVPN_PASSWORD
       # enable vpn port forwarding for better seeding
@@ -245,7 +243,6 @@ services:
     networks:
       - core_services_net
       - media_net
-    # no need to expose ports via docker, as the container is accessed via Swag. Left for posterity
     ports:
       - 7575:7575
     environment:
