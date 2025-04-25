@@ -15,8 +15,8 @@ ROOT_DATA_DIR="/dockers"     # where you want to store the docker config files, 
 DOCKER_USERS=(              # users for all the services to create. If you don't want one, just delete or comment it out
     "portainer"             # docker management
     "watchtower"            # auto-updates
-    "swag"                  # reverse proxy
-    "wireguard"             # vpn server
+    "swag"                  # reverse proxy.        TODO: remove, replaced by cloudflare tunnel
+    "wireguard"             # vpn server            TODO: remove, replaced by tailscale
 	"gluetun"               # outbound vpn client
     "homeassistant"         # home automation
     "mosquitto"             # mqtt broker
@@ -28,11 +28,13 @@ DOCKER_USERS=(              # users for all the services to create. If you don't
     "sonarr"                # tv show downloader
     "overseer"              # combines radarr and sonarr into one nice frontend
     "prowlarr"              # indexer aggregator
-    "deluge"                # torrent client
+    "qbittorrent"           # torrent client
     "notifiarr"             # notification aggregator. also used for keeping TRaSH Guides up to date
     "readarr"               # ebook downloader
     "calibre"               # ebook server
     "calibre-web"           # web interface for calibre
+    "cloudflare"            # cloudflare tunnel client
+    "tailscale"             # tailscale client
 )
 
 
@@ -45,9 +47,12 @@ SERVICES_THAT_DONT_TOUCH_DISK=(
 
 # services that need a folder in the SECRETS_DIR, because they have sensitive information
 SERVICES_THAT_NEED_SECRETS=(
-    "swag"
-    "watchtower"
-    "wireguard"
+    "swag"                  # duckdnstoken        TODO: remove, replaced by cloudflare tunnel     
+    "watchtower"            # notifiarr token   
+    "wireguard"             # wireguard password hash   TODO: remove, replaced by tailscale
+    "cloudflare"            # cloudflare tunnel token
+    "gluetun"               # openvpn config files
+    "wyzebridge"            # wyze acc email / password, api, container webapp user / pass 
 )
 
 # make sure this is run as root
