@@ -108,17 +108,17 @@ services:
       # Guide for secrets: https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/docker-secrets.md
       OPENVPN_USER_SECRETFILE: /run/secrets/OPENVPN_USER
       OPENVPN_PASSWORD_SECRETFILE: /run/secrets/OPENVPN_PASSWORD
-      # enable vpn port forwarding for better seeding
-      # https://github.com/qdm12/gluetun-wiki/blob/eb05fb39aee4e299f077796fb8660dafa4aaa3cb/setup/providers/protonvpn.md
-      VPN_PORT_FORWARDING: on   # make sure you add '+pmp' to your openvpn username in the secrets file
       SERVER_COUNTRIES: ${SERVER_COUNTRIES:?Please configure SERVER_COUNTRIES in .env file}
+      PORT_FORWARD_ONLY: on     # Filter only port-forwarding enabled (aka p2p) servers from the above list
+      # enable vpn port forwarding for better seeding
+      VPN_PORT_FORWARDING: on   # make sure you add '+pmp' to your openvpn username in the secrets file
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/gluetun:/config
     labels:
       # This is to disable watchtower from updating this container, because Containers connected to Gluetun lose connection once Gluetun is restarted
       # can choose to monitor only, or fully disable
-      #- "com.centurylinklabs.watchtower.monitor-only=true"   
-      - com.centurylinklabs.watchtower.enable=false
+      - "com.centurylinklabs.watchtower.monitor-only=true"   
+      #- com.centurylinklabs.watchtower.enable=false
 
 
   ## Torrent downloads. Has inbuilt RSS support.
