@@ -91,6 +91,7 @@ services:
     networks:
       - media_net
     ports:
+      # - 8000:8000/tcp # Control server
       # - 8080:8080/tcp # HTTP proxy
       # - 8388:8388/tcp # Shadowsocks
       # - 8388:8388/udp # Shadowsocks
@@ -112,6 +113,9 @@ services:
       PORT_FORWARD_ONLY: on     # Filter only port-forwarding enabled (aka p2p) servers from the above list
       # enable vpn port forwarding for better seeding
       VPN_PORT_FORWARDING: on   # make sure you add '+pmp' to your openvpn username in the secrets file
+      # The port opened for port forwarding is dynamic, so using a script to set the port in qbittorrent
+      VPN_PORT_FORWARDING_STATUS_FILE: /config/forwarded_port.txt   # also write it to file for troubleshooting
+      VPN_PORT_FORWARDING_UP_COMMAND: /bin/sh -c 'wget -O- --retry-connrefused --post-data "json={\"listen_port\":{{PORTS}}}" http://127.0.0.1:8080/api/v2/app/setPreferences 2>&1'
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/gluetun:/config
     labels:
