@@ -187,8 +187,11 @@ services:
       - media_net
     ports:
       - 8191:8191
-    #user:  # Breaks the container if set. Also not really needed, as the container runs internally as 'flaresolver' reducing security
-            # concerns if the container is compromised. Additionally the container isn't touching any files on the host, so...eh
+    #user:  # Breaks the container if set. Additionally the container isn't touching any files on the host, no volumes are mounted.
+            # Inside this container it is running as user 'flaresolverr' and uid=1000 gid=1000, If the container is compromised 
+            # and the attacker somehow gets access to volumes on the host, they'd get access as 1000:1000 so would have access 
+            # to the 'main' user on the host. Not great. That being said, they would have had to have compromised docker in some
+            # way or form, and docker is running as root, so...eh
     environment:
       TZ: ${TZ:-Australia/Melbourne}
       LOG_LEVEL: ${LOG_LEVEL:-info}
