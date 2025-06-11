@@ -38,8 +38,8 @@ services:
 
       SUBDOMAINS: wildcard
       VALIDATION: duckdns
-      FILE__DUCKDNSTOKEN: /run/secrets/DUCKDNSTOKEN   # DuckDNS api token to facilitate DNS validation
-                                                      # https://letsencrypt.org/docs/challenge-types/#dns-01-challenge
+      FILE__DUCKDNSTOKEN: /run/secrets/DUCKDNSTOKEN   # DuckDNS api token to facilitate DNS validation 
+      # https://letsencrypt.org/docs/challenge-types/#dns-01-challenge
       #CERTPROVIDER: zerossl  # defaults to letsencrypt
       #EMAIL:   # required when using zerossl as cert provider
       DOCKER_MODS: linuxserver/mods:swag-auto-reload|linuxserver/mods:swag-dashboard
@@ -60,11 +60,11 @@ services:
     hostname: cloudflare
     extra_hosts: *host-server
     restart: unless-stopped
+    user: ${CLOUDFLARE_UID:?Please configure CLOUDFLARE_UID in .env file}:${CLOUDFLARE_GID:?Please configure CLOUDFLARE_GID in .env file}
     # networks:     # because we're currently still routing everything through swag, this container doesn't need to be aware of any other services
     #   - media_net
     secrets:    # see secrets section below
       - CLOUDFLARE_TOKEN
-    user: ${CLOUDFLARE_UID:?Please configure CLOUDFLARE_UID in .env file}:${CLOUDFLARE_GID:?Please configure CLOUDFLARE_GID in .env file}
     environment:
       #PUID: ${CLOUDFLARED_UID:?Please configure CLOUDFLARED_UID in .env file}
       #PGID: ${CLOUDFLARED_GID:?Please configure CLOUDFLARED_GID in .env file}
@@ -143,7 +143,7 @@ services:
       TZ: ${TZ:-Australia/Melbourne}
       WEBUI_PORT: ${QBIT_WEBUI_PORT:-8080}    # see comment at top of service for changing the port
       UMASK: 002    # without this set, files downloaded by deluge don't get the 'w' group octal set
-                    # and then users in the MEDIA_GID group can't hardlink the files
+      # and then users in the MEDIA_GID group can't hardlink the files
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/qbittorrent:/config
       - ${DATA_DIR:?Please configure DATA_DIR in .env file}/torrents:/data/torrents
@@ -183,15 +183,15 @@ services:
     hostname: flaresolverr
     extra_hosts: *host-server
     restart: unless-stopped
-    networks:
-      - media_net
-    ports:
-      - 8191:8191
     #user:  # Breaks the container if set. Additionally the container isn't touching any files on the host, no volumes are mounted.
             # Inside this container it is running as user 'flaresolverr' and uid=1000 gid=1000, If the container is compromised 
             # and the attacker somehow gets access to volumes on the host, they'd get access as 1000:1000 so would have access 
             # to the 'main' user on the host. Not great. That being said, they would have had to have compromised docker in some
             # way or form, and docker is running as root, so...eh
+    networks:
+      - media_net
+    ports:
+      - 8191:8191
     environment:
       TZ: ${TZ:-Australia/Melbourne}
       LOG_LEVEL: ${LOG_LEVEL:-info}
