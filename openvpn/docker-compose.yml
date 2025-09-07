@@ -1,0 +1,41 @@
+x-extra_hosts:
+  # This is added so that within each service you can communicate to another service by using the DNS name of the host rather
+  # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
+  # configure the transmission client url as http://aard:9091
+  &aard
+  # Pulls the IP address of the host from the .env file
+  - "aard:${HOST_IP}"
+
+services:
+  openvpn:
+    # run the commands from https://github.com/kylemanna/docker-openvpn to config the openvpn server,
+    # then use this compose file to run it via portainer
+    image: kylemanna/openvpn  # testing using the kylemanna/openvpn image instead of locally built
+    container_name: openvpn
+    hostname: openvpn
+    extra_hosts: *aard
+    restart: always
+    cap_add:
+     - NET_ADMIN
+    #networks:
+    ports:
+      #- ${OPENVPN_EXTERNAL_PORT}:1194/tcp
+      - target: 1194         
+        published: ${OPENVPN_EXTERNAL_PORT}
+        protocol: ${OPENVPN_PROTOCOL}
+    #secrets:
+    environment:
+      USER: ${OPENVPN_PUID}:${OPENVPN_PGID}
+      # PUID: ${OPENVPN_PUID}
+      # PGID: ${OPENVPN_PGID}
+      TZ: ${TZ:-Australia/Melbourne}
+    volumes:
+      - ${CONFIG_DIR}/openvpn/etc:/etc/openvpn
+    labels:
+      # this should flag watchtower to only monitor this container, not apply updates
+      # as this openvpn image is a local image, there's never going to be a upstream update
+      # without local interaction and build. 
+      # - "com.centurylinklabs.watchtower.monitor-only=true"
+      # Disabling watchtower on this container entirely instead
+      - "com.centurylinklabs.watchtower.enable=false"
+  
