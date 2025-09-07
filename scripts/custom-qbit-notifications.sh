@@ -20,13 +20,20 @@
 # 4. Make sure to set executable permissions: chmod +x /path/to/custom-qbit-notifications.sh
 
 # Get QBittorrent environment variables
-NOTIFIARR_API_ENDPOINT="<YOUR_NOTIFIARR_PASSTHROUGH_API_ENDPOINT>"  # Replace with your Notifiarr Passthrough API endpoint
+NOTIFIARR_API_ENDPOINT="<YOUR_NOTIFIARR_API_ENDPOINT_HERE>"
+CHANNEL_ID_ADDED="<YOUR_CHANNEL_ID_HERE>"  # content-management channel
+CHANNEL_ID_FINISHED="<YOUR_CHANNEL_ID_HERE>"  # notifiarr-catchall channel
+
+DISCORD_MESSAGE_ICON_URL="https://github.com/qbittorrent/qBittorrent/blob/master/dist/unix/menuicons/64x64/apps/qbittorrent.png?raw=true"
+F1_ICON_URL="https://artworks.thetvdb.com/banners/v4/series/387219/posters/65345ed871dfe.jpg"
+F1_BANNER_URL="https://artworks.thetvdb.com/banners/v4/series/387219/backgrounds/62379c199d9e8.jpg"
 TORRENT_NAME="$1"
 TORRENT_CATEGORY="$2"
 FILE_COUNT="$3"
 TORRENT_STATE="$4"
-CHANNEL_ID_ADDED="<YOUR_DISCORD_CHANNEL_ID>"  # content-management channel
-CHANNEL_ID_FINISHED="<YOUR_OTHER_DISCORD_CHANNEL_ID>"  # notifiarr-catchall channel
+MEDIA_QUALITY=$(echo "$TORRENT_NAME" | grep -oE '([0-9]{3,4}p|HDTV|WEB[- ]DL|BluRay|BRRip|DVDRip|HDRip|CAM|TS|TC)' | head -1)
+
+
 
 # Only proceed if the category is "f1" or "prowlarr"
 if [[ "$TORRENT_CATEGORY" != "f1" && "$TORRENT_CATEGORY" != "prowlarr" ]]; then
@@ -37,14 +44,14 @@ fi
 if [[ "$TORRENT_STATE" == "added" ]]; then
     NOTIFICATION_TITLE="Grabbed"
     NOTIFICATION_COLOR="16776960"  # Yellow in decimal (FFFF00)
-    EVENT_TYPE="grab"
+    EVENT_TYPE=""
     NOTIFICATION_CHANNEL=$CHANNEL_ID_ADDED
     # For grabbed torrents, don't show file count since it's -1
     FILE_COUNT_TEXT=""
 elif [[ "$TORRENT_STATE" == "finished" ]]; then
     NOTIFICATION_TITLE="Completed"
     NOTIFICATION_COLOR="65280"     # Green in decimal (00FF00)
-    EVENT_TYPE="complete"
+    EVENT_TYPE=""
     NOTIFICATION_CHANNEL=$CHANNEL_ID_FINISHED
     # For finished torrents, show file count if available
     if [[ "$FILE_COUNT" != "-1" && "$FILE_COUNT" != "" ]]; then
@@ -57,26 +64,40 @@ else
 fi
 
 # Send notification via Notifiarr using Discord embed format
-curl -s -X POST "https://notifiarr.com/api/v1/notification/passthrough/19ca8b61-2c89-4c42-be83-611da4bfb3d8" \
+curl -s -X POST "$NOTIFIARR_API_ENDPOINT" \
     -H "Content-Type: application/json" \
     -H "Accept: text/plain" \
     -d "{
         \"notification\": {
             \"update\": false,
-            \"name\": \"QBittorrent Notification\",
+            \"name\": \"$NOTIFICATION_TITLE\",
             \"event\": \"$EVENT_TYPE\"
         },
         \"discord\": {
-            \"embeds\": [{
-                \"color\": $NOTIFICATION_COLOR,
-                \"author\": {
-                    \"name\": \"$NOTIFICATION_TITLE\",
-                    \"icon_url\": \"https://raw.githubusercontent.com/qbittorrent/qBittorrent/master/src/icons/qbittorrent-tray.png\"
-                },
+            \"color\": \"$NOTIFICATION_COLOR\",
+            \"images\": {
+                \"thumbnail\": \"$([[ "$TORRENT_CATEGORY" == "f1" ]] && echo "$F1_ICON_URL" || echo "")\",
+                \"image\": \"$([[ "$TORRENT_CATEGORY" == "f1" ]] && echo "$F1_BANNER_URL" || echo "")\"
+            },
+            \"text\": {
                 \"title\": \"$TORRENT_NAME\",
+                \"icon\": \"$DISCORD_MESSAGE_ICON_URL\",
+                \"content\": \"$NOTIFICATION_TITLE\",
                 \"description\": \"Category: $TORRENT_CATEGORY$FILE_COUNT_TEXT\",
-                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"
-            }],
+                \"fields\": [
+                    {
+                        \"title\": \"Quality\",
+                        \"text\": \"${MEDIA_QUALITY:-N/A}\",
+                        \"inline\": true
+                    },
+                    {
+                        \"title\": \"Category\",
+                        \"text\": \"$TORRENT_CATEGORY\",
+                        \"inline\": true
+                    },
+                ],
+                \"footer\": \"$(date "+%d/%m/%Y, %H:%M")\"
+            },
             \"ids\": {
                 \"channel\": \"$NOTIFICATION_CHANNEL\"
             }
