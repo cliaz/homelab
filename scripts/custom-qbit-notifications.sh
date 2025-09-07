@@ -35,40 +35,50 @@ fi
 
 # Set notification details based on torrent state
 if [[ "$TORRENT_STATE" == "added" ]]; then
-    NOTIFICATION_TITLE="Torrent Grabbed"
-    NOTIFICATION_CONTENT="Started downloading: $TORRENT_NAME (Files: $FILE_COUNT)"
-    NOTIFICATION_COLOR="FFFF00"
+    NOTIFICATION_TITLE="Grabbed"
+    NOTIFICATION_COLOR="16776960"  # Yellow in decimal (FFFF00)
     EVENT_TYPE="grab"
     NOTIFICATION_CHANNEL=$CHANNEL_ID_ADDED
+    # For grabbed torrents, don't show file count since it's -1
+    FILE_COUNT_TEXT=""
 elif [[ "$TORRENT_STATE" == "finished" ]]; then
-    NOTIFICATION_TITLE="Torrent Completed"
-    NOTIFICATION_CONTENT="Finished downloading: $TORRENT_NAME (Files: $FILE_COUNT)"
-    NOTIFICATION_COLOR="00FF00"
+    NOTIFICATION_TITLE="Completed"
+    NOTIFICATION_COLOR="65280"     # Green in decimal (00FF00)
     EVENT_TYPE="complete"
     NOTIFICATION_CHANNEL=$CHANNEL_ID_FINISHED
+    # For finished torrents, show file count if available
+    if [[ "$FILE_COUNT" != "-1" && "$FILE_COUNT" != "" ]]; then
+        FILE_COUNT_TEXT="\nFiles: $FILE_COUNT"
+    else
+        FILE_COUNT_TEXT=""
+    fi
 else
     exit 0
 fi
 
-# Send notification via Notifiarr
-curl -s -X POST "$NOTIFIARR_API_ENDPOINT" \
-  -H "Content-Type: application/json" \
-  -H "Accept: text/plain" \
-  -d "{
-    \"notification\": {
-      \"update\": false,
-      \"name\": \"QBittorrent Notification\",
-      \"event\": \"$EVENT_TYPE\"
-    },
-    \"discord\": {
-      \"color\": \"$NOTIFICATION_COLOR\",
-      \"text\": {
-        \"title\": \"$NOTIFICATION_TITLE\",
-        \"content\": \"$NOTIFICATION_CONTENT\",
-        \"description\": \"Category: $TORRENT_CATEGORY\"
-      },
-      \"ids\": {
-        \"channel\": \"$NOTIFICATION_CHANNEL\"
-      }
-    }
-  }" > /dev/null
+# Send notification via Notifiarr using Discord embed format
+curl -s -X POST "https://notifiarr.com/api/v1/notification/passthrough/19ca8b61-2c89-4c42-be83-611da4bfb3d8" \
+    -H "Content-Type: application/json" \
+    -H "Accept: text/plain" \
+    -d "{
+        \"notification\": {
+            \"update\": false,
+            \"name\": \"QBittorrent Notification\",
+            \"event\": \"$EVENT_TYPE\"
+        },
+        \"discord\": {
+            \"embeds\": [{
+                \"color\": $NOTIFICATION_COLOR,
+                \"author\": {
+                    \"name\": \"$NOTIFICATION_TITLE\",
+                    \"icon_url\": \"https://raw.githubusercontent.com/qbittorrent/qBittorrent/master/src/icons/qbittorrent-tray.png\"
+                },
+                \"title\": \"$TORRENT_NAME\",
+                \"description\": \"Category: $TORRENT_CATEGORY$FILE_COUNT_TEXT\",
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"
+            }],
+            \"ids\": {
+                \"channel\": \"$NOTIFICATION_CHANNEL\"
+            }
+        }
+    }" > /dev/null
