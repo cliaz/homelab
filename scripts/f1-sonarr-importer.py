@@ -14,14 +14,14 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
 # Configuration
-DEBUG = True  # set to False to disable debug output
+DEBUG = False  # set to False to disable debug output
 DRY_RUN = False  # set to False to actually create hardlinks
 NUMBER_OF_IMPORT_LIMIT = 0  # set to 0 for no limit
 SERIES_TITLE = "Formula 1"
 
 # Load configuration from f1_sonarr_importer_config.py, if available
 try:
-    from scripts.f1_sonarr_importer_config import (
+    from f1_sonarr_importer_config import (
         SONARR_URL, SONARR_API_KEY, TARGET_SEASON,
         F1_DOWNLOAD_DIR, TARGET_IMPORT_DIR, SONARR_TARGET_IMPORT_DIR,
         ALLOW_PARTIAL_MATCHING
