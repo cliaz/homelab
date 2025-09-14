@@ -6,7 +6,6 @@ Maps downloaded F1 files to Sonarr episodes and creates hardlinks for import.
 cliaz, maintained on github.com/cliaz/homelab/scripts
 """
 
-import os
 import re
 import sys
 import requests
@@ -256,8 +255,6 @@ def find_matching_episode(filename: str, rounds_lookup: Dict[int, Dict]) -> Opti
         debug_print("Could not extract round number from filename")
         return None
     
-    # # Convert to 0-based index for lookup (R1 = index 0, R2 = index 1, etc.)
-    # to cater for pre-season testing
     debug_print(f"Found Round {round_number} in filename")
     
     if round_number not in rounds_lookup:
@@ -496,13 +493,13 @@ def main():
     """Main function."""
     # Handle command line arguments
     if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help', 'help']:
-        print("Usage: python f1-mapping.py [path]")
+        print("Usage: python f1-sonarr-importer.py [path]")
         print("  path: Optional file or directory path to process")
         print("        If not provided, uses F1_DOWNLOAD_DIR from config")
         print("        If provided, must be a valid file or directory")
         return 0
     
-    source_dir = F1_DOWNLOAD_DIR  # Default to config value
+    source_dir = F1_DOWNLOAD_DIR  # Default to value from config file
     
     if len(sys.argv) > 1:
         custom_path = Path(sys.argv[1])
@@ -528,13 +525,12 @@ def main():
         episodes = get_episodes_for_series(SONARR_URL, SONARR_API_KEY, series_id)
         rounds_lookup = generate_rounds_lookup_table(episodes)
         
-        if DEBUG:
-            print("\n[DEBUG] Rounds Lookup Table:")
-            for round_num, round_data in rounds_lookup.items():
-                print(f"[DEBUG] Round {round_num}: {round_data['round_name']}")
-                for session_name, session_info in round_data['sessions'].items():
-                    print(f"[DEBUG]   Session: {session_name} -> Episode {session_info['episode_number']} ({session_info['prefix']})")
-            print()
+        debug_print("\nRounds Lookup Table:")
+        for round_num, round_data in rounds_lookup.items():
+            debug_print(f"Round {round_num}: {round_data['round_name']}")
+            for session_name, session_info in round_data['sessions'].items():
+                debug_print(f"  Session: {session_name} -> Episode {session_info['episode_number']} ({session_info['prefix']})")
+        debug_print("")
     except Exception as e:
         print(f"Error building lookup table: {e}")
         return 1
