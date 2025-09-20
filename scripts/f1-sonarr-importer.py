@@ -8,7 +8,9 @@ cliaz, maintained on github.com/cliaz/homelab/scripts
 
 import re
 import sys
-import requests
+import json
+import urllib.request
+import urllib.error
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
@@ -116,16 +118,17 @@ def get_series_id_by_title(sonarr_url: str, api_key: str, title: str) -> int:
     headers = {"X-Api-Key": api_key}
     
     try:
-        resp = requests.get(f"{sonarr_url}/api/v3/series", headers=headers, timeout=10)
-        resp.raise_for_status()
+        req = urllib.request.Request(f"{sonarr_url}/api/v3/series", headers=headers)
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode('utf-8'))
         
-        for series in resp.json():
+        for series in data:
             if title.lower() == series.get('title', '').lower():
                 debug_print(f"Found series ID: {series['id']}")
                 return series['id']
                 
         raise SystemExit(f"Series '{title}' not found on Sonarr at {sonarr_url}")
-    except requests.RequestException as e:
+    except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError) as e:
         raise SystemExit(f"Error connecting to Sonarr: {e}")
 
 def get_episodes_for_series(sonarr_url: str, api_key: str, series_id: int) -> List[Dict]:
@@ -134,12 +137,12 @@ def get_episodes_for_series(sonarr_url: str, api_key: str, series_id: int) -> Li
     headers = {"X-Api-Key": api_key}
     
     try:
-        resp = requests.get(f"{sonarr_url}/api/v3/episode?seriesId={series_id}", headers=headers, timeout=10)
-        resp.raise_for_status()
-        episodes = resp.json()
+        req = urllib.request.Request(f"{sonarr_url}/api/v3/episode?seriesId={series_id}", headers=headers)
+        with urllib.request.urlopen(req, timeout=10) as response:
+            episodes = json.loads(response.read().decode('utf-8'))
         debug_print(f"Found {len(episodes)} episodes")
         return episodes
-    except requests.RequestException as e:
+    except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError) as e:
         raise SystemExit(f"Error getting episodes from Sonarr: {e}")
 
 def generate_rounds_lookup_table(episodes: List[Dict]) -> Dict[int, Dict]:
@@ -367,13 +370,27 @@ def convert_system_path_to_sonarr_container_path(system_path: Path) -> str:
         but Sonarr sees it as '/data/torrents/tv/file.mkv', this function will
         perform that conversion.
     """
-    # Convert the paths to strings for easier manipulation
-    system_str = str(system_path)
-    host_base = str(TARGET_IMPORT_DIR)
+    # Convert the paths to strings and ensure they're resolved/normalized
+    system_str = str(system_path.resolve())
+    host_base = str(TARGET_IMPORT_DIR.resolve())
     container_base = str(SONARR_TARGET_IMPORT_DIR)
     
+    # Ensure host_base ends with separator for accurate replacement
+    if not host_base.endswith('/'):
+        host_base += '/'
+    if not container_base.endswith('/'):
+        container_base += '/'
+    
     # Replace the host system's base path with the container's base path
-    container_path = system_str.replace(host_base, container_base, 1)
+    if system_str.startswith(host_base):
+        relative_path = system_str[len(host_base):]
+        container_path = container_base + relative_path
+    else:
+        # Fallback: try without trailing slash
+        host_base_no_slash = host_base.rstrip('/')
+        container_base_no_slash = container_base.rstrip('/')
+        container_path = system_str.replace(host_base_no_slash, container_base_no_slash, 1)
+    
     debug_print(f"Converting path for Sonarr:")
     debug_print(f"  System path: {system_str}")
     debug_print(f"  Container path: {container_path}")
@@ -397,13 +414,17 @@ def trigger_sonarr_import(sonarr_url: str, api_key: str, file_path: str) -> bool
         }
         debug_print(f"Sending API request to Sonarr: POST {sonarr_url}/api/v3/command")
         debug_print(f"Request data: {data}")
-        resp = requests.post(f"{sonarr_url}/api/v3/command", headers=headers, json=data, timeout=10)
-        resp.raise_for_status()
         
-        command_id = resp.json().get('id')
+        json_data = json.dumps(data).encode('utf-8')
+        req = urllib.request.Request(f"{sonarr_url}/api/v3/command", data=json_data, headers=headers, method='POST')
+        
+        with urllib.request.urlopen(req, timeout=10) as response:
+            response_data = json.loads(response.read().decode('utf-8'))
+        
+        command_id = response_data.get('id')
         debug_print(f"Scan command initiated with ID: {command_id}")
         return True
-    except requests.RequestException as e:
+    except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError) as e:
         print(f"Error triggering Sonarr scan: {e}")
         return False
 
@@ -537,8 +558,8 @@ def main():
     
     # Step 4-7: Process files and trigger Sonarr imports
     try:
-        F1_SEASON_FOLDER_IN_TARGET_IMPORT_DIR = create_season_folder_if_missing(TARGET_IMPORT_DIR, f"Formula.1.{TARGET_SEASON}")
-        process_files(source_dir, F1_SEASON_FOLDER_IN_TARGET_IMPORT_DIR, rounds_lookup)
+        F1_SEASON_FOLDER_IN_TARGET_IMPORT_DIR = create_season_folder_if_missing(Path(TARGET_IMPORT_DIR), f"Formula.1.{TARGET_SEASON}")
+        process_files(Path(source_dir), F1_SEASON_FOLDER_IN_TARGET_IMPORT_DIR, rounds_lookup)
     except Exception as e:
         print(f"Error processing files: {e}")
         return 1
