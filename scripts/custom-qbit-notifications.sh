@@ -43,14 +43,14 @@ fi
 # Set notification details based on torrent state
 if [[ "$TORRENT_STATE" == "added" ]]; then
     NOTIFICATION_TITLE="Grabbed"
-    NOTIFICATION_COLOR="16776960"  # Yellow in decimal (FFFF00)
+    NOTIFICATION_COLOR="FFFF00"  # Yellow in decimal (FFFF00)
     EVENT_TYPE=""
     NOTIFICATION_CHANNEL=$CHANNEL_ID_ADDED
     # For grabbed torrents, don't show file count since it's -1
     FILE_COUNT_TEXT=""
 elif [[ "$TORRENT_STATE" == "finished" ]]; then
     NOTIFICATION_TITLE="Completed"
-    NOTIFICATION_COLOR="65280"     # Green in decimal (00FF00)
+    NOTIFICATION_COLOR="00FF00"     # Green in decimal (00FF00)
     EVENT_TYPE=""
     NOTIFICATION_CHANNEL=$CHANNEL_ID_FINISHED
     # For finished torrents, show file count if available
@@ -64,42 +64,57 @@ else
 fi
 
 # Send notification via Notifiarr using Discord embed format
+# Set thumbnail and banner based on category
+if [[ "$TORRENT_CATEGORY" == "f1" ]]; then
+    THUMBNAIL_URL="$F1_ICON_URL"
+    BANNER_URL="$F1_BANNER_URL"
+else
+    THUMBNAIL_URL=""
+    BANNER_URL=""
+fi
+
+# Use heredoc to build the JSON payload to avoid shell escaping issues
+JSON_PAYLOAD=$(cat <<EOF
+{
+    "notification": {
+        "update": false,
+        "name": "$NOTIFICATION_TITLE",
+        "event": "$EVENT_TYPE"
+    },
+    "discord": {
+        "color": "$NOTIFICATION_COLOR",
+        "images": {
+            "thumbnail": "$THUMBNAIL_URL",
+            "image": "$BANNER_URL"
+        },
+        "text": {
+            "title": "$TORRENT_NAME",
+            "icon": "$DISCORD_MESSAGE_ICON_URL",
+            "content": "$NOTIFICATION_TITLE",
+            "description": "Category: $TORRENT_CATEGORY$FILE_COUNT_TEXT",
+            "fields": [
+                {
+                    "title": "Quality",
+                    "text": "${MEDIA_QUALITY:-N/A}",
+                    "inline": true
+                },
+                {
+                    "title": "Category", 
+                    "text": "$TORRENT_CATEGORY",
+                    "inline": true
+                }
+            ],
+            "footer": "$(date "+%d/%m/%Y, %H:%M")"
+        },
+        "ids": {
+            "channel": "$NOTIFICATION_CHANNEL"
+        }
+    }
+}
+EOF
+)
+
 curl -s -X POST "$NOTIFIARR_API_ENDPOINT" \
     -H "Content-Type: application/json" \
     -H "Accept: text/plain" \
-    -d "{
-        \"notification\": {
-            \"update\": false,
-            \"name\": \"$NOTIFICATION_TITLE\",
-            \"event\": \"$EVENT_TYPE\"
-        },
-        \"discord\": {
-            \"color\": \"$NOTIFICATION_COLOR\",
-            \"images\": {
-                \"thumbnail\": \"$([[ "$TORRENT_CATEGORY" == "f1" ]] && echo "$F1_ICON_URL" || echo "")\",
-                \"image\": \"$([[ "$TORRENT_CATEGORY" == "f1" ]] && echo "$F1_BANNER_URL" || echo "")\"
-            },
-            \"text\": {
-                \"title\": \"$TORRENT_NAME\",
-                \"icon\": \"$DISCORD_MESSAGE_ICON_URL\",
-                \"content\": \"$NOTIFICATION_TITLE\",
-                \"description\": \"Category: $TORRENT_CATEGORY$FILE_COUNT_TEXT\",
-                \"fields\": [
-                    {
-                        \"title\": \"Quality\",
-                        \"text\": \"${MEDIA_QUALITY:-N/A}\",
-                        \"inline\": true
-                    },
-                    {
-                        \"title\": \"Category\",
-                        \"text\": \"$TORRENT_CATEGORY\",
-                        \"inline\": true
-                    },
-                ],
-                \"footer\": \"$(date "+%d/%m/%Y, %H:%M")\"
-            },
-            \"ids\": {
-                \"channel\": \"$NOTIFICATION_CHANNEL\"
-            }
-        }
-    }" > /dev/null
+    -d "$JSON_PAYLOAD"
