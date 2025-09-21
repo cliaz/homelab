@@ -3,7 +3,7 @@
 Formula 1 File Mapper for Sonarr
 Maps downloaded F1 files to Sonarr episodes and creates hardlinks for import.
 
-cliaz, maintained on github.com/cliaz/homelab/scripts
+Author: cliaz, maintained on github.com/cliaz/homelab/scripts
 """
 
 import re
@@ -11,6 +11,7 @@ import sys
 import json
 import urllib.request
 import urllib.error
+import argparse
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
@@ -512,18 +513,55 @@ def process_files(source_path: Path, target_dir: Path, rounds_lookup: Dict[int, 
 
 def main():
     """Main function."""
-    # Handle command line arguments
-    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help', 'help']:
-        print("Usage: python f1-sonarr-importer.py [path]")
-        print("  path: Optional file or directory path to process")
-        print("        If not provided, uses F1_DOWNLOAD_DIR from config")
-        print("        If provided, must be a valid file or directory")
-        return 0
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(
+        description=(
+            "Formula 1 File Mapper for Sonarr\n"
+            "\n"
+            "This script maps downloaded Formula 1 video files to Sonarr episodes and creates hardlinks for import.\n"
+            "It is designed to be used in an automated workflow, such as being called from a QBitTorrent container\n"
+            "using only default Python libraries (no external dependencies required).\n"
+            "\n"
+            "Typical usage:\n"
+            "  - Set up the configuration in f1_sonarr_importer_config.py (Sonarr API, paths, etc).\n"
+            "  - Configure QBitTorrent to call this script on torrent completion, passing the --category and --path arguments.\n"
+            "  - The script will scan the provided path (file or directory), match files to Sonarr episodes, create hardlinks,\n"
+            "    and trigger Sonarr to import them.\n"
+            "\n"
+            "You can run this script in two main ways:\n"
+            "  1. Manual import of an entire download folder:\n"
+            "       - Simply run the script without arguments, or specify --path to a folder.\n"
+            "         Example: python3 f1-sonarr-importer.py\n"
+            "         Example: python3 f1-sonarr-importer.py --path /downloads/f1/2025\n"
+            "       - This will import all matching files in the configured download directory or the specified folder.\n"
+            "       - Note: Sonarr Discord notifications (via Notifiarr) may be less reliable when importing many files at once.\n"
+            "\n"
+            "  2. Programmatic import (e.g., from QBitTorrent):\n"
+            "       - QBitTorrent can call this script on torrent completion, passing --category and --path.\n"
+            "         Example (configure this in Qbittorrent Settings --> Downloads --> Run on torrent finished): /config/f1-sonarr-importer.py --category \"f1\" --path \"%F\"\n"
+            "       - The script will only process if the category is 'f1'.\n"
+            "\n"
+            "Arguments:\n"
+            "  --category   (str)  Torrent category from QBittorrent (must be 'f1' to process)\n"
+            "  --path       (str)  File or directory path to process\n"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument('--category', help='Torrent category from QBittorrent')
+    parser.add_argument('--path', help='File or directory path to process')
     
-    source_dir = F1_DOWNLOAD_DIR  # Default to value from config file
+    args = parser.parse_args()
     
-    if len(sys.argv) > 1:
-        custom_path = Path(sys.argv[1])
+    # Check if category is provided and is "f1" (case insensitive)
+    if args.category is not None:
+        if args.category.lower() != 'f1':
+            print(f"Category '{args.category}' is not 'f1', skipping processing")
+            return 0
+        print(f"Category is 'f1', proceeding with processing")
+    
+    # Determine source path
+    if args.path:
+        custom_path = Path(args.path)
         if not custom_path.exists():
             print(f"Error: Provided path does not exist: {custom_path}")
             return 1
@@ -531,8 +569,9 @@ def main():
             print(f"Error: Provided path is neither a file nor a directory: {custom_path}")
             return 1
         source_dir = custom_path
-        print(f"Using custom source path: {source_dir}")
+        print(f"Using provided path: {source_dir}")
     else:
+        source_dir = F1_DOWNLOAD_DIR  # Default to value from config file
         print(f"Using source path from config: {source_dir}")
     
     print(f"Formula 1 File Mapper for Sonarr")
