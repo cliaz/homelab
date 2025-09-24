@@ -21,8 +21,8 @@
 
 # Get QBittorrent environment variables
 NOTIFIARR_API_ENDPOINT="<YOUR_NOTIFIARR_API_ENDPOINT_HERE>"
-CHANNEL_ID_ADDED="<YOUR_CHANNEL_ID_HERE>"  # content-management channel
-CHANNEL_ID_FINISHED="<YOUR_CHANNEL_ID_HERE>"  # notifiarr-catchall channel
+CHANNEL_ID_ADDED="<YOUR_CHANNEL_ID_HERE>"
+CHANNEL_ID_FINISHED="<YOUR_CHANNEL_ID_HERE>" 
 
 DISCORD_MESSAGE_ICON_URL="https://github.com/qbittorrent/qBittorrent/blob/master/dist/unix/menuicons/64x64/apps/qbittorrent.png?raw=true"
 F1_ICON_URL="https://artworks.thetvdb.com/banners/v4/series/387219/posters/65345ed871dfe.jpg"
