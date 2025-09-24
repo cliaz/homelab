@@ -408,6 +408,7 @@ def trigger_sonarr_import(sonarr_url: str, api_key: str, file_path: str) -> bool
     
     try:
         # Command 'DownloadedEpisodesScan' with specific file path
+        # Could use 'ManualImport' as it means that the discord notifications are more reliable, but DownloadedEpisodesScan is simpler
         data = {
             "name": "DownloadedEpisodesScan",
             "path": file_path,
