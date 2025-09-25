@@ -25,3 +25,8 @@ QBITTORRENT_DOWNLOAD_DIR = "/data/torrents/"        # IMPORTANT: this is the qBi
 # 
 # In that system folder /media/MEDIA_SSD, I have /torrents, /media, etc.
 # Sonarr sees that as /data/torrents, /data/media, etc.
+
+PATH_MAPPINGS = [
+    { "host": "/media/MEDIA_SSD/torrents/tv", "container": "/data/torrents/tv" },
+    { "host": "/media/MEDIA_SSD/torrents/f1", "container": "/data/torrents/f1" },
+]
