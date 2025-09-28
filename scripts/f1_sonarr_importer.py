@@ -398,13 +398,20 @@ def convert_system_path_to_sonarr_container_path(system_path: Path) -> str:
     Convert a system path to the corresponding path inside the Sonarr container.
     
     Args:
-        system_path: Path object representing the file path on the host system
+        system_path: Path object representing the file path (host or container context)
         
     Returns:
         String representing the path as seen from inside the Sonarr container
     """
-    container_path = convert_path_between_host_and_container(system_path, "host_to_container")
-    return str(container_path)
+    if is_running_in_container():
+        # We're already in container context, path should work as-is for Sonarr
+        # But we may need to convert between different container paths if they differ
+        # For now, assume the paths are compatible between this container and Sonarr
+        return str(system_path)
+    else:
+        # We're on host, need to convert to container path for Sonarr
+        container_path = convert_path_between_host_and_container(system_path, "host_to_container")
+        return str(container_path)
 
 def trigger_sonarr_import(sonarr_url: str, api_key: str, file_path: str) -> bool:
     """Trigger a Sonarr DownloadedEpisodesScan, passing in the Sonarr-compatible named and newly created hardlink."""
@@ -570,19 +577,21 @@ def main():
     # Determine source path
     if args.path:
         source_path = Path(args.path)
-        if is_running_in_container():
-            # Convert container path to host path so scanning works
-            source_path = convert_path_between_host_and_container(source_path, "container_to_host")
-            print(f"Script running in container, converted path to: {source_path}")
-        else:
-            print(f"Script running on host system, using path as-is: {source_path}")
         
+        # Check if the provided path exists in the current execution context
         if not source_path.exists():
             print(f"Error: Provided path does not exist: {source_path}")
             return 1
         if not (source_path.is_file() or source_path.is_dir()):
             print(f"Error: Provided path is neither a file nor a directory: {source_path}")
             return 1
+        
+        # Show execution context info
+        if is_running_in_container():
+            print(f"Script running in container, using container path: {source_path}")
+        else:
+            print(f"Script running on host system, using host path: {source_path}")
+        
         source_dir = source_path
         print(f"Using provided path: {source_dir}")
     else:
