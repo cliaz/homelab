@@ -510,8 +510,6 @@ def process_files(source_path: Path, target_dir: Path, rounds_lookup: Dict[int, 
                         print(f"Failed to trigger Sonarr import for: {target_path.name}")
             else:
                 debug_print(f"Skipped Sonarr import since target already existed: {target_path}")
-        print(f"\n")
-        
 
     print(f"Processing complete: {matched}/{processed} files matched and processed")
     if NUMBER_OF_IMPORT_LIMIT > 0:
