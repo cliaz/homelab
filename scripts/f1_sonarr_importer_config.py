@@ -1,6 +1,15 @@
 # Configuration for F1 mapping script
+import os
 
-SONARR_URL = "http://localhost:8989"
+# Dynamic Sonarr URL based on execution context
+if os.path.exists("/.dockerenv"):
+    # Running in container - use Docker service name
+    SONARR_URL = "http://sonarr:8989"
+else:
+    # Running on host - use host IP
+    SONARR_URL = "http://localhost:8989"
+
+
 SONARR_API_KEY = "YOUR_SONARR_API_KEY_HERE"  # get this from Sonarr settings -> General -> Security -> API Key
 TARGET_SEASON = 2025
 ALLOW_PARTIAL_MATCHING = False  # This will allow partial matching of Session (Practice / Qualifying / Race) names in the downloaded file
