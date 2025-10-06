@@ -46,13 +46,12 @@ except ImportError as e:
 
 # Used to determine if the script is running inside a container, which will change how paths are mapped
 def is_running_in_container():
-    # Simple heuristic: look for /.dockerenv
+    """ Simple heuristic: look for /.dockerenv """
     return os.path.exists("/.dockerenv")
 
-# Convert a path between host and container space
 def convert_path_between_host_and_container(path: Path, direction="host_to_container") -> Path:
     """
-    Convert a path between host and container space.
+    Convert a path between host and container space. Uses PATH_MAPPINGS from config.
     
     direction:
         - "host_to_container": maps a host path to Sonarr container path
@@ -78,11 +77,34 @@ def convert_path_between_host_and_container(path: Path, direction="host_to_conta
     debug_print(f"No mapping found for {path}, returning as-is ({direction})")
     return path
 
+def convert_system_path_to_sonarr_container_path(system_path: Path) -> str:
+    """
+    Convert a system path to the corresponding path inside the Sonarr container.
+    
+    Args:
+        system_path: Path object representing the file path (host or container context)
+        
+    Returns:
+        String representing the path as seen from inside the Sonarr container
+    """
+    if is_running_in_container():
+        # We're already in container context, path should work as-is for Sonarr
+        # But we may need to convert between different container paths if they differ
+        # For now, assume the paths are compatible between this container and Sonarr
+        return str(system_path)
+    else:
+        # We're on host, need to convert to container path for Sonarr
+        container_path = convert_path_between_host_and_container(system_path, "host_to_container")
+        return str(container_path)
 
 def map_session_name(filename_session: str) -> str:
     """
-    Map session names from filename format to Sonarr format.
-    eg 'filename_session_name' to 'sonarr_session_name'
+    Map session names from filename format to Sonarr format. Takes very specific session names derived from filenames
+    and maps them to the expected Sonarr session names.
+    
+    Example:
+        filename session name: 'Free.Practice.One'
+        Sonarr session name: 'Practice 1'
     """
     session_mapping = {
         # Practice sessions
@@ -117,9 +139,17 @@ def map_session_name(filename_session: str) -> str:
 
 def extract_session_from_filename(filename: str) -> Optional[str]:
     """
-    Extract session information from filename.
+    Extract session information from filename. Will be trying to match against known session patterns, in a *specific order*
+    
+    eg: try to match "F1.2025.R18.Singapore.Grand.Prix.Free.Practice.Two" against "Free.Practice.Two"
+
+    The main reason for this function is to filter out things that would confuse session mapping, eg Ted's Qualifying Notebook
+    matching the pattern for "Qualifying".
     """
+    
     # Common session patterns in filenames - order matters for specificity
+    # The logic here is to match the most specific patterns first, so if you have a filename like
+    # "Teds.Qualifying.Notebook", it will match that before "Qualifying"
     session_patterns = [
         # Ted's Notebook sessions first (most specific)
         'Teds.Qualifying.Notebook', 'Teds.Sprint.Notebook', 'Teds.Notebook',
@@ -146,12 +176,12 @@ def extract_session_from_filename(filename: str) -> Optional[str]:
     return None
 
 def debug_print(message: str):
-    """Print debug message if DEBUG is enabled."""
+    """Print the message passed to this function if DEBUG is enabled."""
     if DEBUG:
         print(f"[DEBUG] {message}")
 
 def get_series_id_by_title(sonarr_url: str, api_key: str, title: str) -> int:
-    """Get series ID by title from Sonarr API."""
+    """Get series ID from the Series title from Sonarr API."""
     debug_print(f"Searching for series: {title}")
     headers = {"X-Api-Key": api_key}
     
@@ -285,8 +315,15 @@ def extract_round_number_from_filename(filename: str) -> Optional[int]:
 
 def find_matching_episode(filename: str, rounds_lookup: Dict[int, Dict]) -> Optional[Tuple[int, str]]:
     """
-    Find matching sonarr episode for a filename.
-    Returns tuple of (episode_number, prefix) or None if no match found.
+    Find matching sonarr episode for a filename. 
+    Args:
+        filename (str): The filename to match against. Expects filename to contain round and session information, eg: "F1.2025.R18.Singapore.Grand.Prix.Free.Practice.Two.Sky.Sports.F1.UHD.2160p.mkv"
+        rounds_lookup (Dict[int, Dict]): The lookup table for rounds and their sessions.
+        
+    
+    Returns:
+        tuple of (episode_number, prefix) or None if no match found.
+        Eg: (2, "F1.2025.R18.Singapore.Grand.Prix.Free.Practice.Two")
     """
     debug_print(f"Processing file: {filename}")
     
@@ -306,19 +343,19 @@ def find_matching_episode(filename: str, rounds_lookup: Dict[int, Dict]) -> Opti
     round_data = rounds_lookup[round_number]
     debug_print(f"Mapped to Sonarr round: {round_data['round_name']}")
     
-    # Get sessions for this round
+    # Each round has multiple sessions, eg Free Practice 1, Qualifying, Race etc.
     sessions = round_data['sessions']
     debug_print(f"Available sessions for the Round Lookup Table for round {round_number} are: {list(sessions.keys())}")
-    
-    # Extract session from filename
+
+    # Try to match the session name from the filename to known session patterns
     filename_session = extract_session_from_filename(filename)
     if filename_session is None:
         debug_print("Could not extract session from filename")
         return None
     
     debug_print(f"Found session in filename: '{filename_session}'")
-    
-    # Map session name
+
+    # Map the identified session name from the filename to the Sonarr session name
     mapped_session = map_session_name(filename_session)
     debug_print(f"Mapped session '{filename_session}' to '{mapped_session}'")
     
@@ -328,6 +365,7 @@ def find_matching_episode(filename: str, rounds_lookup: Dict[int, Dict]) -> Opti
         return episode_info['episode_number'], episode_info['prefix']
     
     # Try partial matching for sessions that might not have exact matches
+    # This has...mixed results
     if ALLOW_PARTIAL_MATCHING:
         for session_name in sessions.keys():
             if mapped_session.lower() in session_name.lower() or session_name.lower() in mapped_session.lower():
@@ -339,7 +377,11 @@ def find_matching_episode(filename: str, rounds_lookup: Dict[int, Dict]) -> Opti
     return None
 
 def create_season_folder_if_missing(target_dir: Path, folder_name: str):
-    """Create season folder in the target import directory if it doesn't exist."""
+    """
+    Create season folder in the target import directory if it doesn't exist, as Sonarr expects files to be in a season folder like "Formula.1.2025"
+    This needs to be done before processing files, because that's where we'll be creating the hardlinks.
+    This does not need to be context aware (aka Host vs Container paths), as the folder being created will be the same in both contexts.
+    """
     season_folder = target_dir / folder_name
     if not season_folder.exists():
         if DRY_RUN:
@@ -393,28 +435,11 @@ def create_hardlink(source_file: Path, target_dir: Path, episode_number: int, or
                 print(f"Error creating hardlink: {e}")
             return False
 
-def convert_system_path_to_sonarr_container_path(system_path: Path) -> str:
-    """
-    Convert a system path to the corresponding path inside the Sonarr container.
-    
-    Args:
-        system_path: Path object representing the file path (host or container context)
-        
-    Returns:
-        String representing the path as seen from inside the Sonarr container
-    """
-    if is_running_in_container():
-        # We're already in container context, path should work as-is for Sonarr
-        # But we may need to convert between different container paths if they differ
-        # For now, assume the paths are compatible between this container and Sonarr
-        return str(system_path)
-    else:
-        # We're on host, need to convert to container path for Sonarr
-        container_path = convert_path_between_host_and_container(system_path, "host_to_container")
-        return str(container_path)
-
 def trigger_sonarr_import(sonarr_url: str, api_key: str, file_path: str) -> bool:
-    """Trigger a Sonarr DownloadedEpisodesScan, passing in the Sonarr-compatible named and newly created hardlink."""
+    """
+    Trigger a Sonarr DownloadedEpisodesScan, passing in the Sonarr-compatible named and newly created hardlink.
+    The hardlink must be accessible from within the Sonarr container, aka the path must be one the container understands.
+    """
     debug_print(f"Triggering Sonarr scan for file: {file_path}")
     headers = {
         "X-Api-Key": api_key,
@@ -445,6 +470,9 @@ def trigger_sonarr_import(sonarr_url: str, api_key: str, file_path: str) -> bool
         print(f"Error triggering Sonarr scan: {e}")
         return False
 
+
+# Process files from source path (file or directory)
+# this is the main function that ties everything together
 def process_files(source_path: Path, target_dir: Path, rounds_lookup: Dict[int, Dict]):
     """
     Process video files from source path and create hardlinks in the target directory.
@@ -459,10 +487,11 @@ def process_files(source_path: Path, target_dir: Path, rounds_lookup: Dict[int, 
     2. If source_path is a directory, recursively scan for video files
     3. Try to match each file to a Sonarr episode
     4. Create a hardlink with the correct episode number prefix
-    5. Trigger Sonarr import for each matched file
+    5. Trigger Sonarr import for each matched file, converting paths from host to container as needed
     
     If NUMBER_OF_IMPORT_LIMIT is set (>0), only process that many files.
     """
+    
     debug_print(f"Processing files from: {source_path}")
     
     if not source_path.exists():
@@ -496,20 +525,26 @@ def process_files(source_path: Path, target_dir: Path, rounds_lookup: Dict[int, 
         processed += 1
         filename = file_path.name
         
+        # check if we can match the filename to the Sonarr episode list
         match_result = find_matching_episode(filename, rounds_lookup)
         if match_result:
             episode_number, prefix = match_result
+            # Build the target filename in a format suitable for Sonarr
             target_filename = f"Formula 1 - S{TARGET_SEASON}E{episode_number} - {filename}"
             target_path = target_dir / target_filename
-            
+
+            # create the hardlink
             created = create_hardlink(file_path, target_dir, episode_number, filename)
             if created:
+                # At this point, we've created a hardlink and need to trigger a Sonarr import
+                # We need to ensure that whatever format the path is in, aka if this script was run from a host or a container,
+                # we convert it to the format that Sonarr understands
+                container_path = convert_system_path_to_sonarr_container_path(target_path)
                 matched += 1
                 if DRY_RUN:
-                    container_path = convert_system_path_to_sonarr_container_path(target_path)
+                    # convert host path to container path
                     print(f"[DRY RUN] Would trigger Sonarr API import command for container path: {container_path}")
                 elif target_path.exists():
-                    container_path = convert_system_path_to_sonarr_container_path(target_path)
                     if trigger_sonarr_import(SONARR_URL, SONARR_API_KEY, container_path):
                         print(f"Triggered Sonarr import for: {target_path.name}")
                         imported += 1
@@ -526,7 +561,20 @@ def process_files(source_path: Path, target_dir: Path, rounds_lookup: Dict[int, 
 
 
 def main():
-    """Main function."""
+    
+    print(f"Formula 1 File Mapper for Sonarr")
+    print(f"--------------------------------")
+    print(f"Mode: {'DRY RUN' if DRY_RUN else 'LIVE'}")
+    print(f"Debug: {'ON' if DEBUG else 'OFF'}")
+    print(f"Import Limit: {NUMBER_OF_IMPORT_LIMIT if NUMBER_OF_IMPORT_LIMIT > 0 else 'Unlimited'}")
+    
+    
+    # Show execution context info
+    if is_running_in_container():
+        print(f"Script running in container, treating the following as a container path: {source_path}")
+    else:
+        print(f"Script running on host system, treating the following as a host path: {source_path}")
+
     # Parse command line arguments
     parser = argparse.ArgumentParser(
         description=(
@@ -566,7 +614,7 @@ def main():
     parser.add_argument('--path', help='File or directory path to process')
     
     args = parser.parse_args()
-    
+        
     # Check if category is provided and is "f1" (case insensitive)
     if args.category is not None:
         if args.category.lower() != 'f1':
@@ -579,6 +627,8 @@ def main():
         source_path = Path(args.path)
         
         # Check if the provided path exists in the current execution context
+        # don't convert path here, because we want to use the path as provided, whether it's host or container context,
+        # and simply check if the file / path exists
         if not source_path.exists():
             print(f"Error: Provided path does not exist: {source_path}")
             return 1
@@ -586,22 +636,11 @@ def main():
             print(f"Error: Provided path is neither a file nor a directory: {source_path}")
             return 1
         
-        # Show execution context info
-        if is_running_in_container():
-            print(f"Script running in container, using container path: {source_path}")
-        else:
-            print(f"Script running on host system, using host path: {source_path}")
-        
-        source_dir = source_path
-        print(f"Using provided path: {source_dir}")
+        print(f"Using provided path: {source_path}")
     else:
-        source_dir = F1_DOWNLOAD_DIR  # Default to value from config file
-        print(f"Using source path from config: {source_dir}")
+        source_path = F1_DOWNLOAD_DIR  # Default to value from config file
+        print(f"Using source path from config: {source_path}")
     
-    print(f"Formula 1 File Mapper for Sonarr")
-    print(f"Mode: {'DRY RUN' if DRY_RUN else 'LIVE'}")
-    print(f"Debug: {'ON' if DEBUG else 'OFF'}")
-    print(f"Import Limit: {NUMBER_OF_IMPORT_LIMIT if NUMBER_OF_IMPORT_LIMIT > 0 else 'Unlimited'}")
     
     # Step 1-3: Build lookup table
     try:
@@ -621,8 +660,11 @@ def main():
     
     # Step 4-7: Process files and trigger Sonarr imports
     try:
-        F1_SEASON_FOLDER_IN_TARGET_IMPORT_DIR = create_season_folder_if_missing(Path(TARGET_IMPORT_DIR), f"Formula.1.{TARGET_SEASON}")
-        process_files(Path(source_dir), F1_SEASON_FOLDER_IN_TARGET_IMPORT_DIR, rounds_lookup)
+        # Ensure season folder exists in target import directory, because that's where we'll be creating the hardlinks
+        F1_SEASON_FOLDER_IN_THE_TARGET_IMPORT_DIR = create_season_folder_if_missing(Path(TARGET_IMPORT_DIR), f"Formula.1.{TARGET_SEASON}")
+        
+        # go through all provided files and process them, aka match to sonarr episode, create hardlink, trigger sonarr import
+        process_files(Path(source_path), F1_SEASON_FOLDER_IN_THE_TARGET_IMPORT_DIR, rounds_lookup)
     except Exception as e:
         print(f"Error processing files: {e}")
         return 1
