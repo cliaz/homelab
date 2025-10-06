@@ -42,14 +42,14 @@ fi
 
 # Set notification details based on torrent state
 if [[ "$TORRENT_STATE" == "added" ]]; then
-    NOTIFICATION_TITLE="Grabbed"
+    NOTIFICATION_TITLE="Grabbed $TORRENT_NAME"
     NOTIFICATION_COLOR="FFFF00"  # Yellow in decimal (FFFF00)
     EVENT_TYPE=""
     NOTIFICATION_CHANNEL=$CHANNEL_ID_ADDED
     # For grabbed torrents, don't show file count since it's -1
     FILE_COUNT_TEXT=""
 elif [[ "$TORRENT_STATE" == "finished" ]]; then
-    NOTIFICATION_TITLE="Completed"
+    NOTIFICATION_TITLE="Completed $TORRENT_NAME"
     NOTIFICATION_COLOR="00FF00"     # Green in decimal (00FF00)
     EVENT_TYPE=""
     NOTIFICATION_CHANNEL=$CHANNEL_ID_FINISHED
@@ -114,6 +114,7 @@ JSON_PAYLOAD=$(cat <<EOF
 EOF
 )
 
+# fire off the discord notification
 curl -s -X POST "$NOTIFIARR_API_ENDPOINT" \
     -H "Content-Type: application/json" \
     -H "Accept: text/plain" \
