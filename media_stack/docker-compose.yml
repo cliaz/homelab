@@ -77,6 +77,7 @@ services:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/radarr:/config
       # root directory, so that radarr can see downloads as well as stored media
       - ${DATA_DIR:?Please configure DATA_DIR in .env file}:/data
+      - /media/ARCHIVE_HDD/:/data_archive
 
   # Series management
   sonarr:
@@ -101,6 +102,7 @@ services:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/sonarr:/config
       # root directory, so that sonarr can see downloads as well as stored media
       - ${DATA_DIR:?Please configure DATA_DIR in .env file}:/data
+      - /media/ARCHIVE_HDD/:/data_archive
 
   # Media request management for both Sonarr and Radarr, combining them both into one portal
   overseerr:
