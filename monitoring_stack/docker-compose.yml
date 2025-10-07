@@ -1,0 +1,144 @@
+x-extra_hosts:
+  # This is added so that within each service you can communicate to another service by using the DNS name of the host rather
+  # than using IP address. Makes it easy if the IP address changes. For example, when configuring Radarr, you can
+  # configure the transmission client url as http://host-server:9091
+  &host-server
+  # Pulls the IP address of the host from the .env file
+  - "host-server:${HOST_IP}"
+
+services:
+  # Grafana - visualizes logs and metrics from Prometheus and Loki
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    hostname: grafana
+    extra_hosts: *host-server
+    restart: unless-stopped
+    user: ${GRAFANA_UID:?Please configure GRAFANA_UID in .env file}:${GRAFANA_GID:?Please configure GRAFANA_GID in .env file}
+    networks:
+      - monitoring_net
+    ports:
+      - 3000:3000  # Web UI
+    volumes:
+      - ${CONFIG_DIR}/grafana:/var/lib/grafana  # Stores dashboards and settings
+    environment:
+      TZ: ${TZ:-Australia/Melbourne}
+      GF_SECURITY_ADMIN_USER: admin            # move to docker secrets
+      GF_SECURITY_ADMIN_PASSWORD: admin        # move to docker secrets
+      #GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
+    depends_on:
+      - prometheus
+      - loki
+
+  # Loki - stores and indexes logs sent by Promtail
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    hostname: loki
+    extra_hosts: *host-server
+    restart: unless-stopped
+    user: ${LOKI_UID:?Please configure LOKI_UID in .env file}:${LOKI_GID:?Please configure LOKI_GID in .env file}
+    networks:
+      - monitoring_net
+    ports:
+      - "3100:3100"  # Loki API endpoint for Promtail and Grafana
+    volumes:
+      - ${CONFIG_DIR}/loki:/loki                 # Persistent log storage
+    environment:
+      TZ: ${TZ:-Australia/Melbourne}
+    command: -config.file=/etc/loki/local-config.yaml
+
+  # Promtail - tails logs (especially Docker logs) and pushes them to Loki
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    hostname: promtail
+    extra_hosts: *host-server
+    restart: unless-stopped
+    #user: # needs to run as root
+    networks:
+      - monitoring_net
+    ports: 
+      - 9080:9080  # Web UI (if enabled in Promtail config)
+    volumes:
+      - ${CONFIG_DIR}/promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml
+      - /var/log:/var/log
+      - /etc/machine-id:/etc/machine-id:ro
+      - /etc/hostname:/etc/hostname:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro  # Access container logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      TZ: ${TZ:-Australia/Melbourne}
+    command: -config.file=/etc/promtail/promtail-config.yaml
+
+  # Prometheus - scrapes metrics from Node Exporter, cAdvisor, etc.
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    hostname: prometheus
+    extra_hosts: *host-server
+    restart: unless-stopped
+    # annoyingly, this either needs to run as root, or the default of nobody (65534:65534) with the config file chmod to 777
+    #user: ${PROMETHEUS_UID:?Please configure PROMETHEUS_UID in .env file}:${PROMETHEUS_GID:?Please configure PROMETHEUS_GID in .env file}
+    networks:
+      - monitoring_net
+    ports:
+      - 9090:9090  # Web UI and metrics API
+    volumes:
+      - ${CONFIG_DIR}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml  # Your config
+    environment:
+      TZ: ${TZ:-Australia/Melbourne}
+
+  # Node Exporter - collects Linux system metrics from the host
+  node-exporter: 
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    hostname: node-exporter
+    extra_hosts: *host-server
+    restart: unless-stopped
+    #user: # needs to run as root
+    networks:
+      - monitoring_net
+    ports:
+      - 9100:9100                     # Prometheus will periodically reach out and scrape this
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    environment:
+      TZ: ${TZ:-Australia/Melbourne}
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+
+  # cAdvisor - exposes metrics for all running Docker containers
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    hostname: cadvisor
+    extra_hosts: *host-server
+    restart: unless-stopped
+    #user: # needs to run as root
+    networks:
+      - monitoring_net
+    ports:
+      - ${CADVISOR_PORT:-8080}:8080                     # Prometheus will periodically reach out and scrape this
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    environment:
+      TZ: ${TZ:-Australia/Melbourne}
+    #command:
+    #- '-port=9092'
+
+networks:
+  monitoring_net:
+    driver: bridge
+    name: monitoring_net
+    attachable: true
+    ipam:
+      config:
+        - subnet: 172.16.101.0/24
