@@ -243,7 +243,7 @@ services:
 
   ## (Optional) Home page for all services
   homarr:
-    image: ghcr.io/ajnart/homarr:latest
+    image: ghcr.io/homarr-labs/homarr:latest
     container_name: homarr
     hostname: homarr
     extra_hosts: *host-server
@@ -258,11 +258,10 @@ services:
       PGID: ${HOMARR_GID:?Please configure HOMARR_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
       DISABLE_ANALYTICS: TRUE
+      SECRET_ENCRYPTION_KEY: 524166404529ecf1673f7bc38e778fbfd9e60eae023af2f2667ad3e93b040ea5
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
-      - ${CONFIG_DIR}/homarr/configs:/app/data/configs
-      - ${CONFIG_DIR}/homarr/icons:/app/public/icons
-      - ${CONFIG_DIR}/homarr/data:/data
+      - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration. If so, make sure that the PUID or PGID configured in the .env file has permission to access the docker socket
+      - ${CONFIG_DIR}/homarr/appdata:/appdata
 
   ## (Optional) Notification Aggregator
   # A notification aggregator that is used to send watchtower / sonarr / radarr etc. notifications to discord

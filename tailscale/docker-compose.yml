@@ -23,11 +23,11 @@ services:
       PGID: ${TAILSCALE_PGID}
       TZ: ${TZ:-Australia/Melbourne}
       TS_ACCEPT_DNS: true
-      TS_AUTHKEY: /run/secrets/TAILSCALE_AUTHKEY
+      TS_AUTHKEY: /run/secrets/TAILSCALE_AUTHKEY          # this is not working, as tailscale reads this a literal string, not the secret value from the file
       TS_ROUTES: ${IP_RANGES_TO_ROUTE_THROUGH_TAILSCALE}  # this has to be accepted on the tailscale admin console
                                                           # for the routes to be published to the wider tailscale network
     volumes:
-      - /docker/tailscale:/var/lib
+      - ${CONFIG_DIR}/tailscale:/var/lib
       - /dev/net/tun:/dev/net/tun
 
     labels:
@@ -38,4 +38,4 @@ services:
 
 secrets:
   TAILSCALE_AUTHKEY:
-    file: ${SECRETS}/tailscale/ts_authkey
+    file: ${CONFIG_DIR}/tailscale/ts_authkey
