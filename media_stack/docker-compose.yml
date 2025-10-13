@@ -63,6 +63,7 @@ services:
     restart: unless-stopped
     networks:
       - media_net
+      - download_net
     ports:
       # Host port 7878 is mapped to container port 7878
       - 7878:7878
@@ -88,6 +89,7 @@ services:
     restart: unless-stopped
     networks:
       - media_net
+      - download_net
     ports:
       # Host port 8989 is mapped to container port 8989
       - 8989:8989
@@ -150,8 +152,10 @@ services:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
 
 networks:
-
-  ## Assumption / Precondition: the network 'media_net' exists, either defined in core_services_stack or 
-  ## manually via the command "docker network create --attachable --subnet=172.200.0.0/24 media_net"
+  ## Assumption / Precondition: the external networks exist, either defined in core_services_stack or created manually 
+  # manual creation command: docker network create --attachable --subnet=172.16.200.0/24 media_net
   media_net:
+    external: true
+  # manual creation command: docker network create --attachable --subnet=172.16.210.0/24 download_net
+  download_net:
     external: true
