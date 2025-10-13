@@ -16,7 +16,7 @@ services:
     extra_hosts: *host-server
     restart: unless-stopped
     networks:
-      - media_net
+      - ebooks_net
     ports:
       - ${CALIBRE_VNC_PORT:-8080}:8080   # HTTP KasmVNC webUI
       - 8081:8081   # Calibre's built-in webserver. Used for Readarr integration
@@ -43,7 +43,7 @@ services:
     extra_hosts: *host-server
     restart: unless-stopped
     networks:
-      - media_net
+      - ebooks_net
     ports:
       - ${CALIBRE_WEBUI_PORT:-8083}:8083
     environment:
@@ -66,7 +66,8 @@ services:
     extra_hosts: *host-server
     restart: unless-stopped
     networks:
-      - media_net
+      - ebooks_net
+      - download_net
     ports:
       - 8787:8787
     environment:
@@ -80,5 +81,10 @@ services:
 
 
 networks:
-  media_net:
+  ## Assumption / Precondition: the external networks exist, either defined in core_services_stack or created manually
+  # manual creation command: docker network create --attachable --subnet=172.16.220.0/24 ebooks_net
+  ebooks_net:
+    external: true
+  # manual creation command: docker network create --attachable --subnet=172.16.210.0/24 download_net
+  download_net:
     external: true
