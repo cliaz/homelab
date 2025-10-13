@@ -58,7 +58,7 @@ services:
       
       # For Notifiarr / discord notifications
       WATCHTOWER_NOTIFICATION_REPORT: true
-      WATCHTOWER_NOTIFICATION_URL: /run/secrets/watchtower_discord_API
+      WATCHTOWER_NOTIFICATION_URL: /run/secrets/watchtower_notifiarr_API
       
       # Simple template for the notification
       WATCHTOWER_NOTIFICATION_TEMPLATE: |
@@ -90,5 +90,5 @@ services:
 secrets:
   email_server_password:
     file: ${SECRETS:?Please configure SECRETS in .env file}/watchtower/email_server_password
-  watchtower_discord_API:
+  watchtower_notifiarr_API:
     file: ${SECRETS:?Please configure SECRETS in .env file}/watchtower/notifiarr_watchtower_api
