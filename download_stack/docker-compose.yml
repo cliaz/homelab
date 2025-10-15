@@ -139,3 +139,9 @@ networks:
   # manual creation command: docker network create --attachable --subnet=172.16.1.0/24 download_net
   download_net:
     external: true
+
+secrets:
+  OPENVPN_USER:
+    file: ${SECRETS}/gluetun/openvpn_user
+  OPENVPN_PASSWORD:
+    file: ${SECRETS}/gluetun/openvpn_password

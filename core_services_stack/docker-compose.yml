@@ -265,10 +265,6 @@ secrets:
     file: ${SECRETS}/wyzebridge/wyze_api_id
   API_KEY:
     file: ${SECRETS}/wyzebridge/wyze_api_key
-  OPENVPN_USER:
-    file: ${SECRETS}/gluetun/openvpn_user
-  OPENVPN_PASSWORD:
-    file: ${SECRETS}/gluetun/openvpn_password
   WB_USERNAME:
     file: ${SECRETS}/wyzebridge/wyze_bridge_webapp_username
   WB_PASSWORD:
