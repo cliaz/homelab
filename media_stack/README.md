@@ -1,64 +1,54 @@
-## Media stack
-This stack is purely for media management. It may break if the Home Services stack is not present
+# Media Stack overview
+
+This stack is purely for media management and streaming. It may break if the Core Services stack is not present.
 
 It consists of the following services:
-- Plex: Main media server
-- Tautulli: Plex media server monitoring service
-- Gluetun: VPN client to provide containers secure outbound connectivity
-- Deluge: torrent client. Relies on Gluetun
-- Radarr: Automated movie management and integration with torrent client
-- Sonarr: Same as radarr but for TV shows
-- Prowlarr: Torrent indexers proxy
-- Flaresolverr: Proxy to allow Prowlarr to bypass Cloudflare and DDoS-GUARD protection
+- **Plex:** Main media server for streaming movies and TV shows
+- **Radarr:** Automated movie management and acquisition
+- **Sonarr:** Automated TV show management and acquisition  
+- **Overseerr:** Media request management for both Sonarr and Radarr
+- **Tautulli:** Plex media server monitoring and statistics
 
-
-It also has the following services 'built' but not in use.
-- Lidarr: Same as radarr but for Music
-- sonarr_netimport: A python script to fetch TV shows from tvdb.com and add them to sonarr
-- radarr_netimport: Similar to sonarr_netimport but for radarr
-
-### Exposed Ports
+## Exposed Ports
 | Service | Port | Purpose |
 |---|---|--- |
 | Plex | 32400 | WebUI |
-| Gluetun | 8112 | Deluge's WebUI | 
-| Deluge | - | exposed via Gluetun | 
-| Prowlarr | 9696 | WebUI | 
-| Flaresolverr| 8191 | Requests port |
-| Radarr | 7878 | WebUI | 
-| Sonarr | 8989 | WebUI | 
-| Overseerr | 5055 | WebUI | 
-| Tautulli | 8181 | WebUI | 
+| Radarr | 7878 | WebUI |
+| Sonarr | 8989 | WebUI |
+| Overseerr | 5055 | WebUI |
+| Tautulli | 8181 | WebUI |
 
+## Data Flow
+1. **Overseerr** provides a user-friendly interface for requesting movies and TV shows
+2. **Radarr** and **Sonarr** automatically search, download, and organize content
+3. **Plex** serves the organized media to clients
+4. **Tautulli** monitors Plex usage and provides statistics
 
-### Install
+## Dependencies
+- Requires the **Download Stack** for content acquisition (Prowlarr, qBittorrent, etc.)
+- Uses `media_net` and `download_net` Docker networks
+- Requires shared storage with the download stack for seamless file management
 
+## Security Considerations
+- Plex uses host networking for better performance and device discovery
+- GPU transcoding support via `/dev/dri` device mapping
+- Proper user/group permissions for media file access
 
-### Configuration
+## Installation & Configuration
 
-#### Deluge
+For detailed installation and configuration instructions, see [INSTALL.md](./INSTALL.md).
 
-**Plugin: Label**
-(Required)
-
-**Plugin: YaRSS2**
-(Optional)
-I like watching sports - specifically F1 - and Sonarr doesn't handle that well. There's a whole discussion about why, but in short it's that F1 doesn't really have 'seasons' and 'episodes' as Sonarr knows it, and people don't upload it in the SxxxExxx format so Prowlarr / Sonarr can't find it.
-So, instead we can install a plugin that will allow custom regex matching, set it up to look for what I'm after, and once the file is downloaded open Sonarr and add the file via Manual Import.
-
-To install the plugin:
-1. ~~download the latest version of the `.egg` from the [YaRSS2 downloads page](https://bitbucket.org/bendikro/deluge-yarss-plugin/downloads/)~~
-As of Sep 2024, the latest version () from the [official download page](https://bitbucket.org/bendikro/deluge-yarss-plugin/downloads/) is throwing a bunch of errors related to the UI when activated. A [forum user has posted](https://forum.deluge-torrent.org/viewtopic.php?p=236706#p236706) a version which has a fix ([download link](https://1drv.ms/u/s!Ajl1yq0BfB-dgt5YF7iPGF7MYlED-A?e=AbY31K)), simply stating that the plugin can't be managed from within the UI
-2. move it to <Deluge config folder/plugins>, eg `/data/dockers/deluge/plugins`
-3. remove the `py3.11` reference from the name. eg it will be named `YaRSS2-2.1.5-py3.11.egg`, make it look like `YaRSS2-2.1.5.egg`
-4. restart Deluge
-5. install it as any other pre-supplied plugin
-
-References:
-- [deluge docs](https://deluge-torrent.org/plugins/#InstallingPlugins)
-- [YaRSS2 Deluge Plugin](https://deluge-torrent.org/plugins/yarss2/)
-- [Forum post explaining troubleshooting steps](https://forum.deluge-torrent.org/viewtopic.php?t=56261)
-- [official forum thread about YaRSS2](https://forum.deluge-torrent.org/viewtopic.php?t=39551)
+### Environment Variables
+Key variables to configure in your `.env` file:
+- `PLEX_UID`/`MEDIA_GID`: User/group for Plex
+- `RADARR_UID`/`MEDIA_GID`: User/group for Radarr
+- `SONARR_UID`/`MEDIA_GID`: User/group for Sonarr
+- `TAUTULLI_UID`/`MEDIA_GID`: User/group for Tautulli
+- `OVERSEERR_UID` / `OVERSEERR_GID`: User/group for Overseerr
+- `CONFIG_DIR`: Directory for application configurations
+- `DATA_DIR`: Directory for media files
+- `TRANSCODE_DIR`: Directory for Plex transcoding
+- `TZ`: Timezone (default: Australia/Melbourne)
 
 
 
