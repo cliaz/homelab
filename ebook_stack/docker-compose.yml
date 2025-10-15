@@ -10,7 +10,7 @@ services:
   # Calibre is an ebook management system. In this set up, it is being used simply as a library to store ebooks,
   # which can be accessed via Calibre-web, while Readarr performs the actual ebook management.
   calibre:
-    image: ghcr.io/linuxserver/calibre
+    image: linuxserver/calibre
     container_name: calibre
     hostname: calibre
     extra_hosts: *host-server
@@ -37,7 +37,7 @@ services:
   # Calibre-web is a web app providing a clean interface for browsing, reading and downloading eBooks using an existing Calibre database.
   # Expose this to the web to allow for remote access to your Calibre library. Supports mailing direct to kindle
   calibre-web:
-    image: ghcr.io/linuxserver/calibre-web
+    image: linuxserver/calibre-web
     container_name: calibre-web
     hostname: calibre-web
     extra_hosts: *host-server
@@ -60,7 +60,7 @@ services:
   # Readarr is an ebook management system. It can be used to manage your ebooks, convert them to different formats,
   # and download ebooks from the internet.
   readarr:
-    image: ghcr.io/linuxserver/readarr:nightly
+    image: linuxserver/readarr
     container_name: readarr
     hostname: readarr
     extra_hosts: *host-server
