@@ -153,9 +153,9 @@ services:
 
 networks:
   ## Assumption / Precondition: the external networks exist, either defined in core_services_stack or created manually 
-  # manual creation command: docker network create --attachable --subnet=172.16.200.0/24 media_net
+  # manual creation command: docker network create --attachable --subnet=172.16.2.0/24 media_net
   media_net:
     external: true
-  # manual creation command: docker network create --attachable --subnet=172.16.210.0/24 download_net
+  # manual creation command: docker network create --attachable --subnet=172.16.1.0/24 download_net
   download_net:
     external: true
