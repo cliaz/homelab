@@ -120,7 +120,7 @@ services:
       - 5055:5055
     environment:
       PUID: ${OVERSEERR_UID:?Please configure OVERSEERR_UID in .env file}
-      PGID: ${OVERSEERR_UID:?Please configure OVERSEERR_UID in .env file}
+      PGID: ${OVERSEERR_GID:?Please configure OVERSEERR_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
       UMASK: 002
     volumes:
