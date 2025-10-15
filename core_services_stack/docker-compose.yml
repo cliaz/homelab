@@ -227,25 +227,25 @@ networks:
     attachable: true
     ipam:
       config:
-        - subnet: 172.16.100.0/24
-  media_net:
-    name: media_net
-    attachable: true
-    ipam:
-      config:
-        - subnet: 172.16.200.0/24
+        - subnet: 172.16.0.0/24
   download_net:
     name: download_net
     attachable: true
     ipam:
       config:
-        - subnet: 172.16.210.0/24
+        - subnet: 172.16.1.0/24
+  media_net:
+    name: media_net
+    attachable: true
+    ipam:
+      config:
+        - subnet: 172.16.2.0/24
   ebooks_net:
     name: ebooks_net
     attachable: true
     ipam:
       config:
-        - subnet: 172.16.220.0/24
+        - subnet: 172.16.3.0/24
 
   # I think there is an option to have the cloudflare container on its own network, and then only expose the services that need to be
   # be exposed to the internet via the cloudflare tunnel. For the moment, putting cloudflared on the core_services_net network
