@@ -24,7 +24,9 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     networks:
-      - download_net
+      download_net:
+        aliases:
+          - qbittorrent   # as qibittorrent is attached to gluetun, it's only accessible by 'gluetun' from other containers. This alias makes it accessible by 'qbittorrent' too
     ports:
       # - 8000:8000/tcp # Control server
       # - 8080:8080/tcp # HTTP proxy
