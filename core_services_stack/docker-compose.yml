@@ -21,9 +21,11 @@ services:
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
-    networks:
+    networks: # needs all networks to be able to route to all services, mainly to support reaching containers via dns names without ports
       - core_services_net
       - media_net
+      - download_net
+      - ebooks_net
     ports:
       # - 80:80  # only needed if using http validation. We're using DNS validation with duckdns to validate, so don't need this
       - 81:81   # swag-dashboard mod
