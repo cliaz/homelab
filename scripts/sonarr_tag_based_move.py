@@ -4,7 +4,7 @@
 # Based off of the original from https://github.com/alekslyse/sonarr_tag_move/
 
 import requests
-import urllib3
+#import urllib3
 import logging
 
 # Setup logging
@@ -13,13 +13,13 @@ logging.basicConfig(level=LOG_LEVEL, format='%(asctime)s - %(levelname)s - %(mes
 
 
 # Disable SSL warnings
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+#urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Configuration
-SONARR_API_URL = 'https://url.to.sonarr/api/v3'  # Replace with your Sonarr URL
+SONARR_API_URL = 'http://localhost:8989/api/v3'  # Replace with your Sonarr URL
 SONARR_API_KEY = 'sonarr_api_key'  # Replace with your Sonarr API key
-TAG_NAME = 'tag_to_look_for'  # Replace with your desired tag name
-NEW_ROOT_FOLDER = 'destination_root_folder' # Need to be a root folder that already exist in sonarr
+TAG_NAME = 'archive'  # Replace with your desired tag name
+NEW_ROOT_FOLDER = '/data_archive/media/tv' # Need to be a root folder that already exist in sonarr
 TEST_SERIES_TITLE = ''  # Leave empty to check all series
 
 # Headers for API requests
@@ -74,7 +74,9 @@ def update_series_root_folder(series, new_root_folder_id, new_root_folder_path):
     logging.info(f"Updating root folder for series: {series['title']}")
     series['rootFolderPath'] = new_root_folder_path
     series['rootFolderId'] = new_root_folder_id
-    series['path'] = f"{new_root_folder_path}/{series['title']}"  # Update the path as well
+    # Sonarr often uses sanitized/modified folder names, so extract the existing folder name
+    folder_name = series['path'].rstrip('/').split('/')[-1]     # cater for trailing slash as well
+    series['path'] = f"{new_root_folder_path}/{folder_name}"    # Update the path, using the existing folder name
 
     url = f"{SONARR_API_URL}/series/{series['id']}"
     response = requests.put(
