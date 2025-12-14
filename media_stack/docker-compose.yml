@@ -151,6 +151,26 @@ services:
       # config directory for plex. Logs are located within this config directory
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
 
+  # Better hunting for missing Sonarr/Radarr content
+  huntarr:
+    image: ghcr.io/plexguide/huntarr:latest
+    container_name: huntarr
+    hostname: huntarr
+    extra_hosts: *host-server
+    restart: unless-stopped
+    networks:
+      - media_net
+      - download_net
+    ports:
+      - 9705:9705
+    environment:
+      PUID: ${HUNTARR_UID:?Please configure HUNTARR_UID in .env file}
+      PGID: ${HUNTARR_GID:?Please configure HUNTARR_GID in .env file}
+      TZ: ${TZ:-Australia/Melbourne}
+      UMASK: 002
+    volumes:
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/huntarr:/config
+
 networks:
   ## Assumption / Precondition: the external networks exist, either defined in core_services_stack or created manually 
   # manual creation command: docker network create --attachable --subnet=172.16.2.0/24 media_net

@@ -35,6 +35,7 @@ DOCKER_USERS=(              # users for all the services to create. If you don't
     "calibre-web"           # web interface for calibre
     "cloudflare"            # cloudflare tunnel client
     "tailscale"             # tailscale client
+    "huntarr"               # hunts for missing episodes in your sonarr/radarr/readarr libraries
 )
 
 
