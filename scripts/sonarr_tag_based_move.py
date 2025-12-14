@@ -100,20 +100,30 @@ def main():
         logging.error("Required configuration not found.")
         return
 
+    new_root_folder_id = find_tag_root_folder_id(root_folders, TAG_NAME, NEW_ROOT_FOLDER)
+    
+    if new_root_folder_id is None:
+        logging.error(f"Root folder '{NEW_ROOT_FOLDER}' not found in Sonarr configuration.")
+        return
+
     for series in series_list:
         if not TEST_SERIES_TITLE or series['title'] == TEST_SERIES_TITLE:
             logging.debug(f"Processing series: {series['title']}")
-            if tag_id in series.get('tags', []) and NEW_ROOT_FOLDER in series['rootFolderPath']:
-                # Check if the new root folder path is contained in the existing root folder path
-                logging.info(f"Series '{series['title']}' is already in the correct root folder.")
+            if tag_id in series.get('tags', []) and series['rootFolderPath'] == NEW_ROOT_FOLDER:
+                # Check if already in the correct root folder using exact path comparison
+                #logging.info(f"Series '{series['title']}' is already in the correct root folder.")
+                continue
             elif tag_id in series.get('tags', []):
-                status_code = update_series_root_folder(series, tag_id, NEW_ROOT_FOLDER)
+                status_code = update_series_root_folder(series, new_root_folder_id, NEW_ROOT_FOLDER)
                 if status_code == 202:
                     logging.info(f"Successfully updated root folder for series: {series['title']}")
                 else:
                     logging.error(f"Failed to update series: {series['title']} - Status Code: {status_code}")
             else:
-                logging.warning(f"Series '{series['title']}' does not have the '{TAG_NAME}' tag.")
+                # logging.warning(f"Series '{series['title']}' does not have the '{TAG_NAME}' tag.")
+                continue
+    
+    logging.info("Script execution completed.")
 
 if __name__ == "__main__":
     main()
