@@ -15,8 +15,8 @@ ROOT_DATA_DIR="/dockers"     # where you want to store the docker config files, 
 DOCKER_USERS=(              # users for all the services to create. If you don't want one, just delete or comment it out
     "portainer"             # docker management
     "watchtower"            # auto-updates
-    "swag"                  # reverse proxy.        TODO: remove, replaced by cloudflare tunnel
-    "wireguard"             # vpn server            TODO: remove, replaced by tailscale
+    "swag"                  # reverse proxy
+    "wireguard"             # vpn server
 	"gluetun"               # outbound vpn client
     "homeassistant"         # home automation
     "mosquitto"             # mqtt broker
@@ -36,6 +36,9 @@ DOCKER_USERS=(              # users for all the services to create. If you don't
     "cloudflare"            # cloudflare tunnel client
     "tailscale"             # tailscale client
     "huntarr"               # hunts for missing episodes in your sonarr/radarr/readarr libraries
+    "audiobookshelf"        # audiobook server
+    "lazylibrarian"         # audiobook downloader
+    "unpackerr"             # automatic unpacking of downloaded media
 )
 
 
@@ -43,17 +46,20 @@ DOCKER_USERS=(              # users for all the services to create. If you don't
 
 # services that don't need a folder in the ROOT_DATA_DIR, because they don't write anything to disk
 SERVICES_THAT_DONT_TOUCH_DISK=(
+    "cloudflare"
     "watchtower"
+    "wyzebridge"
 )
 
 # services that need a folder in the SECRETS_DIR, because they have sensitive information
 SERVICES_THAT_NEED_SECRETS=(
-    "swag"                  # duckdnstoken        TODO: remove, replaced by cloudflare tunnel     
+    "swag"                  # duckdnstoken
     "watchtower"            # notifiarr token   
-    "wireguard"             # wireguard password hash   TODO: remove, replaced by tailscale
+    "wireguard"             # wireguard password hash
     "cloudflare"            # cloudflare tunnel token
     "gluetun"               # openvpn config files
-    "wyzebridge"            # wyze acc email / password, api, container webapp user / pass 
+    "wyzebridge"            # wyze acc email / password, api, container webapp user / pass
+    "unpackerr"             # unpackerr config with api keys
 )
 
 # make sure this is run as root
@@ -108,6 +114,9 @@ MEDIA_GROUP=(
     "readarr"
     "calibre"
     "calibre-web"
+    "audiobookshelf"
+    "lazylibrarian"
+    "unpackerr"
 )
 groupadd media
 for NAME in "${MEDIA_GROUP[@]}"; do usermod -g media $NAME; done
