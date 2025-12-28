@@ -171,6 +171,33 @@ services:
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/huntarr:/config
 
+  # Automatic unpacking of downloaded media
+  unpackerr:
+    image: golift/unpackerr
+    container_name: unpackerr
+    hostname: unpackerr
+    extra_hosts: *host-server
+    restart: unless-stopped
+    user: ${UNPACKERR_UID:?Please configure UNPACKERR_UID in .env file}:${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+    networks:
+      - media_net
+    secrets:
+      - sonarr_api
+      - radarr_api
+    environment:
+      TZ: ${TZ:-Australia/Melbourne}
+      UN_LOG_FILE: /config/unpackerr.log
+      UN_SONARR_0_URL: http://sonarr:8989
+      UN_SONARR_0_API_KEY: filepath:/run/secrets/sonarr_api
+      UN_RADARR_0_URL: http://radarr:7878
+      UN_RADARR_0_API_KEY: filepath:/run/secrets/radarr_api
+    volumes:
+      # config directory
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/unpackerr:/config
+      # mounting the same directory as used by sonarr/radarr/qbittorrent
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}:/data
+
+
 networks:
   ## Assumption / Precondition: the external networks exist, either defined in core_services_stack or created manually 
   # manual creation command: docker network create --attachable --subnet=172.16.2.0/24 media_net
@@ -179,3 +206,9 @@ networks:
   # manual creation command: docker network create --attachable --subnet=172.16.1.0/24 download_net
   download_net:
     external: true
+
+secrets:
+  sonarr_api:
+    file: ${SECRETS}/unpackerr/sonarr_api
+  radarr_api:
+    file: ${SECRETS}/unpackerr/radarr_api
