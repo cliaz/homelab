@@ -19,8 +19,7 @@ services:
     extra_hosts: *host-server
     restart: unless-stopped
     cap_add:
-      - NET_ADMIN
-    # This might be so that gluetun can access the host's network, so that it can route all traffic through the VPN. Unsure
+      - NET_ADMIN # Required to create the VPN tunnel, modify routes, and apply firewall rules inside the container
     devices:
       - /dev/net/tun:/dev/net/tun
     networks:

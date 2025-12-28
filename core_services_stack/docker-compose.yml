@@ -134,7 +134,7 @@ services:
       PGID: ${HOMARR_GID:?Please configure HOMARR_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
       DISABLE_ANALYTICS: TRUE
-      SECRET_ENCRYPTION_KEY: 524166404529ecf1673f7bc38e778fbfd9e60eae023af2f2667ad3e93b040ea5
+      SECRET_ENCRYPTION_KEY: 524166404529ecf1673f7bc38e778fbfd9e60eae023af2f2667ad3e93b040ea5 # can be any random string, used to encrypt sensitive data in the database. #TODO: make this a secret
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration. If so, make sure that the PUID or PGID configured in the .env file has permission to access the docker socket
       - ${CONFIG_DIR}/homarr/appdata:/appdata
@@ -160,25 +160,6 @@ services:
       - /var/run/utmp:/var/run/utmp
       - /etc/machine-id:/etc/machine-id
 
-  ## (Optional Home Automation and IOT management
-  ## TODO - this has been moved to standalone instance on HAOS, so remove
-  # Do all of the home automation stuff here
-  # homeassistant:
-  #   image: linuxserver/homeassistant:latest
-  #   container_name: homeassistant
-  #   hostname: homeassistant
-  #   extra_hosts: *host-server   # this might work to allow the nginx config for homeassistant to reference the host IP by name
-  #   network_mode: host  # home assistant needs network_mode: host for auto discovery and bluetooth
-  #   restart: unless-stopped
-  #   # ports not needed, as this containers is exposed on the host network stack via network_mode: host
-  #   environment:
-  #     PUID: ${HOMEASSISTANT_UID:?Please configure HOMEASSISTANT_UID in .env file}
-  #     PGID: ${HOMEASSISTANT_GID:?Please configure HOMEASSISTANT_GID in .env file}
-  #     TZ: ${TZ:-Australia/Melbourne}
-  #   volumes:
-  #     - ${CONFIG_DIR}/homeassistant/config:/config
-  #     - /run/dbus:/run/dbus:ro
-  
   ## (Optional) View Wyze cameras streams internally instead of via the internet
   # Bridge to allow Wyze cameras to be used in HomeAssistant via RTSP. https://github.com/mrlt8/docker-wyze-bridge
   wyze-bridge:
