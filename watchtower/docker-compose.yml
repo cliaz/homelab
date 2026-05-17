@@ -9,7 +9,7 @@ services:
       # Unsure if this is standard, but watchtower is treating these secrets as the references to
       # the actual files, not the contents of the files. This is why the file paths are used in the
       # environment variables below - eg /run/secrets/<secret_name>
-      - watchtower_discord_API    # use for discord notifications
+      - watchtower_notifiarr_API  # use for notifiarr notifications
       - email_server_password     # use for email notifications
       
     ## Variable Substitution
