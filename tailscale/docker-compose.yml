@@ -14,7 +14,7 @@ services:
     extra_hosts : *aard
     restart: unless-stopped
     secrets:
-      - TAILSCALE_AUTHKEY
+      - TAILSCALE_CLIENT_SECRET
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -23,8 +23,12 @@ services:
       PGID: ${TAILSCALE_PGID}
       TZ: ${TZ:-Australia/Melbourne}
       TS_ACCEPT_DNS: true
-      TS_AUTHKEY: ${TAILSCALE_AUTHKEY:?Please configure TAILSCALE_AUTHKEY via Portainer stack env or .env file}
-      #TS_AUTHKEY: /run/secrets/TAILSCALE_AUTHKEY         # this approach does not work — tailscale reads this as a literal string, not the secret value from the file
+      # OAuth client flow: TS_CLIENT_SECRET supports `file:` prefix (unlike TS_AUTHKEY).
+      # The container exchanges these creds for a short-lived auth key at startup, tagged
+      # per the OAuth client config in the admin console (tag:server).
+      TS_CLIENT_ID: ${TAILSCALE_CLIENT_ID:?Set TAILSCALE_CLIENT_ID in Portainer stack env or .env}
+      TS_CLIENT_SECRET: file:/run/secrets/TAILSCALE_CLIENT_SECRET
+      TS_EXTRA_ARGS: --advertise-tags=tag:server
       TS_ROUTES: ${IP_RANGES_TO_ROUTE_THROUGH_TAILSCALE}  # this has to be accepted on the tailscale admin console
                                                           # for the routes to be published to the wider tailscale network
     volumes:
@@ -38,5 +42,5 @@ services:
       #- "com.centurylinklabs.watchtower.enable=false"
 
 secrets:
-  TAILSCALE_AUTHKEY:
-    file: ${SECRETS}/tailscale/ts_authkey
+  TAILSCALE_CLIENT_SECRET:
+    file: ${SECRETS}/tailscale/ts_client_secret
