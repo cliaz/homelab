@@ -38,4 +38,4 @@ services:
 
 secrets:
   TAILSCALE_AUTHKEY:
-    file: ${CONFIG_DIR}/tailscale/ts_authkey
+    file: ${SECRETS}/tailscale/ts_authkey
