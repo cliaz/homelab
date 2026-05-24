@@ -26,12 +26,11 @@ SERIES_TITLE = "Formula 1"
 try:
     from f1_sonarr_importer_config import (
         SONARR_URL, SONARR_API_KEY, TARGET_SEASON,
-        F1_DOWNLOAD_DIR, TARGET_IMPORT_DIR, SONARR_TARGET_IMPORT_DIR,
+        F1_DOWNLOAD_DIR, TARGET_IMPORT_DIR,
         ALLOW_PARTIAL_MATCHING, PATH_MAPPINGS
     )
     F1_DOWNLOAD_DIR = Path(F1_DOWNLOAD_DIR)
     TARGET_IMPORT_DIR = Path(TARGET_IMPORT_DIR)
-    SONARR_TARGET_IMPORT_DIR = Path(SONARR_TARGET_IMPORT_DIR)
 except ImportError as e:
     print(f"Warning: Import error occurred: {str(e)}")
     print("Warning: f1_sonarr_importer_config.py not found. Using placeholder values.")
@@ -40,7 +39,6 @@ except ImportError as e:
     TARGET_SEASON = 2025
     F1_DOWNLOAD_DIR = Path("./downloads")
     TARGET_IMPORT_DIR = Path("./import")
-    SONARR_TARGET_IMPORT_DIR = Path("./import")
     ALLOW_PARTIAL_MATCHING = False
     PATH_MAPPINGS = []
 
