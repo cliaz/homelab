@@ -565,13 +565,6 @@ def main():
     print(f"Mode: {'DRY RUN' if DRY_RUN else 'LIVE'}")
     print(f"Debug: {'ON' if DEBUG else 'OFF'}")
     print(f"Import Limit: {NUMBER_OF_IMPORT_LIMIT if NUMBER_OF_IMPORT_LIMIT > 0 else 'Unlimited'}")
-    
-    
-    # Show execution context info
-    if is_running_in_container():
-        print(f"Script running in container, treating the following as a container path: {source_path}")
-    else:
-        print(f"Script running on host system, treating the following as a host path: {source_path}")
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(
@@ -623,7 +616,7 @@ def main():
     # Determine source path
     if args.path:
         source_path = Path(args.path)
-        
+
         # Check if the provided path exists in the current execution context
         # don't convert path here, because we want to use the path as provided, whether it's host or container context,
         # and simply check if the file / path exists
@@ -633,13 +626,19 @@ def main():
         if not (source_path.is_file() or source_path.is_dir()):
             print(f"Error: Provided path is neither a file nor a directory: {source_path}")
             return 1
-        
+
         print(f"Using provided path: {source_path}")
     else:
         source_path = F1_DOWNLOAD_DIR  # Default to value from config file
         print(f"Using source path from config: {source_path}")
-    
-    
+
+    # Show execution context info
+    if is_running_in_container():
+        print(f"Script running in container, treating the following as a container path: {source_path}")
+    else:
+        print(f"Script running on host system, treating the following as a host path: {source_path}")
+
+
     # Step 1-3: Build lookup table
     try:
         series_id = get_series_id_by_title(SONARR_URL, SONARR_API_KEY, SERIES_TITLE)
