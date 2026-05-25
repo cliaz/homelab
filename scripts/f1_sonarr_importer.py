@@ -213,83 +213,84 @@ def get_episodes_for_series(sonarr_url: str, api_key: str, series_id: int) -> Li
 
 def generate_rounds_lookup_table(episodes: List[Dict]) -> Dict[int, Dict]:
     """
-    Generate a lookup table of rounds from Sonarr episodes.
+    Generate a lookup table of race rounds from Sonarr episodes, keyed by F1 round number.
+
+    Sonarr's episode titles for race weekends follow the format "Country (Session)" e.g.:
+        Japan (Practice 1), Spain (Sprint Qualifying), Monaco (Race)
+
+    Pre-season testing entries (titles containing "Testing" or "Pre-Season") are skipped
+    because F1 torrent filenames tag rounds as R01, R02, ... counting race weekends only.
+    Eg: 
+    - F1.2026.Barcelona.Shakedown.SkyUHD.2160P
+    - F1.2026.Testing.One.Bahrain.SkyUHD.2160P
+    - F1.2026.Testing.Two.Bahrain.SkyUHD.2160P
+    - F1.2026.R01.Australian.Grand.Prix.SkyUHD.2160P
     
-    Example episode data from Sonarr:
-    {
-        'seasonNumber': 2025,
-        'episodeNumber': 1,
-        'title': 'Formula 1 Aramco Pre-Season Testing 2025 (Day 1) - Session 1'
-    }
-    
+    The first race weekend Sonarr reports becomes round 1 (matching filename R01), etc.
+
     Returns a dictionary with round numbers as keys and round data as values:
     {
-        0: {
-            'round_name': 'Formula 1 Aramco Pre-Season Testing 2025 (Day 1)',
+        1: {
+            'round_name': 'Australia',
             'sessions': {
-                'Session 1': {'prefix': 'S2025E1', 'episode_number': 1},
-                'Session 2': {'prefix': 'S2025E2', 'episode_number': 2}
+                'Practice 1': {'prefix': 'S2026E10', 'episode_number': 10},
+                'Practice 2': {'prefix': 'S2026E11', 'episode_number': 11},
+                ...
             }
         },
+        2: { 'round_name': 'China', ... },
         ...
     }
     """
     debug_print("Generating rounds lookup table")
     rounds_data = {}
-    round_counter = 0
-    seen_rounds = set()
-    
-    # Pattern to match episode titles like "Formula 1 Aramco Pre-Season Testing 2025 (Day 1) - Session 1"
-    episode_pattern = re.compile(r'^(.+?)\s*-\s*(.+)$')
-    
-    for episode in episodes:
-        title = episode.get('title', '')
+    race_round_counter = 0
+    seen_rounds = {}  # round_name -> assigned race round number
+
+    # 2026+ race-weekend title format: "Country (Session)"
+    race_pattern = re.compile(r'^(.+?)\s*\(([^)]+)\)\s*$')
+
+    # Iterate in episode-number order so round numbering is stable across Sonarr's response order
+    for episode in sorted(episodes, key=lambda e: e.get('episodeNumber', 0)):
+        title = episode.get('title', '').strip()
         season_num = episode.get('seasonNumber', 0)
         episode_num = episode.get('episodeNumber', 0)
-        
-        # Skip if not target season
+
         if season_num != TARGET_SEASON:
             continue
-            
-        match = episode_pattern.match(title)
-        if not match:
-            debug_print(f"Could not parse episode title: {title}")
+
+        # Skip testing — not addressable by R-number in filenames
+        title_lower = title.lower()
+        if 'testing' in title_lower or 'pre-season' in title_lower:
+            debug_print(f"Skipping testing episode: {title}")
             continue
-            
-        round_name, session = match.groups()
-        prefix = f"S{season_num}E{episode_num}"
-        
-        # Clean up round name (remove "Formula 1" prefix if present)
-        if round_name.startswith('Formula 1 '):
-            round_name = round_name[10:].strip()
-            
-        # Assign round number if not seen before
+
+        match = race_pattern.match(title)
+        if not match:
+            debug_print(f"Could not parse race episode title: {title}")
+            continue
+
+        round_name = match.group(1).strip()
+        session    = match.group(2).strip()
+
         if round_name not in seen_rounds:
-            rounds_data[round_counter] = {
+            race_round_counter += 1
+            seen_rounds[round_name] = race_round_counter
+            rounds_data[race_round_counter] = {
                 'round_name': round_name,
                 'sessions': {}
             }
-            seen_rounds.add(round_name)
-            current_round = round_counter
-            round_counter += 1
-        else:
-            # Find existing round number for this round name
-            current_round = None
-            for round_num, round_data in rounds_data.items():
-                if round_data['round_name'] == round_name:
-                    current_round = round_num
-                    break
-        
-        if current_round is not None:
-            rounds_data[current_round]['sessions'][session.strip()] = {
-                'prefix': prefix,
-                'episode_number': episode_num
-            }
-    
-    debug_print(f"Generated lookup table with {len(rounds_data)} rounds")
+
+        round_num = seen_rounds[round_name]
+        rounds_data[round_num]['sessions'][session] = {
+            'prefix': f'S{season_num}E{episode_num}',
+            'episode_number': episode_num
+        }
+
+    debug_print(f"Generated lookup table with {len(rounds_data)} race rounds")
     for round_num, round_data in rounds_data.items():
         debug_print(f"Round {round_num}: {round_data['round_name']} ({len(round_data['sessions'])} sessions)")
-    
+
     return rounds_data
 
 def extract_round_number_from_filename(filename: str) -> Optional[int]:
