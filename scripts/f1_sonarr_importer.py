@@ -10,6 +10,7 @@ import os
 import re
 import sys
 import json
+import time
 import urllib.request
 import urllib.error
 import argparse
@@ -21,6 +22,10 @@ DEBUG = False  # set to False to disable debug output
 DRY_RUN = False  # set to False to actually create hardlinks
 NUMBER_OF_IMPORT_LIMIT = 0  # set to 0 for no limit
 SERIES_TITLE = "Formula 1"
+SONARR_IMPORT_DELAY_SECONDS = 2  # pause between successive Sonarr API calls to give the
+                                  # notification pipeline (Sonarr -> Notifiarr -> Discord)
+                                  # time to dispatch each Imported event before the next
+                                  # one queues. Set to 0 to disable.
 
 # Load configuration from f1_sonarr_importer_config.py, if available
 try:
@@ -547,6 +552,8 @@ def process_files(source_path: Path, target_dir: Path, rounds_lookup: Dict[int, 
                     if trigger_sonarr_import(SONARR_URL, SONARR_API_KEY, container_path):
                         print(f"Triggered Sonarr import for: {target_path.name}")
                         imported += 1
+                        if SONARR_IMPORT_DELAY_SECONDS > 0:
+                            time.sleep(SONARR_IMPORT_DELAY_SECONDS)
                     else:
                         print(f"Failed to trigger Sonarr import for: {target_path.name}")
             else:
