@@ -152,10 +152,10 @@ services:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
 
   # Better hunting for missing Sonarr/Radarr content
-  huntarr:
-    image: ghcr.io/plexguide/huntarr:latest
-    container_name: huntarr
-    hostname: huntarr
+  newtarr:
+    image: ghcr.io/elfhosted/newtarr:latest
+    container_name: newtarr
+    hostname: newtarr
     extra_hosts: *host-server
     restart: unless-stopped
     networks:
@@ -164,12 +164,12 @@ services:
     ports:
       - 9705:9705
     environment:
-      PUID: ${HUNTARR_UID:?Please configure HUNTARR_UID in .env file}
-      PGID: ${HUNTARR_GID:?Please configure HUNTARR_GID in .env file}
+      PUID: ${NEWTARR_UID:?Please configure NEWTARR_UID in .env file}
+      PGID: ${NEWTARR_GID:?Please configure NEWTARR_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
       UMASK: 002
     volumes:
-      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/huntarr:/config
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/newtarr:/config
 
   # Automatic unpacking of downloaded media
   unpackerr:
