@@ -3,6 +3,22 @@
 # Check if there are any processes using the usb hdd that's used for archiving 'cold storage' content
 # if not, spin it down. If so, log which files / processes are keeping the disk spinning
 
+## Install notes
+# copy the script to your home directory, e.g. /home/USER/spindown-archive.sh
+# make it executable: chmod +x /home/USER/spindown-archive.sh
+# Configure a cron job to run the script every 10 minutes, e.g. by creating a file /etc/cron.d/spindown-archive with the following content:
+
+# sudo tee /etc/cron.d/spindown-archive >/dev/null <<'EOF'
+# SHELL=/bin/bash
+# PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# */10 * * * * root /home/USER/spindown-archive.sh
+# EOF
+
+# sudo chmod 644 /etc/cron.d/spindown-archive
+# sudo chown root:root /etc/cron.d/spindown-archive
+
+
 LOG=/var/log/spindown-archive.log
 # Use the mount point instead of the dev block, in case it is mounted as a different device
 PARTITION=/mnt/ARCHIVE_HDD
