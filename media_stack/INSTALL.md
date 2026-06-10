@@ -3,8 +3,8 @@
 ## Initial Setup
 1. Configure your `.env` file with required variables
 2. Ensure the Download Stack is running (for Prowlarr, qBittorrent, etc.)
-3. Create required directories for media storage
-4. Set up proper permissions for media files
+3. Create required directories for media storage and Plex transcoding
+4. Set up proper permissions for media files and secret files
 5. Configure GPU transcoding (if available)
 
 ## Configuration
@@ -14,6 +14,7 @@
 - **Media Libraries**: Set up separate libraries for Movies, TV Shows, etc.
 - **Library Paths**: Point to `/data/media/movies` and `/data/media/tv`
 - **Hardware Transcoding**: Enabled via `/dev/dri` device mapping
+- **Transcode Directory**: Use `/var/cache/plex_transcode` on the VM disk for faster temporary transcode writes
 - **Network**: Uses host networking for better streaming performance and discovery
 - **Remote Access**: Configure for external streaming access
 

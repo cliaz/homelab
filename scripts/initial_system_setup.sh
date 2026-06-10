@@ -13,6 +13,7 @@ set -Eeuo pipefail
 # Define stuff here
 YOUR_USER_NAME="klaus"      # this is your user on the host machine. We need it to add you to the groups so you can modify files
 ROOT_DATA_DIR="/dockers"     # where you want to store the docker config files, aka the mapped volumes. Not crazy read/write heavy
+PLEX_TRANSCODE_DIR="/var/cache/plex_transcode"
 MEDIA_GID="3000"             # shared group for services that need access to media/download files
 DOCKER_GID="3001"            # Docker socket group; Homarr uses this for Docker integration
 
@@ -39,7 +40,7 @@ DOCKER_USERS=(              # users for all the services to create. If you don't
     "calibre-web"           # web interface for calibre
     "cloudflare"            # cloudflare tunnel client
     "tailscale"             # tailscale client
-    "huntarr"               # hunts for missing episodes in your sonarr/radarr/readarr libraries
+    "neutarr"               # hunts for missing and upgradable media in your *arr libraries
     "audiobookshelf"        # audiobook server
     "lazylibrarian"         # audiobook downloader
     "unpackerr"             # automatic unpacking of downloaded media
@@ -73,7 +74,7 @@ declare -A DOCKER_USER_IDS=(
     ["calibre-web"]=2019
     ["cloudflare"]=2020
     ["tailscale"]=2021
-    ["huntarr"]=2022
+    ["neutarr"]=2022
     ["audiobookshelf"]=2023
     ["lazylibrarian"]=2024
     ["unpackerr"]=2025
@@ -250,6 +251,10 @@ MEDIA_GROUP=(
 )
 create_group_if_needed "media" "$MEDIA_GID"
 for NAME in "${MEDIA_GROUP[@]}"; do usermod -g media "$NAME"; done
+
+mkdir -p "$PLEX_TRANSCODE_DIR"
+chown plex:media "$PLEX_TRANSCODE_DIR"
+chmod 770 "$PLEX_TRANSCODE_DIR"
 
 # also add your own user to that group, so you can modify files if needed
 usermod -a -G media "$YOUR_USER_NAME"

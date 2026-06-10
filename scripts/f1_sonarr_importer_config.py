@@ -11,9 +11,9 @@ SONARR_API_KEY = "YOUR_SONARR_API_KEY_HERE"  # get this from Sonarr settings -> 
 # The "host" paths are used when running this script on the host (e.g. via SSH), and the "container" paths are used 
 # when running inside a container (e.g. as a qBittorrent hook). 
 # The script will automatically detect its execution context and pick the appropriate paths.
-HOST_F1_TORRENTS_DIR       = "/media/MEDIA_SSD/torrents/f1"
+HOST_F1_TORRENTS_DIR       = "/mnt/MEDIA_SSD/torrents/f1"
 CONTAINER_F1_TORRENTS_DIR  = "/data/torrents/f1"
-HOST_TV_TORRENTS_DIR       = "/media/MEDIA_SSD/torrents/tv"
+HOST_TV_TORRENTS_DIR       = "/mnt/MEDIA_SSD/torrents/tv"
 CONTAINER_TV_TORRENTS_DIR  = "/data/torrents/tv"
 
 # Pick the right values for our execution context. The qBittorrent "Run on torrent
@@ -32,15 +32,15 @@ else:
 
 
 # Only consulted in host mode, when convert_path_between_host_and_container() needs to
-# translate a host filesystem path (e.g. /media/MEDIA_SSD/torrents/tv/...) into the path
+# translate a host filesystem path (e.g. /mnt/MEDIA_SSD/torrents/tv/...) into the path
 # Sonarr (in its container) sees (/data/torrents/tv/...) before passing it to the Sonarr
 # API. In container mode the qBit and Sonarr containers happen to mount the torrents
 # folder at the identical /data/torrents/... path, so no translation is needed and this
 # table isn't consulted. Kept for the host-side ad-hoc workflow.
 #
-# For reference, my setup mounts /media/MEDIA_SSD/ as /data inside the Sonarr container:
+# For reference, my setup mounts /mnt/MEDIA_SSD/ as /data inside the Sonarr container:
 # volumes:
-#   - /media/MEDIA_SSD:/data
+#   - /mnt/MEDIA_SSD:/data
 PATH_MAPPINGS = [
     {"host": HOST_TV_TORRENTS_DIR, "container": CONTAINER_TV_TORRENTS_DIR},
     {"host": HOST_F1_TORRENTS_DIR, "container": CONTAINER_F1_TORRENTS_DIR},
