@@ -71,6 +71,12 @@ services:
     #extra_hosts: *host-server  # this causes an issue when used with network_mode: "service:gluetun"
     restart: unless-stopped
     network_mode: "service:gluetun"
+    # The 'depends on' section is to fix the issue where if the gluetun container is recteated, through an image update or delete/recreate 
+    # operation, gluetun remains attached to the old container's network namespace, and effectively becomes orphaned.
+    # More info at https://github.com/passteque/gluetun/discussions/2686
+    depends_on:
+      condition: service_healthy
+      restart: true
     #ports:                     # all port mappings are done in the gluetun service
       #- ${QBIT_WEBUI_PORT:-8080}:${QBIT_WEBUI_PORT:-8080} # see comment at top of service for changing the port
     environment:
