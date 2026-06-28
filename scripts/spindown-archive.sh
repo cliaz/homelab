@@ -8,19 +8,17 @@
 # make it executable: chmod +x /home/USER/spindown-archive.sh
 # Configure a cron job to run the script every 10 minutes, e.g. by creating a file /etc/cron.d/spindown-archive with the following content:
 
-# sudo tee /etc/cron.d/spindown-archive >/dev/null <<'EOF'
-# SHELL=/bin/bash
-# PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+#   SHELL=/bin/bash
+#   PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+#   */10 * * * * root /home/USER/spindown-archive.sh
 
-# */10 * * * * root /home/USER/spindown-archive.sh
-# EOF
-
+# Secure the crontab file with: 
 # sudo chmod 644 /etc/cron.d/spindown-archive
 # sudo chown root:root /etc/cron.d/spindown-archive
-
+##
 
 LOG=/var/log/spindown-archive.log
-# Use the mount point instead of the dev block, in case it is mounted as a different device
+DEVICE=/dev/disk/by-uuid/04db006b-3f1e-4484-8c5b-779907fbc157
 PARTITION=/mnt/ARCHIVE_HDD
 LSOF_TMP=/tmp/spindown-archive-lsof.tmp
 
@@ -31,22 +29,7 @@ if ! mountpoint -q "$PARTITION"; then
     exit 0
 fi
 
-# 2. Work out the parent disk from the mounted partition.
-# In the Debian VM, this should resolve /mnt/ARCHIVE_HDD -> /dev/sdb1 -> /dev/sdb.
-SOURCE=$(findmnt -rn --mountpoint "$PARTITION" -o SOURCE)
-if [[ "$SOURCE" != /dev/* ]]; then
-    echo "$(date): $PARTITION is backed by $SOURCE, not a block device. Skipping spindown." >> "$LOG"
-    exit 0
-fi
-
-PARENT=$(lsblk -no PKNAME "$SOURCE" | head -n1)
-if [[ -n "$PARENT" ]]; then
-    DEVICE=/dev/$PARENT
-else
-    DEVICE=$SOURCE
-fi
-
-# 3. Check for active processes
+# 2. Check for active processes
 if ! lsof +f -- "$PARTITION" > "$LSOF_TMP" 2>&1; then
     echo "$(date): spinning down $DEVICE" >> "$LOG"
     hdparm -y "$DEVICE" >> "$LOG" 2>&1
