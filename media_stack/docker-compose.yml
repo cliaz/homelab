@@ -184,10 +184,14 @@ services:
     environment:
       TZ: ${TZ:-Australia/Melbourne}
       UN_LOG_FILE: /config/unpackerr.log
-      UN_SONARR_0_URL: http://sonarr:8989
-      UN_SONARR_0_API_KEY: filepath:/run/secrets/sonarr_api
+      UN_FILE_MODE: "0664"
+      UN_DIR_MODE: "0775"
       UN_RADARR_0_URL: http://radarr:7878
-      UN_RADARR_0_API_KEY: filepath:/run/secrets/radarr_api
+      UN_RADARR_0_PATHS_0: /data/torrents/movies
+      UN_RADARR_0_API_KEY: filepath:/run/secrets/radarr_api_key
+      UN_SONARR_0_URL: http://sonarr:8989
+      UN_SONARR_0_API_KEY: filepath:/run/secrets/sonarr_api_key
+      UN_SONARR_0_PATHS_0: /data/torrents/tv
     volumes:
       # config directory
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/unpackerr:/config
