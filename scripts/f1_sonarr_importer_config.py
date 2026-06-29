@@ -2,11 +2,11 @@
 import os
 
 TARGET_SEASON = 2026
-ALLOW_PARTIAL_MATCHING = False  # This will allow partial matching of Session (Practice / Qualifying / Race) names in the downloaded file
-
 SONARR_API_KEY = "YOUR_SONARR_API_KEY_HERE"  # get this from Sonarr settings -> General -> Security -> API Key
+ALLOW_PARTIAL_MATCHING = False  # This will allow partial matching of Session (Practice / Qualifying / Race) names in the downloaded file
                                 # to help with getting a match. May experience unwanted matches, eg "Ted's Qualifying Notebook" matching to
                                 # the "Qualifying" session
+
 # Paths for the downloaded F1 files and the target import directory for Sonarr.
 # The "host" paths are used when running this script on the host (e.g. via SSH), and the "container" paths are used 
 # when running inside a container (e.g. as a qBittorrent hook). 

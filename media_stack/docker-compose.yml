@@ -107,24 +107,23 @@ services:
       - ${ARCHIVE_DIR:?Please configure ARCHIVE_DIR in .env file}:/data_archive
 
   # Media request management for both Sonarr and Radarr, combining them both into one portal
+  # Overseerr has been replaced by Seerr, but keeping all the Overseerr naming conventions to avoid breaking anything
   overseerr:
-    #image: sctx/overseerr:latest                 # this is the official overseerr image
-    image: linuxserver/overseerr:latest   # using linuxserver.io image for now
+    image: ghcr.io/seerr-team/seerr:latest
     container_name: overseerr
     hostname: overseerr
     extra_hosts: *host-server
     restart: unless-stopped
+    user: "${OVERSEERR_UID:?Please configure OVERSEERR_UID in .env file}:${OVERSEERR_GID:?Please configure OVERSEERR_GID in .env file}"
     networks: 
       - media_net
     ports:
       - 5055:5055
     environment:
-      PUID: ${OVERSEERR_UID:?Please configure OVERSEERR_UID in .env file}
-      PGID: ${OVERSEERR_GID:?Please configure OVERSEERR_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
-      UMASK: 002
+      #UMASK: 002   # The umask var is for the linuxserver.io images, but Seerr does not use it. RIP.
     volumes:
-      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/overseerr:/config
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/overseerr:/app/config
 
   # Stats on Plex usage
   tautulli:
