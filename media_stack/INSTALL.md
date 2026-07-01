@@ -12,27 +12,38 @@
 ### Plex
 - **Initial Setup**: Access via port 32400 for first-time configuration
 - **Media Libraries**: Set up separate libraries for Movies, TV Shows, etc.
-- **Library Paths**: Point to `/data/media/movies` and `/data/media/tv`
-- **Hardware Transcoding**: Enabled via `/dev/dri` device mapping
+- **Library Paths**: Point Movies to both `/data/media/movies` and `/data_archive/media/movies`; point TV Shows to both `/data/media/tv` and `/data_archive/media/tv`
+- **Hardware Transcoding**: Enabled via `/dev/dri` device mapping. May not be available if running the docker host as VM 
 - **Transcode Directory**: Use `/var/cache/plex_transcode` on the VM disk for faster temporary transcode writes
 - **Network**: Uses host networking for better streaming performance and discovery
 - **Remote Access**: Configure for external streaming access
 
 ### Radarr
-- **Root Folders**: Configure `/data/media/movies` as root folder
+- **Root Folders**: Configure `/data/media/movies` and `/data_archive/media/movies` as root folders
 - **Quality Profiles**: Set up quality preferences and upgrade rules
 - **Indexers**: Connect to Prowlarr for torrent sources
 - **Download Client**: Configure qBittorrent connection
 - **Naming**: Set up file and folder naming conventions
 - **Import Lists**: Optionally configure movie discovery lists
+- **Archive Tag**: Create an `archive` tag and apply it to movies that should be moved to `/data_archive/media/movies`
 
 ### Sonarr
-- **Root Folders**: Configure `/data/media/tv` as root folder
+- **Root Folders**: Configure `/data/media/tv` and `/data_archive/media/tv` as root folders
 - **Series Types**: Set up Standard, Daily, and Anime series types
 - **Quality Profiles**: Configure quality preferences for different content
 - **Release Profiles**: Set up preferred/ignored release groups
 - **Season Folders**: Enable season-based organization
 - **Calendar**: Monitor upcoming episodes and seasons
+- **Archive Tag**: Create an `archive` tag and apply it to series that should be moved to `/data_archive/media/tv`
+
+### Archive Automation
+- **Scripts**: Install `python3-requests`, then configure API keys in `scripts/sonarr_tag_based_move.py` and `scripts/radarr_tag_based_move.py`
+- **Cron**: Install host cron entries on the Debian VM, not in the containers:
+  ```cron
+  0 1 * * * sonarr /usr/bin/python3 /home/klaus/code/homelab/scripts/sonarr_tag_based_move.py >> /dockers/sonarr/archive_move.log 2>&1
+  30 1 * * * radarr /usr/bin/python3 /home/klaus/code/homelab/scripts/radarr_tag_based_move.py >> /dockers/radarr/archive_move.log 2>&1
+  ```
+- **Cron File**: Put those entries in `/etc/cron.d/servarr-archive-move`, then secure it with `sudo chown root:root /etc/cron.d/servarr-archive-move` and `sudo chmod 644 /etc/cron.d/servarr-archive-move`
 
 ### Overseerr
 - **Plex Integration**: Connect to Plex server for library scanning

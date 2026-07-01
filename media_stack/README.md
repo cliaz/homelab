@@ -52,6 +52,6 @@ Key variables to configure in your `.env` file:
 - `CONFIG_DIR`: Directory for application configurations
 - `SECRETS`: Directory for secret files, for example `/dockers/secrets`
 - `DATA_DIR`: Directory for media files
-- `ARCHIVE_DIR`: Secondary media directory mounted at `/data_archive` for Radarr/Sonarr
+- `ARCHIVE_DIR`: Secondary media directory mounted at `/data_archive` for Radarr/Sonarr and at `/data_archive/media` for Plex
 - `TRANSCODE_DIR`: Directory for Plex transcoding, defaulting to `/var/cache/plex_transcode`
 - `TZ`: Timezone (default: Australia/Melbourne)
