@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
 ## This script moves Radarr movies to a new root folder based on a specific tag.
-# Example usage: configure the system's local 'radarr' user to run this script as a cron job.
-# $ sudo -u radarr crontab -l
-# 30 1 * * * /usr/bin/python3 /path/to/homelab/scripts/radarr_tag_based_move.py >> /dockers/radarr/archive_move.log 2>&1
+# Example /etc/cron.d/servarr-archive-tag-based-move entry:
+# 30 1 * * * radarr /usr/bin/python3 /dockers/radarr/radarr_tag_based_move.py >> /dockers/radarr/archive_move.log 2>&1
 
 import logging
 

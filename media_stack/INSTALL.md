@@ -38,10 +38,15 @@
 
 ### Archive Automation
 - **Scripts**: Install `python3-requests`, then configure API keys in `scripts/sonarr_tag_based_move.py` and `scripts/radarr_tag_based_move.py`
+- **Script Ownership**: Keep each API key readable only by the service account that needs it:
+  ```bash
+  sudo install -o sonarr -g sonarr -m 700 scripts/sonarr_tag_based_move.py /dockers/sonarr/sonarr_tag_based_move.py
+  sudo install -o radarr -g radarr -m 700 scripts/radarr_tag_based_move.py /dockers/radarr/radarr_tag_based_move.py
+  ```
 - **Cron**: Install host cron entries on the Debian VM, not in the containers:
   ```cron
-  0 1 * * * sonarr /usr/bin/python3 /home/klaus/code/homelab/scripts/sonarr_tag_based_move.py >> /dockers/sonarr/archive_move.log 2>&1
-  30 1 * * * radarr /usr/bin/python3 /home/klaus/code/homelab/scripts/radarr_tag_based_move.py >> /dockers/radarr/archive_move.log 2>&1
+  0 1 * * * sonarr /usr/bin/python3 /dockers/sonarr/sonarr_tag_based_move.py >> /dockers/sonarr/archive_move.log 2>&1
+  30 1 * * * radarr /usr/bin/python3 /dockers/radarr/radarr_tag_based_move.py >> /dockers/radarr/archive_move.log 2>&1
   ```
 - **Cron File**: Put those entries in `/etc/cron.d/servarr-archive-move`, then secure it with `sudo chown root:root /etc/cron.d/servarr-archive-move` and `sudo chmod 644 /etc/cron.d/servarr-archive-move`
 

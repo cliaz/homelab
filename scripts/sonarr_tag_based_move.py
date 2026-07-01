@@ -2,9 +2,8 @@
 
 ## This script moves Sonarr series to a new root folder based on a specific tag.
 # Based off of the original from https://github.com/alekslyse/sonarr_tag_move/
-# Example usage: configure the system's local 'sonarr' user to run this script as a cron job.
-# $ sudo -u sonarr crontab -l
-# 0 1 * * * /usr/bin/python3 /path/to/homelab/scripts/sonarr_tag_based_move.py >> /dockers/sonarr/archive_move.log 2>&1
+# Example /etc/cron.d/servarr-archive-tag-based-move entry:
+# 0 1 * * * sonarr /usr/bin/python3 /dockers/sonarr/sonarr_tag_based_move.py >> /dockers/sonarr/archive_move.log 2>&1
 
 import requests
 #import urllib3
