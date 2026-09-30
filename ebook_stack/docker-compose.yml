@@ -6,79 +6,130 @@ x-extra_hosts:
   # Pulls the IP address of the host from the .env file
   &host-server
   - "host-server:${HOST_IP}"
-services:
-  # Calibre is an ebook management system. In this set up, it is being used simply as a library to store ebooks,
-  # which can be accessed via Calibre-web, while Readarr performs the actual ebook management.
-  calibre:
-    image: linuxserver/calibre
-    container_name: calibre
-    hostname: calibre
-    extra_hosts: *host-server
-    restart: unless-stopped
-    networks:
-      - ebooks_net
-    ports:
-      - ${CALIBRE_VNC_PORT:-8080}:8080   # HTTP KasmVNC webUI
-      - 8081:8081   # Calibre's built-in webserver. Used for Readarr integration
-      #- 8181:8181   # HTTPS KasmVNC webUI
-    environment:
-      PUID: ${CALIBRE_UID:?Please configure CALIBRE_UID in .env file}
-      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
-      TZ: ${TZ:-Australia/Melbourne}
-      UMASK: 002
-    volumes:
-      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre:/config
-      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/data/media   # Calibre Library, aka where the ebooks will end up
-      #- path/to/your/CalibreLibrary:/Calibre_Library #this is where your ebooks will end up
+# services:
+#   # Calibre is an ebook management system. In this set up, it is being used simply as a library to store ebooks,
+#   # which can be accessed via Calibre-web, while Readarr performs the actual ebook management.
+#   calibre:
+#     image: linuxserver/calibre
+#     container_name: calibre
+#     hostname: calibre
+#     extra_hosts: *host-server
+#     restart: unless-stopped
+#     networks:
+#       - ebooks_net
+#     ports:
+#       - ${CALIBRE_VNC_PORT:-8080}:8080   # HTTP KasmVNC webUI
+#       - 8081:8081   # Calibre's built-in webserver. Used for Readarr integration
+#       #- 8181:8181   # HTTPS KasmVNC webUI
+#     environment:
+#       PUID: ${CALIBRE_UID:?Please configure CALIBRE_UID in .env file}
+#       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+#       TZ: ${TZ:-Australia/Melbourne}
+#       UMASK: 002
+#     volumes:
+#       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre:/config
+#       - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/data/media   # Calibre Library, aka where the ebooks will end up
+#       #- path/to/your/CalibreLibrary:/Calibre_Library #this is where your ebooks will end up
       
-      #- ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre/upload:/uploads #change before the ':'
-      #- ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre/plugins:/plugins #change before the ':'
+#       #- ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre/upload:/uploads #change before the ':'
+#       #- ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre/plugins:/plugins #change before the ':'
 
-  # Calibre-web is a web app providing a clean interface for browsing, reading and downloading eBooks using an existing Calibre database.
-  # Expose this to the web to allow for remote access to your Calibre library. Supports mailing direct to kindle
-  calibre-web:
-    image: linuxserver/calibre-web
-    container_name: calibre-web
-    hostname: calibre-web
+#   # Calibre-web is a web app providing a clean interface for browsing, reading and downloading eBooks using an existing Calibre database.
+#   # Expose this to the web to allow for remote access to your Calibre library. Supports mailing direct to kindle
+#   calibre-web:
+#     image: linuxserver/calibre-web
+#     container_name: calibre-web
+#     hostname: calibre-web
+#     extra_hosts: *host-server
+#     restart: unless-stopped
+#     networks:
+#       - ebooks_net
+#     ports:
+#       - ${CALIBRE_WEBUI_PORT:-8083}:8083
+#     environment:
+#       PUID: ${CALIBRE_WEB_UID:?Please configure CALIBRE_WEB_UID in .env file}
+#       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+#       TZ: ${TZ:-Australia/Melbourne}
+#       UMASK: 002
+#     volumes:
+#       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre-web:/config
+#       - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/data/media/
+#     depends_on:
+#       - calibre
+
+#   # Readarr is an ebook management system. It can be used to manage your ebooks, convert them to different formats,
+#   # and download ebooks from the internet.
+#   readarr:
+#     image: linuxserver/readarr
+#     container_name: readarr
+#     hostname: readarr
+#     extra_hosts: *host-server
+#     restart: unless-stopped
+#     networks:
+#       - ebooks_net
+#       - download_net
+#     ports:
+#       - 8787:8787
+#     environment:
+#       PUID: ${READARR_UID:?Please configure READARR_UID in .env file}
+#       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
+#       TZ: ${TZ:-Australia/Melbourne}
+#       UMASK: 002
+#     volumes:
+#       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/readarr:/config
+#       - ${DATA_DIR:?Please configure DATA_DIR in .env file}:/data
+
+
+services:
+  # Audiobook and podcast server
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: audiobookshelf
+    hostname: audiobookshelf
     extra_hosts: *host-server
     restart: unless-stopped
     networks:
       - ebooks_net
     ports:
-      - ${CALIBRE_WEBUI_PORT:-8083}:8083
+      - 13378:80
     environment:
-      PUID: ${CALIBRE_WEB_UID:?Please configure CALIBRE_WEB_UID in .env file}
+      # The container is run as the user with this PUID and PGID (user and group id).
+      PUID: ${AUDIOBOOKSHELF_UID:?Please configure AUDIOBOOKSHELF_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
-      UMASK: 002
     volumes:
-      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/calibre-web:/config
-      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media:/data/media/
-    depends_on:
-      - calibre
+      # Config and metadata directory
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/audiobookshelf/config:/config
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/audiobookshelf/metadata:/metadata
+      
+      # Audiobooks directory - mount your audiobooks and podcasts here
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media/audiobooks:/audiobooks
+      - ${DATA_DIR:?Please configure DATA_DIR in .env file}/media/podcasts:/podcasts
 
-  # Readarr is an ebook management system. It can be used to manage your ebooks, convert them to different formats,
-  # and download ebooks from the internet.
-  readarr:
-    image: linuxserver/readarr
-    container_name: readarr
-    hostname: readarr
+  # Ebook and audiobook management - automatic download and organization
+  lazylibrarian:
+    image: linuxserver/lazylibrarian:latest
+    container_name: lazylibrarian
+    hostname: lazylibrarian
     extra_hosts: *host-server
     restart: unless-stopped
     networks:
       - ebooks_net
       - download_net
     ports:
-      - 8787:8787
+      # Host port 5299 is mapped to container port 5299
+      - 5299:5299
     environment:
-      PUID: ${READARR_UID:?Please configure READARR_UID in .env file}
+      # The container is run as the user with this PUID and PGID (user and group id).
+      PUID: ${LAZYLIBRARIAN_UID:?Please configure LAZYLIBRARIAN_UID in .env file}
       PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
       UMASK: 002
     volumes:
-      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/readarr:/config
+      # Config directory
+      - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/lazylibrarian:/config
+      # Root directory, so that lazylibrarian can see downloads as well as stored media
       - ${DATA_DIR:?Please configure DATA_DIR in .env file}:/data
-
 
 networks:
   ## Assumption / Precondition: the external networks exist, either defined in core_services_stack or created manually
