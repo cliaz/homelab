@@ -51,7 +51,10 @@ services:
       VPN_PORT_FORWARDING: on   # make sure you add '+pmp' to your openvpn username in the secrets file
       # The port opened for port forwarding is dynamic, so using a script to set the port in qbittorrent
       VPN_PORT_FORWARDING_STATUS_FILE: /config/forwarded_port.txt   # also write it to file for troubleshooting
-      VPN_PORT_FORWARDING_UP_COMMAND: /bin/sh -c 'wget -O- --retry-connrefused --post-data "json={\"listen_port\":{{PORTS}}}" http://127.0.0.1:8080/api/v2/app/setPreferences 2>&1'
+      # Gluetun wiki provides the following commands, as well setting the qbit port to '0' when the vpn goes down to avoid a bug in qbittorrent
+      # https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/vpn-port-forwarding.md#qbittorrent-example
+      VPN_PORT_FORWARDING_UP_COMMAND: /bin/sh -c 'wget -O- -nv --retry-connrefused --post-data "json={\"listen_port\":{{PORT}},\"current_network_interface\":\"{{VPN_INTERFACE}}\",\"random_port\":false,\"upnp\":false}" http://127.0.0.1:8080/api/v2/app/setPreferences'
+      VPN_PORT_FORWARDING_DOWN_COMMAND: /bin/sh -c 'wget -O- -nv --retry-connrefused --post-data "json={\"listen_port\":0,\"current_network_interface\":\"lo\"}" http://127.0.0.1:8080/api/v2/app/setPreferences'
     volumes:
       - ${CONFIG_DIR:?Please configure CONFIG_DIR in .env file}/gluetun:/config
     labels:
