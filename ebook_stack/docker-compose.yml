@@ -88,14 +88,12 @@ services:
     hostname: audiobookshelf
     extra_hosts: *host-server
     restart: unless-stopped
+    user: "${AUDIOBOOKSHELF_UID}:${MEDIA_GID}"
     networks:
       - ebooks_net
     ports:
       - 13378:80
     environment:
-      # The container is run as the user with this PUID and PGID (user and group id).
-      PUID: ${AUDIOBOOKSHELF_UID:?Please configure AUDIOBOOKSHELF_UID in .env file}
-      PGID: ${MEDIA_GID:?Please configure MEDIA_GID in .env file}
       TZ: ${TZ:-Australia/Melbourne}
     volumes:
       # Config and metadata directory
