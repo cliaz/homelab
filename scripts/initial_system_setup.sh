@@ -8,6 +8,8 @@ set -Eeuo pipefail
 #   which is where you should store sensitive information like API keys / passwords etc.
 # - make those users own those folders so they can write, and add your own user to that group so you can modify files
 # - create a 'media' group, and add the users (aka services) that work with media to that group, to fix any permissions issues
+# - safe to re-run: existing folders are left alone. Ownership/permissions are only set on folders this script creates,
+#   and only on the top-level folder. Containers create their own subfolders.
 
 
 # Define stuff here
@@ -23,8 +25,6 @@ DOCKER_USERS=(              # users for all the services to create. If you don't
     "swag"                  # reverse proxy
     "wireguard"             # vpn server
     "gluetun"               # outbound vpn client
-    "homeassistant"         # home automation
-    "mosquitto"             # mqtt broker
     "adguard"               # dns adblocker
     "homarr"                # home page for all the stuff you end up running
     "plex"                  # media server
@@ -35,9 +35,6 @@ DOCKER_USERS=(              # users for all the services to create. If you don't
     "prowlarr"              # indexer aggregator
     "qbittorrent"           # torrent client
     "notifiarr"             # notification aggregator. also used for keeping TRaSH Guides up to date
-    "readarr"               # ebook downloader
-    "calibre"               # ebook server
-    "calibre-web"           # web interface for calibre
     "cloudflare"            # cloudflare tunnel client
     "tailscale"             # tailscale client
     "neutarr"               # hunts for missing and upgradable media in your *arr libraries
@@ -51,37 +48,34 @@ DOCKER_USERS=(              # users for all the services to create. If you don't
 )
 
 # Fixed IDs used by the .env files. Keep these stable across rebuilds.
+# Renumbered to be contiguous in Oct 2026 after pruning homeassistant, mosquitto, readarr,
+# calibre and calibre-web. Hosts built with the old IDs: run renumber_service_ids.sh once.
 declare -A DOCKER_USER_IDS=(
     ["portainer"]=2000
     ["watchtower"]=2001
     ["swag"]=2002
     ["wireguard"]=2003
     ["gluetun"]=2004
-    ["homeassistant"]=2005
-    ["mosquitto"]=2006
-    ["adguard"]=2007
-    ["homarr"]=2008
-    ["plex"]=2009
-    ["tautulli"]=2010
-    ["radarr"]=2011
-    ["sonarr"]=2012
-    ["overseerr"]=2013
-    ["prowlarr"]=2014
-    ["qbittorrent"]=2015
-    ["notifiarr"]=2016
-    ["readarr"]=2017
-    ["calibre"]=2018
-    ["calibre-web"]=2019
-    ["cloudflare"]=2020
-    ["tailscale"]=2021
-    ["neutarr"]=2022
-    ["audiobookshelf"]=2023
-    ["lazylibrarian"]=2024
-    ["unpackerr"]=2025
-    ["wyzebridge"]=2026
-    ["grafana"]=2027
-    ["loki"]=2028
-    ["prometheus"]=2029
+    ["adguard"]=2005
+    ["homarr"]=2006
+    ["plex"]=2007
+    ["tautulli"]=2008
+    ["radarr"]=2009
+    ["sonarr"]=2010
+    ["overseerr"]=2011
+    ["prowlarr"]=2012
+    ["qbittorrent"]=2013
+    ["notifiarr"]=2014
+    ["cloudflare"]=2015
+    ["tailscale"]=2016
+    ["neutarr"]=2017
+    ["audiobookshelf"]=2018
+    ["lazylibrarian"]=2019
+    ["unpackerr"]=2020
+    ["wyzebridge"]=2021
+    ["grafana"]=2022
+    ["loki"]=2023
+    ["prometheus"]=2024
 )
 
 
@@ -175,16 +169,31 @@ create_user_if_needed() {
     useradd --no-create-home --uid "$uid" --gid "$gid" -s /usr/sbin/nologin "$name"
 }
 
-secure_secret_dir() {
-    local name="$1"
-    local path="$ROOT_DATA_DIR/secrets/$name"
+# Only sets ownership/permissions when it creates a folder, so re-runs never touch existing data
+create_dir_if_needed() {
+    local path="$1"
+    local owner="$2"
+    local mode="$3"
+
+    if [[ -e "$path" ]]; then
+        echo "  exists, left alone: $path"
+        return
+    fi
 
     mkdir -p "$path"
+    chown "$owner" "$path"
+    chmod "$mode" "$path"
+    echo "  created: $path ($owner $mode)"
+}
+
+secure_secret_dir() {
+    local name="$1"
+
+    # the top-level secrets folder is a single folder, so it's cheap to enforce on every run
+    mkdir -p "$ROOT_DATA_DIR/secrets"
     chown root:root "$ROOT_DATA_DIR/secrets"
     chmod 711 "$ROOT_DATA_DIR/secrets"
-    chown -R "$name:$name" "$path"
-    find "$path" -type d -exec chmod 700 {} +
-    find "$path" -type f -exec chmod 600 {} +
+    create_dir_if_needed "$ROOT_DATA_DIR/secrets/$name" "$name:$name" 700
 }
 
 # make sure this is run as root
@@ -221,9 +230,7 @@ for NAME in "${DOCKER_USERS[@]}"; do
         # do nothing
         :
     else
-        mkdir -p "$ROOT_DATA_DIR/$NAME"
-        chown -R "$NAME:$NAME" "$ROOT_DATA_DIR/$NAME/"
-        chmod -R 770 "$ROOT_DATA_DIR/$NAME"
+        create_dir_if_needed "$ROOT_DATA_DIR/$NAME" "$NAME:$NAME" 770
     fi
 
     # if the name is in the list of services that need secrets, create the secrets folder
@@ -242,9 +249,6 @@ MEDIA_GROUP=(
     "sonarr"
     "prowlarr"
     "qbittorrent"
-    "readarr"
-    "calibre"
-    "calibre-web"
     "audiobookshelf"
     "lazylibrarian"
     "unpackerr"
@@ -252,9 +256,7 @@ MEDIA_GROUP=(
 create_group_if_needed "media" "$MEDIA_GID"
 for NAME in "${MEDIA_GROUP[@]}"; do usermod -g media "$NAME"; done
 
-mkdir -p "$PLEX_TRANSCODE_DIR"
-chown plex:media "$PLEX_TRANSCODE_DIR"
-chmod 770 "$PLEX_TRANSCODE_DIR"
+create_dir_if_needed "$PLEX_TRANSCODE_DIR" "plex:media" 770
 
 # also add your own user to that group, so you can modify files if needed
 usermod -a -G media "$YOUR_USER_NAME"
