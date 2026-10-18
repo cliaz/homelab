@@ -33,28 +33,28 @@ There exists the excellent [Radarr Wiki](https://wiki.servarr.com/radarr) which 
 # Screens
 
 ## Media Management
-![Media Management screen](./Radarr_MediaManagement.png)
+![Media Management screen](../assets/images/Radarr_MediaManagement.png)
 
 ## Profiles
-![Profiles screen](./Radarr_Profiles.png)
+![Profiles screen](../assets/images/Radarr_Profiles.png)
 
 ## Quality
-![Quality screen](./Radarr_Quality.png)
+![Quality screen](../assets/images/Radarr_Quality.png)
 
 ## Custom Formats
-![Custom Formats screen](./Radarr_CustomFormats.png)
+![Custom Formats screen](../assets/images/Radarr_CustomFormats.png)
 
 ## Indexes
-![Indexers screen](./Radarr_Indexers.png)
+![Indexers screen](../assets/images/Radarr_Indexers.png)
 
 ## Download Clients
-![Download Clients screen](./Radarr_DownloadClients.png)
+![Download Clients screen](../assets/images/Radarr_DownloadClients.png)
 
 ## Import Lists
-![Import Lists screen](./Radarr_ImportLists.png)
+![Import Lists screen](../assets/images/Radarr_ImportLists.png)
 
 ## Connect
-![Connect screen](./Radarr_Connect.png)
+![Connect screen](../assets/images/Radarr_Connect.png)
 
 ## Metadata
 _Metadata - not configured (yet)_
@@ -63,7 +63,7 @@ _Metadata - not configured (yet)_
 _Tags - not configured (yet)_
 
 ## General
-![General screen](./Radar_General.png)
+![General screen](../assets/images/Radar_General.png)
 
 ## UI
 _UI - no screeshot provided, configure as you desire_

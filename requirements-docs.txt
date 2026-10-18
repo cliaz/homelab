@@ -1,0 +1,5 @@
+# Docs site build dependencies (see mkdocs.yml). Pinned below MkDocs 2.0,
+# which drops plugin support that this site relies on.
+mkdocs>=1.6,<2
+mkdocs-material>=9.7,<10
+mkdocs-include-markdown-plugin>=7,<8
