@@ -32,7 +32,7 @@ services:
       # - 8388:8388/udp # Shadowsocks
       # HTTP proxy (listens on 8888 inside the container; 8080 is qbittorrent's WebUI). Published on the LAN
       # address only, so LAN and WireGuard clients can send selected traffic (e.g. CivitAI) out through the VPN.
-      - ${LAN_IP:-192.168.100.4}:${GLUETUN_HTTPPROXY_PORT:-8888}:8888/tcp
+      - ${LAN_IP:-192.168.100.4}:${GLUETUN_HTTPPROXY_PORT:-8889}:8888/tcp  # 8888 on the host is taken by wyze-bridge
       - ${QBIT_WEBUI_PORT:-8080}:8080 # port for qbittorrent. # see comment at top of qbittorrent service directive for changing the port
     secrets:
      - OPENVPN_USER
