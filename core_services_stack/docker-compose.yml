@@ -160,50 +160,51 @@ services:
       - /var/run/utmp:/var/run/utmp
       - /etc/machine-id:/etc/machine-id
 
-  ## (Optional) View Wyze cameras streams internally instead of via the internet
-  # Bridge to allow Wyze cameras to be used in HomeAssistant via RTSP. https://github.com/mrlt8/docker-wyze-bridge
-  wyze-bridge:
-    image: mrlt8/wyze-bridge:latest
-    container_name: wyze-bridge
-    hostname: wyze-bridge
-    extra_hosts: *host-server
-    restart: unless-stopped
-    # This container needs to run as root, else it throws lots of errors
-    #user: ${WYZEBRIDGE_UID:?Please configure WYZEBRIDGE_UID in .env file}:${WYZEBRIDGE_GID:?Please configure WYZEBRIDGE_GID in .env file}
-    networks:
-      - core_services_net
-    ports:
-      # TODO: harden ports
-      #- 1935:1935 # RTMP - worst. probably don't want this
-      - 8554:8554 # RTSP - next best. 
-      - 8888:8888 # HLS - 2nd best. Working on the wyzecam v3
-      #- 8889:8889 # WebRTC - best. Doesn't seem to be working on the wyzecam v3 though
-      - 8189:8189/udp # WebRTC/ICE
-      - 5000:5000 # WEB-UI
-    secrets:
-      # Due to the way that the fix for having secrets referenced via files was implemented (see
-      # https://github.com/mrlt8/docker-wyze-bridge/issues/1244), if these these secrets exist they are read directly.
-      # no need to set them in the environment variables
-      - WYZE_EMAIL
-      - WYZE_PASSWORD
-      - API_ID
-      - API_KEY
-      - WB_USERNAME
-      - WB_PASSWORD
-    environment:
-      TZ: ${TZ:-Australia/Melbourne}
+  ## wyze-bridge disabled 2026-10-31: not in use (and it held host port 8888, now used by gluetun's HTTP proxy).
+#  ## (Optional) View Wyze cameras streams internally instead of via the internet
+#  # Bridge to allow Wyze cameras to be used in HomeAssistant via RTSP. https://github.com/mrlt8/docker-wyze-bridge
+#  wyze-bridge:
+#    image: mrlt8/wyze-bridge:latest
+#    container_name: wyze-bridge
+#    hostname: wyze-bridge
+#    extra_hosts: *host-server
+#    restart: unless-stopped
+#    # This container needs to run as root, else it throws lots of errors
+#    #user: ${WYZEBRIDGE_UID:?Please configure WYZEBRIDGE_UID in .env file}:${WYZEBRIDGE_GID:?Please configure WYZEBRIDGE_GID in .env file}
+#    networks:
+#      - core_services_net
+#    ports:
+#      # TODO: harden ports
+#      #- 1935:1935 # RTMP - worst. probably don't want this
+#      - 8554:8554 # RTSP - next best. 
+#      - 8888:8888 # HLS - 2nd best. Working on the wyzecam v3
+#      #- 8889:8889 # WebRTC - best. Doesn't seem to be working on the wyzecam v3 though
+#      - 8189:8189/udp # WebRTC/ICE
+#      - 5000:5000 # WEB-UI
+#    secrets:
+#      # Due to the way that the fix for having secrets referenced via files was implemented (see
+#      # https://github.com/mrlt8/docker-wyze-bridge/issues/1244), if these these secrets exist they are read directly.
+#      # no need to set them in the environment variables
+#      - WYZE_EMAIL
+#      - WYZE_PASSWORD
+#      - API_ID
+#      - API_KEY
+#      - WB_USERNAME
+#      - WB_PASSWORD
+#    environment:
+#      TZ: ${TZ:-Australia/Melbourne}
 
-      # [OPTIONAL] Credentials can be set in the WebUI, but every time the container is restarted, the credentials will need to be re-entered.
-      # instead, they are now all set via secrets and read from /run/secrets as per https://github.com/mrlt8/docker-wyze-bridge/issues/1244
+#      # [OPTIONAL] Credentials can be set in the WebUI, but every time the container is restarted, the credentials will need to be re-entered.
+#      # instead, they are now all set via secrets and read from /run/secrets as per https://github.com/mrlt8/docker-wyze-bridge/issues/1244
 
-      # API Key and ID can be obtained from the wyze dev portal: 
-      # https://developer-api-console.wyze.com/#/apikey/view
+#      # API Key and ID can be obtained from the wyze dev portal: 
+#      # https://developer-api-console.wyze.com/#/apikey/view
 
-      # [OPTIONAL] IP Address of the host to enable WebRTC e.g.,:
-      WB_IP: host-server
+#      # [OPTIONAL] IP Address of the host to enable WebRTC e.g.,:
+#      WB_IP: host-server
 
-## Networks
-# want to define a network range so that we can explicitly trust that network in the homeassistant config
+### Networks
+## want to define a network range so that we can explicitly trust that network in the homeassistant config
 networks:
   core_services_net:
     name: core_services_net   # ensure network isn't prefixed with the default name of the directory, eg git_core_services_stack_core_services_net
