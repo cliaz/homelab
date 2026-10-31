@@ -27,7 +27,9 @@ services:
       - download_net
       - ebooks_net
     ports:
-      # - 80:80  # only needed if using http validation. We're using DNS validation with duckdns to validate, so don't need this
+      # Port 80 is not needed for cert validation (DuckDNS DNS validation). Published on the LAN address only, for
+      # plain-HTTP internal names like http://pac.vark (the PAC file); everything else on 80 redirects to https.
+      - ${LAN_IP:-192.168.100.4}:80:80
       - 81:81   # swag-dashboard mod
       - 443:443
     secrets:
